@@ -12,13 +12,16 @@ from .models import BaseOption, GBEXModelBase, AbstractBatch, default_order, def
 class InventoryItem(GBEXModelBase):
 	Usage = models.TextField(blank=True, null=True)
 	Location = models.TextField(blank=True, null=True)
-  
 	menu_label = "Inventory"
 
 	class Meta:
 		abstract = True
 
-    
+
+class AntibioticOption(BaseOption):
+	pass
+
+
 class PlasmidBatch(AbstractBatch):
 	Parent = models.ForeignKey("Plasmid", on_delete=models.PROTECT)
 	Barcode = models.TextField(blank=True, null=True)
@@ -42,7 +45,7 @@ class Plasmid(InventoryItem):
 	col_display_func_dict = {
 		'Batches': lambda item: f"<a href='{reverse('list_PlasmidBatch', kwargs=dict(parent_pk=item.pk))}'>{item.plasmidbatch_set.filter(archived=False).count()} batches</a>",
 		'Genbank_file': lambda item: f"<a href='/downloads/{item.Genbank_file}'>{str(item.Genbank_file).split('/')[-1]}</a>",
-    'Antibiotic': lambda item: ", ".join(ab.name for ab in item.Antibiotic.all()) if item.Antibiotic.all() else "",
+		'Antibiotic': lambda item: ", ".join(ab.name for ab in item.Antibiotic.all()) if item.Antibiotic.all() else "",
 	}
 
 	col_html_string = ['Genbank_file', 'Batches']
@@ -53,15 +56,13 @@ class Plasmid(InventoryItem):
 		'Antibiotic': autocomplete.ModelSelect2Multiple(url=reverse_lazy('AntibioticOption-autocomplete')),
 	}
 
+
 class Primers(InventoryItem):
 	Sequence = models.TextField(blank=True, null=True)
 
 	order = [*default_order, "Usage", "Sequence", "Location"]
 	symbol = "PR"
 
-
-class AntibioticOption(BaseOption):
-	pass
 
 class SpeciesOption(BaseOption):
 	pass
