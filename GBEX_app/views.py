@@ -3,11 +3,13 @@ from django.contrib import messages
 from django.db.models import Q
 from django.forms import modelform_factory, modelformset_factory
 from django.http import JsonResponse, HttpResponse
+from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.utils.translation import ugettext
 from django.views.generic import TemplateView, CreateView, UpdateView, View
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.views.generic.edit import FormView
+from django.urls import reverse
 
 from json import loads
 from openpyxl import Workbook
@@ -27,7 +29,7 @@ class GBEXindex(TemplateView):
 	namespace = None
 
 	def data_counts(self):
-		all_numbers = {model.__name__: [model.objects.count(), 0] for model in apps.get_app_config('GBEX_app').get_models() if hasattr(model, "GBEX_Page")}
+		all_numbers = {model.__name__: [model.objects.count(), 0] for model in apps.get_app_config('GBEX_app').get_models() if getattr(model, "model_kind", False) == 'GBEX_Page'}
 
 		divider = max([x[0] for x in all_numbers.values()])
 		if divider != 0:
@@ -44,6 +46,13 @@ class GBEXCreateView(CreateView):
 	def form_valid(self, form):
 		dups = form.cleaned_data['duplicater']
 		form.instance.name = get_free_id(self.model)
+		parent_inst = None
+		if "parent_pk" in self.kwargs.keys():  # This is a batch model
+			parent_inst = self.model.Parent.get_queryset().get(id=self.kwargs['parent_pk'])
+			form.instance.Parent = parent_inst
+			self.success_url = reverse(f'list_{self.model.__name__}', kwargs={'parent_pk': self.kwargs['parent_pk']})
+		else:
+			self.success_url = reverse(f'list_{self.model.__name__}')
 		form.save()
 
 		messages.success(request=self.request, message=f"Created new item: {form.instance.name}")
@@ -51,6 +60,8 @@ class GBEXCreateView(CreateView):
 			form.instance.pk = None  # this makes the save mechanism save a new object
 			#form.instance.organism_ptr = None  # this is needed for inherited models specifically organism inherited
 			form.instance.name = get_free_id(self.model)
+			if parent_inst:  # check if its a batch model
+				form.instance.Parent = parent_inst
 			form.save()
 			messages.success(request=self.request, message=f"Created new item: {form.instance.name}")
 
@@ -138,12 +149,30 @@ class GBEXList(TemplateResponseMixin, ContextMixin, View):
 	model = None
 
 	def get(self, request, *args, **kwargs):
+		mnl = self.model.__name__
 		context = self.get_context_data(**kwargs)
-		context['model_name'] = self.model.__name__
+		context['model_name'] = mnl
 		context['model_order'] = self.model.order
-		context['data'] = model_to_list_list(self.model.objects.all())
+
+		datafilter = {'archived': False}
+		url_kwargs = {}
+		# parent_pk is part of the batch system and if found will only fetch a subset of the model with Parent=parent_pk
+		context['return_url'] = reverse("GBEXindex")
+		context['return_text'] = "GBEX"
+		if 'parent_pk' in self.kwargs.keys():
+			parent_pk = self.kwargs['parent_pk']
+			context['return_url'] = reverse(f"list_{self.model.Parent.field.remote_field.model.__name__}")
+			context['return_text'] = self.model.Parent.get_queryset().get(id=parent_pk).name
+			datafilter['Parent'] = parent_pk
+			url_kwargs = {'parent_pk': parent_pk}
+
+		context['create_url'] = reverse(f"create_{mnl}", kwargs=url_kwargs)
+		context['data'] = model_to_list_list(self.model.objects.filter(**datafilter))
+
 		context['table_settings'] = request.user.profile.table_settings
 		context['settings_id'] = request.user.profile.id
+		context['col_html_string'] = self.model.col_html_string
+		context['col_read_only'] = self.model.col_read_only
 
 		return self.render_to_response(context)
 
@@ -188,13 +217,17 @@ class ExcelExportView(View):
 	model = None
 
 	def get(self, request, *args, **kwargs):
-		if kwargs['rids']:
+		if 'rids' in kwargs.keys():
 			# find alle model instances med et id i rids OG som er i namespace
 			ids = kwargs['rids'].split(",")
 			objects = self.model.objects.filter(id__in=ids)
 		else:
 			# return all model instances from namespace
-			objects = self.model.objects.filter()
+			datafilter = {'archived': False}
+			# parent_pk is part of the batch system and if found will only fetch a subset of the model with Parent=parent_pk
+			if 'parent_pk' in kwargs.keys():
+				datafilter['Parent'] = self.kwargs['parent_pk']
+			objects = self.model.objects.filter(**datafilter)
 
 		# turn objects into a workbook
 		data = model_to_list_list(objects)
@@ -230,3 +263,20 @@ class ExcelExportView(View):
 			content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 		response['Content-Disposition'] = 'attachment; filename="export.xlsx"'
 		return response
+
+
+class ArchiveView(View):
+	model = None
+
+	def get(self, request, *args, **kwargs):
+		if kwargs['rids']:
+			# find all model instances with id in rids
+			ids = kwargs['rids'].split(",")
+			# set them all to archived
+			self.model.objects.filter(id__in=ids).update(archived=True)
+		# refresh page
+		url_kwargs = {}
+		if 'parent_pk' in kwargs.keys():
+			url_kwargs['parent_pk'] = kwargs['parent_pk']
+
+		return redirect(reverse(f"list_{self.model.__name__}", kwargs=url_kwargs))

@@ -28,7 +28,7 @@
 {% endblock %}
 {% block page_js_block %}
     <script>
-        var createurl = "{% url 'create_'|add:model_name %}";
+        var createurl = "{{ create_url }}";
         var columns = {{ model_order|safe }};
         var data = {{ data|safe }};
         var whodis = "{{ model_name }}";
@@ -38,6 +38,8 @@
         var settings_id = {{ settings_id }};
         var user_id = {{ request.user.id }};
         var csrftoken = $("[name=csrfmiddlewaretoken]").val();
+        var col_html_string =  {{ col_html_string|safe }};  // list of columns to show as html rather than string
+        var col_read_only = {{ col_read_only|safe }};  // list of read only columns (no editor will show)
 
         //this is for bulk update
         function bulk_text_apply() {
@@ -151,9 +153,9 @@
             return filename.concat(mid);
         };
     </script>
-    <script src="{% static 'GBEX_app/js/bundle_9_5_0.js' %}"></script>
+    <script src="{% static 'GBEX_app/js/bundle_9_5_1.js' %}"></script>
 {% endblock %}
 
 {% block nav_li_buttons %}
-    {% links model_name %}
+    {% links model_name return_url return_text %}
 {% endblock %}
