@@ -6,10 +6,6 @@ To deploy with LDAP support remember to install
 * libldap2-dev  
 
 
-## Suggestions
-* Track individual cell line vials
-* Make a master bank table that can only be edited by a subset of users.
-
 ### What is this?
 This is a system for replacing excel based registration sheets with a web-based database backed solution.  
 It uses Django as the backend and a custom REACT based frontend.   
