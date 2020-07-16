@@ -1,6 +1,14 @@
 # GBEX - Goodbye Excel: A MetaDataStore and more
 
-DTU BGI Instance
+DTU BGI Instance  
+To deploy with LDAP support remember to install
+* libsasl2-dev  
+* libldap2-dev  
+
+
+## Suggestions
+* Track individual cell line vials
+* Make a master bank table that can only be edited by a subset of users.
 
 ### What is this?
 This is a system for replacing excel based registration sheets with a web-based database backed solution.  
