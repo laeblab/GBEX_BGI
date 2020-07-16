@@ -1,5 +1,7 @@
 # GBEX - Goodbye Excel: A MetaDataStore and more
 
+DTU BGI Instance
+
 ### What is this?
 This is a system for replacing excel based registration sheets with a web-based database backed solution.  
 It uses Django as the backend and a custom REACT based frontend.   
