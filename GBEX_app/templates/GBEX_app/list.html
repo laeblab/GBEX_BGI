@@ -136,8 +136,8 @@
             $(".select2-container").remove();
             $(".ui-datepicker").remove();
         }
-        //this is to activate datepickers  2019-11-13 00:00:00
-        $(document).on("focus", "input[id*='Date']", function(){ $(this).datetimepicker({format: "Y-MM-DD HH:mm"}); });
+        //this is to activate datepickers
+        $(document).on("focus", "input[data-isdate=\"yes\"]", function(){ $(this).datetimepicker({format: "Y-MM-DD"}); });
         //this is to keep focus on select2 after selections
         $(document).on('select2:close','.select2-hidden-accessible',function () {
             $(this).focus();

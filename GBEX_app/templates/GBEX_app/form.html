@@ -25,8 +25,9 @@
     } catch (e) {
         
     }
-    django.jQuery(document).on("focus", "input[id*='Date']", function () {
-        django.jQuery(this).datetimepicker({format: "Y-MM-DD HH:mm"});
+
+    django.jQuery(document).on("focus", "input[data-isdate=\"yes\"]", function () {
+        django.jQuery(this).datetimepicker({format: "Y-MM-DD"});
     });
 
     </script>
