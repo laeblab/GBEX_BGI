@@ -1,5 +1,6 @@
 from django.db import models
 from django.urls import reverse_lazy, reverse
+from django.forms import DateInput
 
 from dal import autocomplete
 
@@ -91,6 +92,9 @@ class Strain(InventoryItem):
 		'Plasmids': lambda item: ", ".join(ab.name for ab in item.Plasmids.all()) if item.Plasmids.all() else "",
 		'Antibiotic': lambda item: ", ".join(ab.name for ab in item.Antibiotic.all()) if item.Antibiotic.all() else "",
 		'Batches': lambda item: f"<a href='{reverse('list_StrainBatch', kwargs=dict(parent_pk=item.pk))}'>{item.strainbatch_set.filter(archived=False).count()} batches</a>",
+		'Genbank_file': lambda
+			item: f"<a href='/downloads/{item.Genbank_file}'>{str(item.Genbank_file).split('/')[-1]}</a>",
+
 	}
 	widgets = {
 		**default_widgets,
@@ -111,7 +115,7 @@ class StrainBatch(AbstractBatch):
 	Barcode = models.TextField(blank=True, null=True)
 	TubesLeft = models.PositiveIntegerField(blank=True, null=True)
 
-	order = [*default_order, 'TubesLeft', 'Barcode', 'Location', 'SequenceVerified', 'Parent']
+	order = [*default_order, 'TubesLeft', 'Barcode', 'Location', 'Parent']
 	symbol = "ST_Batch"
 
 	col_read_only = [*default_readonly, 'Parent']
@@ -150,6 +154,11 @@ class CellLineBatch(AbstractBatch):
 
 	col_read_only = [*default_readonly, 'Parent']
 
+	widgets = {
+		**default_widgets,
+		"Mycoplasma": DateInput(attrs={'data-isdate': "yes"})
+	}
+
 
 class CultureMedia(InventoryItem):
 	ProductName = models.TextField(blank=True, null=True)
@@ -168,13 +177,11 @@ class CultureMedia(InventoryItem):
 
 
 class CultureMediaBatch(AbstractBatch):
-	Parent = models.ForeignKey(CellLine, on_delete=models.PROTECT)
+	Parent = models.ForeignKey(CultureMedia, on_delete=models.PROTECT)
 	Location = models.TextField(blank=True, null=True)
 	Barcode = models.TextField(blank=True, null=True)
-	TubesLeft = models.PositiveIntegerField(blank=True, null=True)
-	Mycoplasma = models.DateField(blank=True, null=True)
 
-	order = [*default_order, 'Location', 'Barcode', 'TubesLeft', 'Mycoplasma', 'Parent']
+	order = [*default_order, 'Location', 'Barcode', 'Parent']
 	symbol = "CM_Batch"
 
 	col_read_only = [*default_readonly, 'Parent']

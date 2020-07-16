@@ -24,8 +24,13 @@ class SOP(GBEXModelBase):
 	symbol = "SOP"
 	col_display_func_dict = {
 		'Tags': lambda item: ", ".join(ab.name for ab in item.Tags.all()) if item.Tags.all() else "",
+		'SOP_file': lambda
+			item: f"<a href='/downloads/{item.SOP_file}'>{str(item.SOP_file).split('/')[-1]}</a>",
+
 	}
 	widgets = {
 		**default_widgets,
 		'Tags': autocomplete.ModelSelect2Multiple(url=reverse_lazy('SOPTag-autocomplete')),
 	}
+
+	col_html_string = ['SOP_file',]
