@@ -28,7 +28,11 @@ else:
 LOGIN_URL = '/accounts/login/'
 LOGOUT_REDIRECT_URL = '/'
 
-AUTH_LDAP_SERVER_URI = "ldap://win.dtu.dk"
+AUTH_LDAP_SERVER_URI = "ldaps://win.dtu.dk"
+AUTH_LDAP_GLOBAL_OPTIONS = {
+	# AIT uses a self-signed certificate, so certificate authentication is not possible
+	ldap.OPT_X_TLS_REQUIRE_CERT: ldap.OPT_X_TLS_NEVER,
+}
 AUTH_LDAP_USER_DN_TEMPLATE = 'cn=%(user)s,ou=BIO,ou=DTUBaseUsers,dc=win,dc=dtu,dc=dk'
 AUTH_LDAP_USER_ATTR_MAP = {"first_name": "givenName", "last_name": "sn", 'email': 'mail'}
 AUTH_LDAP_BIND_AS_AUTHENTICATING_USER = True
@@ -55,7 +59,7 @@ INSTALLED_APPS = [
 	'widget_tweaks',
 	'rest_framework',
 	'rest_framework.authtoken',
-	'drf_yasg',
+	'drf_yasg2',
 	'GBEX_app.apps.GbexAppConfig',
 	'GBEX_bigfiles.apps.GbexBigfilesConfig',
 	'django_filters',

@@ -5,6 +5,7 @@ from django.forms import modelform_factory, modelformset_factory
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
+from django.template.defaultfilters import striptags
 from django.utils.translation import ugettext
 from django.views.generic import TemplateView, CreateView, UpdateView, View
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
@@ -119,25 +120,30 @@ class BulkUpdateView(TemplateView):
 	model = None
 	widgets = None
 
-	def get(self, request, *args, **kwargs):
-		context = self.get_context_data(**kwargs)
-		context['forms'] = self.get_formset()(queryset=self.model.objects.filter(id__in=kwargs['rids'].split(",")))
-		return self.render_to_response(context)
-
-	def get_formset(self):
-		return modelformset_factory(self.model, fields=[self.kwargs['column']], widgets=self.widgets, extra=0)
+	def get_formset(self, col):
+		return modelformset_factory(self.model, fields=[col], widgets=self.widgets, extra=0)
 
 	def post(self, request, *args, **kwargs):
-		rids = kwargs['rids'].split(",")
-		formset = self.get_formset()
-		infs = formset(request.POST, request.FILES, queryset=self.model.objects.filter(id__in=rids))
-		if infs.is_valid():
-			insts = infs.save()
-			results = {x.id: field_to_string(x, self.kwargs['column']) for x in insts}
-			return JsonResponse({"new_values": results})
-		else:
+		if request.POST:  # theres data
+			request_body = loads(request.POST['myextradata'])
+			rids = request_body['rids']
+			col = request_body['col']
+			formset = self.get_formset(col)
+			infs = formset(request.POST, request.FILES, queryset=self.model.objects.filter(id__in=rids))
+			if infs.is_valid():
+				insts = infs.save()
+				results = {x.id: field_to_string(x, col) for x in insts}
+				return JsonResponse({"new_values": results})
+			else:
+				context = self.get_context_data(**kwargs)
+				context['forms'] = infs
+				return self.render_to_response(context)
+		else:  # theres no data yet, just return blank forms
+			request_body = loads(request.body)
+			rids = request_body['rids']
+			col = request_body['col']
 			context = self.get_context_data(**kwargs)
-			context['forms'] = infs
+			context['forms'] = self.get_formset(col)(queryset=self.model.objects.filter(id__in=rids))
 			return self.render_to_response(context)
 
 
@@ -167,6 +173,9 @@ class GBEXList(TemplateResponseMixin, ContextMixin, View):
 			url_kwargs = {'parent_pk': parent_pk}
 
 		context['create_url'] = reverse(f"create_{mnl}", kwargs=url_kwargs)
+		context['export_excel_url'] = reverse(f"export_{mnl}", kwargs=url_kwargs)
+		context['archive_url'] = reverse(f"archive_{mnl}", kwargs=url_kwargs)
+		context['bulkedit_url'] = reverse(f"bulkupdate_{mnl}", kwargs=url_kwargs)
 		context['data'] = model_to_list_list(self.model.objects.filter(**datafilter))
 
 		context['table_settings'] = request.user.profile.table_settings
@@ -216,11 +225,11 @@ class GBEXAutocomplete(Select2QuerySetView):
 class ExcelExportView(View):
 	model = None
 
-	def get(self, request, *args, **kwargs):
-		if 'rids' in kwargs.keys():
-			# find alle model instances med et id i rids OG som er i namespace
-			ids = kwargs['rids'].split(",")
-			objects = self.model.objects.filter(id__in=ids)
+	def post(self, request, *args, **kwargs):
+		rids = loads(request.body)['rids']
+		if rids:
+			# find all model instances with an id in rids
+			objects = self.model.objects.filter(id__in=rids)
 		else:
 			# return all model instances from namespace
 			datafilter = {'archived': False}
@@ -237,7 +246,7 @@ class ExcelExportView(View):
 
 		ws.append(self.model.order)
 		for row in data:
-			ws.append(row)
+			ws.append([striptags(x) for x in row])  # We are removing all HTML tags...THIS MAY NOT ALWAYS BE DESIRED
 
 		tab = Table(displayName="Table1", ref=f"A1:{get_column_letter(len(self.model.order))}{len(data)}")
 		style = TableStyleInfo(
@@ -268,12 +277,12 @@ class ExcelExportView(View):
 class ArchiveView(View):
 	model = None
 
-	def get(self, request, *args, **kwargs):
-		if kwargs['rids']:
+	def post(self, request, *args, **kwargs):
+		rids = loads(request.body)['rids']
+		if rids:
 			# find all model instances with id in rids
-			ids = kwargs['rids'].split(",")
 			# set them all to archived
-			self.model.objects.filter(id__in=ids).update(archived=True)
+			self.model.objects.filter(id__in=rids).update(archived=True)
 		# refresh page
 		url_kwargs = {}
 		if 'parent_pk' in kwargs.keys():
