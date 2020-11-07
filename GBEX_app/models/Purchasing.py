@@ -13,4 +13,4 @@ class Transaction(GBEXModelBase):
 	quartzy_import = models.BooleanField(default=False)
 	menu_label = menu_label
 	symbol = "TRA"
-	order = [*default_order, 'what', 'price', 'budget', 'quartzy_import']
+	order = [*default_order, 'what', 'price', 'budget', 'order_date',  'quartzy_import']
