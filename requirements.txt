@@ -3,7 +3,7 @@ django>=3.1.3,<4.0.0
 django-decorator-include>=3.0,<4.0.0
 python-memcached>=1.59,<2.0.0
 psycopg2-binary>=2.8.6,<3.0.0
-git+git://github.com/cfblaeb/django-sendfile.git
+git+https://github.com/cfblaeb/django-sendfile.git
 
 # excel export
 openpyxl>=3.0.5,<4.0.0
