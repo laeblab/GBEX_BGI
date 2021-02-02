@@ -8,6 +8,7 @@ from GBEX_bigfiles.fields import ResumableFileField
 from GBEX_app.helpers import get_upload_path
 
 from .models import BaseOption, GBEXModelBase, AbstractBatch, default_order, default_widgets, default_readonly
+from .LabDocuments import SOP
 
 
 class InventoryItem(GBEXModelBase):
@@ -51,7 +52,7 @@ class PlasmidBatch(AbstractBatch):
 	Location = models.TextField(blank=True, null=True)
 	SequenceVerified = models.BooleanField(default=False)
 
-	order = [*default_order, 'Barcode', 'SequenceVerified', 'Parent']
+	order = [*default_order, 'Location', 'Barcode', 'SequenceVerified', 'Parent']
 	symbol = "PL_Batch"
 
 	col_read_only = [*default_readonly, 'Parent']
@@ -123,22 +124,28 @@ class StrainBatch(AbstractBatch):
 
 class CellLine(InventoryItem):
 	CommonName = models.TextField(blank=True, null=True)
-	Species = models.ForeignKey(SpeciesOption, on_delete=models.PROTECT)
-	Genotype = models.TextField(blank=True, null=True)
+	Species = models.ForeignKey(SpeciesOption, on_delete=models.PROTECT, blank=True, null=True)
+	DeltaGenotype = models.TextField(blank=True, null=True)
+	Parent = models.ForeignKey('self', blank=True, on_delete=models.PROTECT, null=True)
+	CumulativeGenotype = models.TextField(blank=True, null=True)
+	SOP = models.ForeignKey(SOP, blank=True, on_delete=models.PROTECT, null=True)
 
-	order = [*default_order, 'CommonName', 'Usage', 'Species', 'Genotype', 'Batches']
+	order = [*default_order, 'CommonName', 'Usage', 'Species', 'Parent', 'DeltaGenotype', 'CumulativeGenotype', 'SOP', 'Batches']
 	symbol = "CL"
 
 	col_display_func_dict = {
+		'SOP': lambda item: f"<a href='/downloads/{item.SOP.SOP_file}'>{item.SOP}</a>" if item.SOP else "",
 		'Batches': lambda item: f"<a href='{reverse('list_CellLineBatch', kwargs=dict(parent_pk=item.pk))}'>{item.celllinebatch_set.filter(archived=False).count()} batches</a>",
 	}
 
 	widgets = {
 		**default_widgets,
 		'Species': autocomplete.ModelSelect2(url=reverse_lazy('SpeciesOption-autocomplete')),
+		'Parent': autocomplete.ModelSelect2(url=reverse_lazy('CellLine-autocomplete')),
+		'SOP': autocomplete.ModelSelect2(url=reverse_lazy('SOP-autocomplete')),
 	}
 
-	col_html_string = ['Batches']
+	col_html_string = ['Batches', 'SOP']
 	col_read_only = [*default_readonly, 'Batches']
 
 
@@ -185,3 +192,38 @@ class CultureMediaBatch(AbstractBatch):
 	symbol = "CM_Batch"
 
 	col_read_only = [*default_readonly, 'Parent']
+
+
+class gRNA(InventoryItem):
+	TargetSpecies = models.ForeignKey(SpeciesOption, on_delete=models.PROTECT, blank=True, null=True)
+	TargetGenome = models.TextField(blank=True, null=True)
+	TargetSequence = models.TextField(blank=True, null=True)
+	FullOligoSequence = models.TextField(blank=True, null=True)
+	TargetFwdPrimer = models.TextField(blank=True, null=True)
+	TargetRevPrimer = models.TextField(blank=True, null=True)
+	PCRProduct = models.TextField(blank=True, null=True)
+	Location = models.TextField(blank=True, null=True)
+
+	order = [*default_order, 'TargetSpecies', 'TargetGenome', 'TargetSequence', 'FullOligoSequence', 'TargetFwdPrimer', 'TargetRevPrimer', 'PCRProduct', 'Location']
+	symbol = "gRNA"
+
+	widgets = {
+		**default_widgets,
+		'TargetSpecies': autocomplete.ModelSelect2(url=reverse_lazy('SpeciesOption-autocomplete')),
+	}
+
+
+class Toxins(InventoryItem):
+	Abbreviation = models.TextField(blank=True, null=True)
+	Amount = models.FloatField("Amount (μg)", blank=True, null=True)
+	Threshold = models.FloatField("Threshold amount (CBB) (mg)", blank=True, null=True)
+	Conjugation = models.TextField(blank=True, null=True)
+	Source = models.TextField(blank=True, null=True)
+	Tag = models.TextField(blank=True, null=True)
+	Mw = models.FloatField("Mw (Kda)", blank=True, null=True)
+	Vendor = models.TextField(blank=True, null=True)
+	Catalog_no = models.TextField("Catalog no.", blank=True, null=True)
+	Link = models.URLField(blank=True, null=True)
+
+	order = [*default_order, 'Abbreviation', 'Amount', 'Threshold', 'Conjugation', 'Source', 'Tag', 'Mw', 'Vendor', 'Catalog_no', 'Link']
+	symbol = "TOX"
