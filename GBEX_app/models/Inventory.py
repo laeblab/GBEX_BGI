@@ -226,5 +226,5 @@ class Toxins(InventoryItem):
 	Catalog_no = models.TextField("Catalog no.", blank=True, null=True)
 	Link = models.URLField(blank=True, null=True)
 
-	order = [*default_order, 'Abbreviation', 'Amount', 'Threshold', 'Conjugation', 'Source', 'Tag', 'Mw', 'Vendor', 'Catalog_no', 'Link']
+	order = [*default_order, 'Toxin', 'Abbreviation', 'Amount', 'Threshold', 'Conjugation', 'Source', 'Tag', 'Mw', 'Vendor', 'Catalog_no', 'Link']
 	symbol = "TOX"
