@@ -214,6 +214,7 @@ class gRNA(InventoryItem):
 
 
 class Toxins(InventoryItem):
+	Toxin = models.TextField(blank=True, null=True)
 	Abbreviation = models.TextField(blank=True, null=True)
 	Amount = models.FloatField("Amount (μg)", blank=True, null=True)
 	Threshold = models.FloatField("Threshold amount (CBB) (mg)", blank=True, null=True)
