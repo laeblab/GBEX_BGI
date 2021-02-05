@@ -162,9 +162,9 @@ class GBEXList(TemplateResponseMixin, ContextMixin, View):
 
 		datafilter = {'archived': False}
 		url_kwargs = {}
-		# parent_pk is part of the batch system and if found will only fetch a subset of the model with Parent=parent_pk
 		context['return_url'] = reverse("GBEXindex")
 		context['return_text'] = "GBEX"
+		# parent_pk is part of the batch system and if found will only fetch a subset of the model with Parent=parent_pk
 		if 'parent_pk' in self.kwargs.keys():
 			parent_pk = self.kwargs['parent_pk']
 			context['return_url'] = reverse(f"list_{self.model.Parent.field.remote_field.model.__name__}")
