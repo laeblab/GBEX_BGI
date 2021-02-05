@@ -1,7 +1,6 @@
 from re import compile
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db.models import Model
 from django.db.transaction import atomic
 from django.db.utils import IntegrityError
 from django.apps import apps
@@ -175,7 +174,10 @@ def bulk_import(excel_file, upload_type):
 								# check if relational
 								if col_name in fkeys.keys():
 									# its foreign, write directly after finding it
-									finst = fkeys[col_name].objects.get(name=value)
+									if fkeys[col_name]._meta.model_name == 'user':  # if its the user model, do this
+										finst = fkeys[col_name].objects.get(username=value)
+									else:
+										finst = fkeys[col_name].objects.get(name=value)
 									update_dict[col_name] = finst
 								elif col_name in m2ms.keys():
 									# its lots of foreign, write in seperate step, just save for now
@@ -185,7 +187,10 @@ def bulk_import(excel_file, upload_type):
 									m2m_updates[field_name] = []
 									for finst_name in finst_names:
 										# some fields are not project dependent..lets check
-										m2m_updates[field_name].append(rel_model.objects.get(name=finst_name))
+										if rel_model._meta.model_name == 'user':  # if its the user model, do this
+											m2m_updates[field_name].append(rel_model.objects.get(username=finst_name))
+										else:
+											m2m_updates[field_name].append(rel_model.objects.get(name=finst_name))
 								else:
 									# it is what it is
 									update_dict[col_name] = value
