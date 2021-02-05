@@ -53,7 +53,7 @@ def pre_import(wb, bad_book, return_messages, create):
 						m2ms[field.name] = [field.name, field.remote_field.model]
 					else:
 						fkeys[field.name] = field.remote_field.model
-				if not field.blank:
+				if not (field.is_relation and field.many_to_many) and not field.blank:
 					required_fields[field.name] = field.default  # store the default value
 
 
@@ -98,8 +98,7 @@ def pre_import(wb, bad_book, return_messages, create):
 						raise ValueError(f"Name '{name}' does not adhere to naming scheme: '{prefix}N', where N is a number")
 					reqs = {}
 					for reqqed, default in required_fields.items():
-						value = return_stripped(
-							this_sheet.cell(column=field_to_column_map[reqqed], row=row_number).value)
+						value = return_stripped(this_sheet.cell(column=field_to_column_map[reqqed], row=row_number).value)
 						if not value:
 							value = default
 						if reqqed in fkeys.keys():
@@ -114,7 +113,6 @@ def pre_import(wb, bad_book, return_messages, create):
 						created_insts[name] = model.objects.create(**reqs)
 				except (IntegrityError, ObjectDoesNotExist, ValueError, AttributeError, NameError, ValidationError) as e:
 					bad_rows[name] = e
-
 				row_number += 1
 		good_sheets[sheet_title] = [this_sheet, model, fkeys, m2ms, error_write_column, field_to_column_map, created_insts]
 	return good_sheets, bad_rows
