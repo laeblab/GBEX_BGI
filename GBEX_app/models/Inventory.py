@@ -247,3 +247,7 @@ class Toxins(InventoryItem):
 		**default_widgets,
 		'Vendor': autocomplete.ModelSelect2(url=reverse_lazy('VendorOption-autocomplete')),
 	}
+	col_display_func_dict = {
+		'Link': lambda item: f"<a href='{item.Link}'>{item.Link}</a>" if item.Link else "",
+	}
+	col_html_string = ['Link']
