@@ -1,7 +1,6 @@
 from re import compile
 
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
-from django.db.models import Model
 from django.db.transaction import atomic
 from django.db.utils import IntegrityError
 from django.apps import apps
@@ -54,7 +53,7 @@ def pre_import(wb, bad_book, return_messages, create):
 						m2ms[field.name] = [field.name, field.remote_field.model]
 					else:
 						fkeys[field.name] = field.remote_field.model
-				if not field.blank:
+				if not (field.is_relation and field.many_to_many) and not field.blank:
 					required_fields[field.name] = field.default  # store the default value
 
 
@@ -99,8 +98,7 @@ def pre_import(wb, bad_book, return_messages, create):
 						raise ValueError(f"Name '{name}' does not adhere to naming scheme: '{prefix}N', where N is a number")
 					reqs = {}
 					for reqqed, default in required_fields.items():
-						value = return_stripped(
-							this_sheet.cell(column=field_to_column_map[reqqed], row=row_number).value)
+						value = return_stripped(this_sheet.cell(column=field_to_column_map[reqqed], row=row_number).value)
 						if not value:
 							value = default
 						if reqqed in fkeys.keys():
@@ -113,9 +111,8 @@ def pre_import(wb, bad_book, return_messages, create):
 					with atomic():
 						# create the smallest object possible, aka name + blank=False fields
 						created_insts[name] = model.objects.create(**reqs)
-				except (IntegrityError, ObjectDoesNotExist, ValueError, AttributeError, NameError, Model.DoesNotExist, ValidationError) as e:
+				except (IntegrityError, ObjectDoesNotExist, ValueError, AttributeError, NameError, ValidationError) as e:
 					bad_rows[name] = e
-
 				row_number += 1
 		good_sheets[sheet_title] = [this_sheet, model, fkeys, m2ms, error_write_column, field_to_column_map, created_insts]
 	return good_sheets, bad_rows
@@ -175,7 +172,10 @@ def bulk_import(excel_file, upload_type):
 								# check if relational
 								if col_name in fkeys.keys():
 									# its foreign, write directly after finding it
-									finst = fkeys[col_name].objects.get(name=value)
+									if fkeys[col_name]._meta.model_name == 'user':  # if its the user model, do this
+										finst = fkeys[col_name].objects.get(username=value)
+									else:
+										finst = fkeys[col_name].objects.get(name=value)
 									update_dict[col_name] = finst
 								elif col_name in m2ms.keys():
 									# its lots of foreign, write in seperate step, just save for now
@@ -185,7 +185,10 @@ def bulk_import(excel_file, upload_type):
 									m2m_updates[field_name] = []
 									for finst_name in finst_names:
 										# some fields are not project dependent..lets check
-										m2m_updates[field_name].append(rel_model.objects.get(name=finst_name))
+										if rel_model._meta.model_name == 'user':  # if its the user model, do this
+											m2m_updates[field_name].append(rel_model.objects.get(username=finst_name))
+										else:
+											m2m_updates[field_name].append(rel_model.objects.get(name=finst_name))
 								else:
 									# it is what it is
 									update_dict[col_name] = value

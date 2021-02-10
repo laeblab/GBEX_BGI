@@ -10,10 +10,14 @@ from GBEX_app.helpers import get_upload_path
 from .models import BaseOption, GBEXModelBase, AbstractBatch, default_order, default_widgets, default_readonly
 from .LabDocuments import SOP
 
+inventory_order = [*default_order, 'Usage']
+
 
 class InventoryItem(GBEXModelBase):
 	Usage = models.TextField(blank=True, null=True)
 	menu_label = "Inventory"
+
+	order = inventory_order
 
 	class Meta:
 		abstract = True
@@ -29,7 +33,7 @@ class Plasmid(InventoryItem):
 	Antibiotic = models.ManyToManyField(AntibioticOption, blank=True)
 	Genbank_file = ResumableFileField(blank=True, null=True, upload_to=get_upload_path, max_length=500)
 
-	order = [*default_order, 'CommonName', 'Usage', 'Antibiotic', 'Genbank_file', 'Batches']
+	order = [*inventory_order, 'CommonName', 'Antibiotic', 'Genbank_file', 'Batches']
 	symbol = "PL"
 	col_display_func_dict = {
 		'Batches': lambda item: f"<a href='{reverse('list_PlasmidBatch', kwargs=dict(parent_pk=item.pk))}'>{item.plasmidbatch_set.filter(archived=False).count()} batches</a>",
@@ -62,7 +66,7 @@ class Primers(InventoryItem):
 	Sequence = models.TextField(blank=True, null=True)
 	Location = models.TextField(blank=True, null=True)
 
-	order = [*default_order, "Usage", "Sequence", "Location"]
+	order = [*inventory_order, "Sequence", "Location"]
 	symbol = "PR"
 
 
@@ -86,7 +90,7 @@ class Strain(InventoryItem):
 	ParentStrain = models.ForeignKey("self", null=True, blank=True, on_delete=models.PROTECT)
 	Genbank_file = ResumableFileField(blank=True, null=True, upload_to=get_upload_path, max_length=500)
 
-	order = [*default_order, 'CommonName', 'Species', 'Subtype', 'Usage', 'ParentStrain', 'Antibiotic', 'Genotype',
+	order = [*inventory_order, 'CommonName', 'Species', 'Subtype', 'ParentStrain', 'Antibiotic', 'Genotype',
 			 'Plasmids', 'Genbank_file', 'Vendor', 'CatalogNo', 'Batches']
 	symbol = "ST"
 	col_display_func_dict = {
@@ -130,7 +134,7 @@ class CellLine(InventoryItem):
 	CumulativeGenotype = models.TextField(blank=True, null=True)
 	SOP = models.ForeignKey(SOP, blank=True, on_delete=models.PROTECT, null=True)
 
-	order = [*default_order, 'CommonName', 'Usage', 'Species', 'Parent', 'DeltaGenotype', 'CumulativeGenotype', 'SOP', 'Batches']
+	order = [*inventory_order, 'CommonName', 'Species', 'Parent', 'DeltaGenotype', 'CumulativeGenotype', 'SOP', 'Batches']
 	symbol = "CL"
 
 	col_display_func_dict = {
@@ -172,9 +176,13 @@ class CultureMedia(InventoryItem):
 	Vendor = models.ForeignKey(VendorOption, blank=True, null=True, on_delete=models.PROTECT)
 	CatalogNo = models.TextField(blank=True, null=True)
 
-	order = [*default_order, 'ProductName', 'Vendor', 'CatalogNo', 'Batches']
+	order = [*inventory_order, 'ProductName', 'Vendor', 'CatalogNo', 'Batches']
 	symbol = "CM"
 
+	widgets = {
+		**default_widgets,
+		'Vendor': autocomplete.ModelSelect2(url=reverse_lazy('VendorOption-autocomplete')),
+	}
 	col_display_func_dict = {
 		'Batches': lambda item: f"<a href='{reverse('list_CultureMediaBatch', kwargs=dict(parent_pk=item.pk))}'>{item.culturemediabatch_set.filter(archived=False).count()} batches</a>",
 	}
@@ -194,7 +202,12 @@ class CultureMediaBatch(AbstractBatch):
 	col_read_only = [*default_readonly, 'Parent']
 
 
+class CRISPRoption(BaseOption):
+	pass
+
+
 class gRNA(InventoryItem):
+	CRISPR_enzyme = models.ForeignKey(CRISPRoption, on_delete=models.PROTECT, blank=True, null=True)
 	TargetSpecies = models.ForeignKey(SpeciesOption, on_delete=models.PROTECT, blank=True, null=True)
 	TargetGenome = models.TextField(blank=True, null=True)
 	TargetSequence = models.TextField(blank=True, null=True)
@@ -204,33 +217,37 @@ class gRNA(InventoryItem):
 	PCRProduct = models.TextField(blank=True, null=True)
 	Location = models.TextField(blank=True, null=True)
 
-	order = [*default_order, 'TargetSpecies', 'TargetGenome', 'TargetSequence', 'FullOligoSequence', 'TargetFwdPrimer', 'TargetRevPrimer', 'PCRProduct', 'Location']
+	order = [*inventory_order, 'CRISPR_enzyme', 'TargetSpecies', 'TargetGenome', 'TargetSequence', 'FullOligoSequence', 'TargetFwdPrimer', 'TargetRevPrimer', 'PCRProduct', 'Location']
 	symbol = "gRNA"
 
 	widgets = {
 		**default_widgets,
+		'CRISPR_enzyme': autocomplete.ModelSelect2(url=reverse_lazy('CRISPRoption-autocomplete')),
 		'TargetSpecies': autocomplete.ModelSelect2(url=reverse_lazy('SpeciesOption-autocomplete')),
 	}
 
 
 class Toxins(InventoryItem):
 	Toxin = models.TextField(blank=True, null=True)
-	Comment = models.TextField(blank=True, null=True)
 	Abbreviation = models.TextField(blank=True, null=True)
-	Amount = models.IntegerField("Amount (μg)", blank=True, null=True)
-	Threshold = models.IntegerField("Threshold amount (CBB) (mg)", blank=True, null=True)
+	Amount = models.FloatField("Amount (μg)", blank=True, null=True)
+	Threshold = models.FloatField("Threshold amount (CBB) (mg)", blank=True, null=True)
 	Conjugation = models.TextField(blank=True, null=True)
 	Source = models.TextField(blank=True, null=True)
 	Tag = models.TextField(blank=True, null=True)
 	Mw = models.FloatField("Mw (Kda)", blank=True, null=True)
-	Vendor = models.TextField(blank=True, null=True)
+	Vendor = models.ForeignKey(VendorOption, blank=True, null=True, on_delete=models.PROTECT)
 	Catalog_no = models.TextField("Catalog no.", blank=True, null=True)
 	Link = models.URLField(blank=True, null=True)
 
-	order = [*default_order, 'Toxin', 'Comment', 'Abbreviation', 'Amount', 'Threshold', 'Conjugation', 'Source', 'Tag', 'Mw', 'Vendor', 'Catalog_no', 'Link']
+	order = [*inventory_order, 'Toxin', 'Abbreviation', 'Amount', 'Threshold', 'Conjugation', 'Source', 'Tag', 'Mw', 'Vendor', 'Catalog_no', 'Link']
 	symbol = "TOX"
 
-	col_html_string = ['Link']
-	col_display_func_dict = {
-		'Link': lambda item: f"<a href='{item.Link}'>{item.Link}</a>",
+	widgets = {
+		**default_widgets,
+		'Vendor': autocomplete.ModelSelect2(url=reverse_lazy('VendorOption-autocomplete')),
 	}
+	col_display_func_dict = {
+		'Link': lambda item: f"<a href='{item.Link}'>{item.Link}</a>" if item.Link else "",
+	}
+	col_html_string = ['Link']

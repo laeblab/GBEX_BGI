@@ -1,3 +1,4 @@
+from django.core.validators import MinValueValidator
 from django.db import models
 import datetime
 from .models import GBEXModelBase, default_order
@@ -7,7 +8,7 @@ menu_label = "Purchasing"
 
 class Transaction(GBEXModelBase):
 	what = models.TextField()
-	price = models.PositiveIntegerField()
+	price = models.DecimalField(decimal_places=2, max_digits=9, validators=[MinValueValidator(0)])
 	budget = models.PositiveIntegerField()
 	order_date = models.DateField(default=datetime.date.today)
 	quartzy_import = models.BooleanField(default=False)
