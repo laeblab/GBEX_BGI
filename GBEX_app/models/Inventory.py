@@ -215,9 +215,10 @@ class gRNA(InventoryItem):
 
 class Toxins(InventoryItem):
 	Toxin = models.TextField(blank=True, null=True)
+	Comment = models.TextField(blank=True, null=True)
 	Abbreviation = models.TextField(blank=True, null=True)
-	Amount = models.FloatField("Amount (μg)", blank=True, null=True)
-	Threshold = models.FloatField("Threshold amount (CBB) (mg)", blank=True, null=True)
+	Amount = models.IntegerField("Amount (μg)", blank=True, null=True)
+	Threshold = models.IntegerField("Threshold amount (CBB) (mg)", blank=True, null=True)
 	Conjugation = models.TextField(blank=True, null=True)
 	Source = models.TextField(blank=True, null=True)
 	Tag = models.TextField(blank=True, null=True)
@@ -226,5 +227,10 @@ class Toxins(InventoryItem):
 	Catalog_no = models.TextField("Catalog no.", blank=True, null=True)
 	Link = models.URLField(blank=True, null=True)
 
-	order = [*default_order, 'Toxin', 'Abbreviation', 'Amount', 'Threshold', 'Conjugation', 'Source', 'Tag', 'Mw', 'Vendor', 'Catalog_no', 'Link']
+	order = [*default_order, 'Toxin', 'Comment', 'Abbreviation', 'Amount', 'Threshold', 'Conjugation', 'Source', 'Tag', 'Mw', 'Vendor', 'Catalog_no', 'Link']
 	symbol = "TOX"
+
+	col_html_string = ['Link']
+	col_display_func_dict = {
+		'Link': lambda item: f"<a href='{item.Link}'>{item.Link}</a>",
+	}
