@@ -232,6 +232,7 @@ class gRNA(InventoryItem):
 class Toxins(InventoryItem):
 	Toxin = models.TextField(blank=True, null=True)
 	Abbreviation = models.TextField(blank=True, null=True)
+	Comment = models.TextField(blank=True, null=True)
 	Amount = models.FloatField("Amount (μg)", blank=True, null=True)
 	Threshold = models.FloatField("Threshold amount (CBB) (mg)", blank=True, null=True)
 	Conjugation = models.TextField(blank=True, null=True)
@@ -242,7 +243,7 @@ class Toxins(InventoryItem):
 	Catalog_no = models.TextField("Catalog no.", blank=True, null=True)
 	Link = models.URLField(blank=True, null=True)
 
-	order = [*inventory_order, 'Toxin', 'Abbreviation', 'Amount', 'Threshold', 'Conjugation', 'Source', 'Tag', 'Mw', 'Vendor', 'Catalog_no', 'Link']
+	order = [*inventory_order, 'Toxin', 'Abbreviation', 'Comment', 'Amount', 'Threshold', 'Conjugation', 'Source', 'Tag', 'Mw', 'Vendor', 'Catalog_no', 'Link']
 	symbol = "TOX"
 
 	widgets = {
@@ -250,6 +251,6 @@ class Toxins(InventoryItem):
 		'Vendor': autocomplete.ModelSelect2(url=reverse_lazy('VendorOption-autocomplete')),
 	}
 	col_display_func_dict = {
-		'Link': lambda item: f"<a href='{item.Link}'>{item.Link}</a>" if item.Link else "",
+		'Link': lambda item: f"<a href='{item.Link}' target='_blank' rel='noopener noreferrer'>{item.Link}</a>" if item.Link else "",
 	}
 	col_html_string = ['Link']
