@@ -226,6 +226,8 @@ class gRNA(InventoryItem):
 		**default_widgets,
 		'CRISPR_enzyme': autocomplete.ModelSelect2(url=reverse_lazy('CRISPRoption-autocomplete')),
 		'TargetSpecies': autocomplete.ModelSelect2(url=reverse_lazy('SpeciesOption-autocomplete')),
+		'TargetFwdPrimer': autocomplete.ModelSelect2(url=reverse_lazy('Primers-autocomplete')),
+		'TargetRevPrimer': autocomplete.ModelSelect2(url=reverse_lazy('Primers-autocomplete')),
 	}
 
 
