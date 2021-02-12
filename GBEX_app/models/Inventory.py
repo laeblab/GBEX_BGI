@@ -64,9 +64,11 @@ class PlasmidBatch(AbstractBatch):
 
 class Primers(InventoryItem):
 	Sequence = models.TextField(blank=True, null=True)
+	Tm = models.PositiveIntegerField("Tm (°C)", blank=True, null=True)
+	Conc = models.PositiveIntegerField("Conc (uM)", blank=True, null=True)
 	Location = models.TextField(blank=True, null=True)
 
-	order = [*inventory_order, "Sequence", "Location"]
+	order = [*inventory_order, "Sequence", 'Tm', 'Conc', "Location"]
 	symbol = "PR"
 
 
@@ -212,8 +214,8 @@ class gRNA(InventoryItem):
 	TargetGenome = models.TextField(blank=True, null=True)
 	TargetSequence = models.TextField(blank=True, null=True)
 	FullOligoSequence = models.TextField(blank=True, null=True)
-	TargetFwdPrimer = models.TextField(blank=True, null=True)
-	TargetRevPrimer = models.TextField(blank=True, null=True)
+	TargetFwdPrimer = models.ForeignKey(Primers, on_delete=models.PROTECT, blank=True, null=True, related_name='gRNA_fwd_primer')
+	TargetRevPrimer = models.ForeignKey(Primers, on_delete=models.PROTECT, blank=True, null=True, related_name='gRNA_rev_primer')
 	PCRProduct = models.TextField(blank=True, null=True)
 	Location = models.TextField(blank=True, null=True)
 
