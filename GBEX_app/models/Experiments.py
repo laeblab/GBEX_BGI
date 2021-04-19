@@ -35,6 +35,36 @@ class ExperimentBase(GBEXModelBase):
 		abstract = True
 
 
+class SequencingMachine(BaseOption):
+	pass
+
+
+class SequencingType(BaseOption):
+	pass
+
+
+class SequencingMaterialType(BaseOption):
+	pass
+
+
+class NGSResults(ExperimentBase):
+	Machine = models.ForeignKey(SequencingMachine, on_delete=models.PROTECT)
+	TypeOfSequencing = models.ForeignKey(SequencingType, on_delete=models.PROTECT)
+	TypeOfMaterial = models.ForeignKey(SequencingMaterialType, on_delete=models.PROTECT)
+
+	order = [*ExperimentOrder, 'Machine', 'TypeOfSequencing', 'TypeOfMaterial']
+	symbol = "NGS"
+	widgets = {
+		**ExperimentWidgets,
+		'Machine': autocomplete.ModelSelect2(url=reverse_lazy('SequencingMachine-autocomplete')),
+		'TypeOfSequencing': autocomplete.ModelSelect2(url=reverse_lazy('SequencingType-autocomplete')),
+		'TypeOfMaterial': autocomplete.ModelSelect2(url=reverse_lazy('SequencingMaterialType-autocomplete')),
+	}
+	col_display_func_dict = {
+		**ExperimentCDFDict,
+	}
+
+
 class Fermentation(ExperimentBase):
 	Strain = models.ForeignKey(Strain, on_delete=models.PROTECT, null=True, blank=True)
 	Media = models.ManyToManyField(CultureMediaBatch, blank=True)
