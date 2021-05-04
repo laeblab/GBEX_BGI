@@ -1,7 +1,9 @@
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.forms import DateInput
 import datetime
-from .models import GBEXModelBase, default_order
+from .models import GBEXModelBase, default_order, default_widgets
+
 
 menu_label = "Purchasing"
 
@@ -15,3 +17,7 @@ class Transaction(GBEXModelBase):
 	menu_label = menu_label
 	symbol = "TRA"
 	order = [*default_order, 'what', 'price', 'budget', 'order_date',  'quartzy_import']
+	widgets = {
+		**default_widgets,
+		"order_date": DateInput(attrs={'data-isdate': "yes"})
+	}
