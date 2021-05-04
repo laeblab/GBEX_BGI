@@ -256,3 +256,50 @@ class Toxins(InventoryItem):
 		'Link': lambda item: f"<a href='{item.Link}' target='_blank' rel='noopener noreferrer'>{item.Link}</a>" if item.Link else "",
 	}
 	col_html_string = ['Link']
+
+
+class AntiGenBodyoption(BaseOption):
+	pass
+
+
+class AntiGenBody(InventoryItem):
+	Type = models.ForeignKey(AntiGenBodyoption, on_delete=models.PROTECT, blank=True, null=True)
+	CommonName = models.TextField(blank=True, null=True)
+	InfoLink = models.URLField(blank=True, null=True)
+	BindsTo = models.ManyToManyField("self", blank=True)
+	ProductionCellLine = models.ManyToManyField(CellLine, blank=True)
+
+	order = [*inventory_order, 'Type', 'CommonName', 'BindsTo', 'ProductionCellLine', 'InfoLink', 'Batches']
+	symbol = "ABAG"
+
+	widgets = {
+		**default_widgets,
+		'ProductionCellLine': autocomplete.ModelSelect2Multiple(url=reverse_lazy('CellLine-autocomplete')),
+		'BindsTo': autocomplete.ModelSelect2Multiple(url=reverse_lazy('AntiGenBody-autocomplete')),
+		'Type': autocomplete.ModelSelect2(url=reverse_lazy('AntiGenBodyoption-autocomplete')),
+	}
+
+	col_display_func_dict = {
+		'BindsTo': lambda item: ", ".join(ab.name for ab in item.BindsTo.all()) if item.BindsTo.all() else "",
+		'ProductionCellLine': lambda item: ", ".join(ab.name for ab in item.ProductionCellLine.all()) if item.ProductionCellLine.all() else "",
+		'InfoLink': lambda item: f"<a href='{item.InfoLink}' target='_blank' rel='noopener noreferrer'>{item.InfoLink}</a>" if item.InfoLink else "",
+		'Batches': lambda item: f"<a href='{reverse('list_AntiGenBodyBatch', kwargs=dict(parent_pk=item.pk))}'>{item.antigenbodybatch_set.filter(archived=False).count()} batches</a>",
+	}
+
+	col_html_string = ['InfoLink', 'Batches']
+	col_read_only = [*default_readonly, 'Batches']
+
+
+class AntiGenBodyBatch(AbstractBatch):
+	Parent = models.ForeignKey(AntiGenBody, on_delete=models.PROTECT)
+	Location = models.TextField(blank=True, null=True)
+	ProductionCellLine = models.ForeignKey(CellLineBatch, blank=True, null=True, on_delete=models.PROTECT)
+	order = [*default_order, 'Location', 'ProductionCellLine', 'Parent']
+	symbol = "ABAG_Batch"
+
+	widgets = {
+		**default_widgets,
+		'ProductionCellLine': autocomplete.ModelSelect2(url=reverse_lazy('CellLineBatch-autocomplete')),
+	}
+
+	col_read_only = [*default_readonly, 'Parent']
