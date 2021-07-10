@@ -74,7 +74,7 @@ There are a few base models that should to be used:
 
 ### Considerations
 * (04-05-2021) Born from a desire to upgrade to React 17 and Bootstrap 4, I took a deep dive.  
-  * I found that react 17 is blocked by react-virtualized. A PM is ready, but for some reason not merged...  
+  * I found that react 17 is blocked by react-virtualized. A PR is ready, but for some reason not merged...  
   * I then wanted to update the build system and doing that caused me to evaluate typescript and create react app 
     * It always takes some time to get back into JS development due to the complexity of the dev/build environment 
 	  with webpack, eslint, babel, etc. So I took a look a "create react app" and through that also typescript.  
