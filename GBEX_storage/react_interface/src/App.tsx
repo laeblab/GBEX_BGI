@@ -1,29 +1,64 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-import '@fontsource/roboto';
-import Button from '@material-ui/core/Button';
+import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
+import Box from '@material-ui/core/Box';
+import TheTree from './TheTree';
+import TheBox from './TheBox'
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload. ok..
-        </p>
-        <Button variant="contained" color="primary">Hello</Button>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+const useStyles = makeStyles((theme: Theme) =>
+    createStyles({
+        root: {
+            height: "100%"
+        },
+        top: {
+            height: "100px",
+            backgroundColor: 'red'
+
+        },
+        bottom: {
+        },
+        tree: {
+            width: "25%",
+            backgroundColor: 'green',
+            overflow: "auto",
+            resize: "horizontal"
+        },
+        box: {
+            width: "50%",
+            backgroundColor: 'blue',
+            overflow: "auto",
+            resize: "horizontal"
+        },
+        well: {
+            backgroundColor: 'salmon',
+            overflow: "auto",
+        },
+        paper: {
+            padding: theme.spacing(1),
+            textAlign: 'center',
+            color: theme.palette.text.secondary,
+            height: "100%"
+        },
+    }),
+);
+
+export default function App() {
+    const classes = useStyles();
+    return (
+        <Box display="flex" flexDirection="column" className={classes.root}>
+            <Box id="storage_top" className={classes.top}>
+                header
+            </Box>
+            <Box display="flex" flexGrow={1} id="storage_bottom" className={classes.bottom}>
+                <Box id="storage_tree" className={classes.tree}>
+                    <TheTree/>
+                </Box>
+                <Box id="storage_box" className={classes.box}>
+                    <TheBox columns={4} rows={3}/>
+                </Box>
+                <Box id="storage_well" flexGrow={1} className={classes.well}>
+                    Some content
+                </Box>
+            </Box>
+        </Box>
+    )
 }
-
-export default App;
