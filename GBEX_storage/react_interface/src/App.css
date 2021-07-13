@@ -9,3 +9,17 @@ body {
 #root {
     height: 100%;
 }
+
+#storage_box {
+    width: 50%;
+    background-color: blue;
+    overflow: auto;
+    resize: horizontal;
+}
+
+#storage_tree {
+    width: 25%;
+    background-color: green;
+    overflow: auto;
+    resize: horizontal;
+}

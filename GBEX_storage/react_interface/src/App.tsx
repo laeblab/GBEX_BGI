@@ -1,11 +1,11 @@
 import React from 'react';
-import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import TheTree from './TheTree';
 import TheBox from './TheBox'
+import useDimensions from "react-cool-dimensions";
 
-const useStyles = makeStyles((theme: Theme) =>
-    createStyles({
+
+const classes = {
         root: {
             height: "100%"
         },
@@ -14,48 +14,44 @@ const useStyles = makeStyles((theme: Theme) =>
             backgroundColor: 'red'
 
         },
-        bottom: {
-        },
-        tree: {
-            width: "25%",
-            backgroundColor: 'green',
-            overflow: "auto",
-            resize: "horizontal"
-        },
-        box: {
-            width: "50%",
-            backgroundColor: 'blue',
-            overflow: "auto",
-            resize: "horizontal"
-        },
         well: {
             backgroundColor: 'salmon',
             overflow: "auto",
         },
         paper: {
-            padding: theme.spacing(1),
-            textAlign: 'center',
-            color: theme.palette.text.secondary,
+            padding: 5,
             height: "100%"
         },
-    }),
-);
+}
 
 export default function App() {
-    const classes = useStyles();
+    const mytree = {
+        rum1: {
+            fryser1: "hallo",
+            fryser2: {
+                rack1: "ra1",
+                rack2: "ra2"
+            }
+        },
+        rum2: {
+            fryser3: "hihi"
+        }
+    }
+    const { observe, width, height } = useDimensions()
+
     return (
-        <Box display="flex" flexDirection="column" className={classes.root}>
-            <Box id="storage_top" className={classes.top}>
+        <Box display="flex" flexDirection="column" style={classes.root}>
+            <div id="storage_top" style={classes.top}>
                 header
-            </Box>
-            <Box display="flex" flexGrow={1} id="storage_bottom" className={classes.bottom}>
-                <Box id="storage_tree" className={classes.tree}>
-                    <TheTree/>
-                </Box>
-                <Box id="storage_box" className={classes.box}>
-                    <TheBox columns={4} rows={3}/>
-                </Box>
-                <Box id="storage_well" flexGrow={1} className={classes.well}>
+            </div>
+            <Box display="flex" flexGrow={1} id="storage_bottom">
+                <div id="storage_tree">
+                    <TheTree tree_data={mytree}/>
+                </div>
+                <div id="storage_box" ref={observe}>
+                    <TheBox columns={4} rows={4} height={height} width={width}/>
+                </div>
+                <Box id="storage_well" flexGrow={1} style={classes.well}>
                     Some content
                 </Box>
             </Box>

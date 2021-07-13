@@ -1,41 +1,77 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core/styles';
 import TreeView from '@material-ui/lab/TreeView';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import TreeItem from '@material-ui/lab/TreeItem';
 
-const useStyles = makeStyles({
+const classes = {
 	root: {
 		height: 240,
 		flexGrow: 1,
 		maxWidth: 400,
 	},
-});
+}
 
-export default function TheTree() {
-	const classes = useStyles();
+const data = {
+	id: 'root',
+	name: 'Parent',
+	children: [
+		{
+			id: '1',
+			name: 'Child - 1',
+		},
+		{
+			id: '3',
+			name: 'Child - 3',
+			children: [
+				{
+					id: '4',
+					name: 'Child - 4',
+				},
+			],
+		},
+	],
+};
 
+export default function TheTree(props: {tree_data: object}) {
+	const handleSelect = (event: React.ChangeEvent<{}>, nodeIds: string[]) => {
+		console.log(nodeIds)
+	};
+	const renderTree = (nodes: { id: string, name: string, children: any }) => (
+		<TreeItem key={nodes.id} nodeId={nodes.id} label={nodes.name}>
+			{Array.isArray(nodes.children)
+				? nodes.children.map((node) => renderTree(node))
+				: null}
+		</TreeItem>
+	);
 	return (
 		<TreeView
-			className={classes.root}
+			style={classes.root}
 			defaultCollapseIcon={<ExpandMoreIcon />}
 			defaultExpandIcon={<ChevronRightIcon />}
+			sx={{ height: 110, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
+			onNodeSelect={handleSelect}
 		>
-			<TreeItem nodeId="1" label="Applications">
-				<TreeItem nodeId="2" label="Calendar" />
-				<TreeItem nodeId="3" label="Chrome" />
-				<TreeItem nodeId="4" label="Webstorm" />
-			</TreeItem>
-			<TreeItem nodeId="5" label="Documents">
-				<TreeItem nodeId="10" label="OSS" />
-				<TreeItem nodeId="6" label="Material-UI">
-					<TreeItem nodeId="7" label="src">
-						<TreeItem nodeId="8" label="index.js" />
-						<TreeItem nodeId="9" label="tree-view.js" />
-					</TreeItem>
-				</TreeItem>
-			</TreeItem>
+			{renderTree(data)}
 		</TreeView>
 	);
 }
+
+
+/*
+
+export default function RichObjectTreeView() {
+
+
+  return (
+    <TreeView
+      aria-label="rich object"
+      defaultCollapseIcon={<ExpandMoreIcon />}
+      defaultExpanded={['root']}
+      defaultExpandIcon={<ChevronRightIcon />}
+    >
+      {renderTree(data)}
+    </TreeView>
+  );
+}
+ */
