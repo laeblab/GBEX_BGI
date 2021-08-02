@@ -1,6 +1,7 @@
 import os
 import logging
 import ldap
+from django_auth_ldap.backend import LDAPBackend
 from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
 
 ADD_REVERSION_ADMIN = True  # Django Reversion
@@ -29,21 +30,36 @@ else:
 LOGIN_URL = '/accounts/login/'
 LOGOUT_REDIRECT_URL = '/'
 
-AUTH_LDAP_SERVER_URI = "ldaps://win.dtu.dk"
-AUTH_LDAP_GLOBAL_OPTIONS = {
-	# AIT uses a self-signed certificate, so certificate authentication is not possible
-	ldap.OPT_X_TLS_REQUIRE_CERT: ldap.OPT_X_TLS_NEVER,
-}
-AUTH_LDAP_USER_DN_TEMPLATE = 'cn=%(user)s,ou=BIO,ou=DTUBaseUsers,dc=win,dc=dtu,dc=dk'
-AUTH_LDAP_USER_ATTR_MAP = {"first_name": "givenName", "last_name": "sn", 'email': 'mail'}
-AUTH_LDAP_BIND_AS_AUTHENTICATING_USER = True
-AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=SecurityGroups,ou=BIO,ou=DTUBasen,dc=win,dc=dtu,dc=dk",ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)")
-AUTH_LDAP_GROUP_TYPE = GroupOfNamesType()
-AUTH_LDAP_REQUIRE_GROUP = 'cn=BIO-PSB-Biotherapeutic-Glycoengineering-and-Immunology-41518,ou=SecurityGroups,ou=BIO,ou=DTUBasen,dc=win,dc=dtu,dc=dk'
+
+class LDAPBIOBackend(LDAPBackend):
+	settings_prefix = "AUTH_LDAP_BIO_"
+
+
+class LDAPStudentBackend(LDAPBackend):
+	settings_prefix = "AUTH_LDAP_STUDENT_"
+
+
+AUTH_LDAP_BIO_SERVER_URI = "ldaps://win.dtu.dk"
+AUTH_LDAP_BIO_GLOBAL_OPTIONS = {ldap.OPT_X_TLS_REQUIRE_CERT: ldap.OPT_X_TLS_NEVER,}  # AIT uses a self-signed certificate, so certificate authentication is not possible
+AUTH_LDAP_BIO_USER_DN_TEMPLATE = 'cn=%(user)s,ou=BIO,ou=DTUBaseUsers,dc=win,dc=dtu,dc=dk'
+AUTH_LDAP_BIO_USER_ATTR_MAP = {"first_name": "givenName", "last_name": "sn", 'email': 'mail'}
+AUTH_LDAP_BIO_BIND_AS_AUTHENTICATING_USER = True
+AUTH_LDAP_BIO_GROUP_SEARCH = LDAPSearch("ou=SecurityGroups,ou=BIO,ou=DTUBasen,dc=win,dc=dtu,dc=dk",ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)")
+AUTH_LDAP_BIO_GROUP_TYPE = GroupOfNamesType()
+AUTH_LDAP_BIO_REQUIRE_GROUP = 'CN=BIO-PSBT-g-Biotherapeutic-Glycoeng-Immunology-41518,OU=SecurityGroups,OU=BIO,OU=DTUBasen,DC=win,DC=dtu,DC=dk'
+
+AUTH_LDAP_STUDENT_SERVER_URI = "ldaps://win.dtu.dk"
+AUTH_LDAP_STUDENT_GLOBAL_OPTIONS = {ldap.OPT_X_TLS_REQUIRE_CERT: ldap.OPT_X_TLS_NEVER,}  # AIT uses a self-signed certificate, so certificate authentication is not possible
+AUTH_LDAP_STUDENT_USER_DN_TEMPLATE = 'cn=%(user)s,ou=STUDENTS,ou=DTUBaseUsers,dc=win,dc=dtu,dc=dk'
+AUTH_LDAP_STUDENT_USER_ATTR_MAP = {"first_name": "givenName", "last_name": "sn", 'email': 'mail'}
+AUTH_LDAP_STUDENT_BIND_AS_AUTHENTICATING_USER = True
+AUTH_LDAP_STUDENT_GROUP_SEARCH = LDAPSearch("ou=SecurityGroups,ou=BIO,ou=DTUBasen,dc=win,dc=dtu,dc=dk",ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)")
+AUTH_LDAP_STUDENT_GROUP_TYPE = GroupOfNamesType()
+AUTH_LDAP_STUDENT_REQUIRE_GROUP = 'CN=BIO-PSBT-g-Biotherapeutic-Glycoeng-Immunology-41518,OU=SecurityGroups,OU=BIO,OU=DTUBasen,DC=win,DC=dtu,DC=dk'
 
 AUTHENTICATION_BACKENDS = (
 	'django.contrib.auth.backends.ModelBackend',
-	'django_auth_ldap.backend.LDAPBackend',
+	LDAPBIOBackend, LDAPStudentBackend
 )
 
 INSTALLED_APPS = [
