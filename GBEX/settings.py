@@ -59,7 +59,7 @@ AUTH_LDAP_STUDENT_REQUIRE_GROUP = 'CN=BIO-PSBT-g-Biotherapeutic-Glycoeng-Immunol
 
 AUTHENTICATION_BACKENDS = (
 	'django.contrib.auth.backends.ModelBackend',
-	LDAPBIOBackend, LDAPStudentBackend
+	"GBEX.settings.LDAPBIOBackend", "GBEX.settings.LDAPStudentBackend"
 )
 
 INSTALLED_APPS = [
