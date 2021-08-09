@@ -12,31 +12,9 @@ const classes = {
 	},
 }
 
-const data = {
-	id: 'root',
-	name: 'Parent',
-	children: [
-		{
-			id: '1',
-			name: 'Child - 1',
-		},
-		{
-			id: '3',
-			name: 'Child - 3',
-			children: [
-				{
-					id: '4',
-					name: 'Child - 4',
-				},
-			],
-		},
-	],
-};
+export default function TheTree(props: {a_func: (event: React.ChangeEvent<{}>, nodeIds: string) => void, tree_data: {id: string, name:string, children: any}}) {
+	const { a_func, tree_data } = props
 
-export default function TheTree(props: {tree_data: object}) {
-	const handleSelect = (event: React.ChangeEvent<{}>, nodeIds: string[]) => {
-		console.log(nodeIds)
-	};
 	const renderTree = (nodes: { id: string, name: string, children: any }) => (
 		<TreeItem key={nodes.id} nodeId={nodes.id} label={nodes.name}>
 			{Array.isArray(nodes.children)
@@ -50,28 +28,9 @@ export default function TheTree(props: {tree_data: object}) {
 			defaultCollapseIcon={<ExpandMoreIcon />}
 			defaultExpandIcon={<ChevronRightIcon />}
 			sx={{ height: 110, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
-			onNodeSelect={handleSelect}
+			onNodeSelect={a_func}
 		>
-			{renderTree(data)}
+			{renderTree(tree_data)}
 		</TreeView>
 	);
 }
-
-
-/*
-
-export default function RichObjectTreeView() {
-
-
-  return (
-    <TreeView
-      aria-label="rich object"
-      defaultCollapseIcon={<ExpandMoreIcon />}
-      defaultExpanded={['root']}
-      defaultExpandIcon={<ChevronRightIcon />}
-    >
-      {renderTree(data)}
-    </TreeView>
-  );
-}
- */

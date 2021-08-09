@@ -10,8 +10,8 @@ const classes = {
 			borderStyle: 'solid',
 			borderColor: 'black',
 			borderWidth: '1px',
-			minWidth: '100px',
-			minHeight: '100px'
+			minWidth: '50px',
+			minHeight: '50px'
 		},
 }
 
@@ -37,7 +37,7 @@ export default function TheBox(props: {columns: number, rows: number, height: nu
 				return (
 					<Box display="flex" flexGrow={1} key={i}>
 						{[...Array(columns)].map((ee, ii) => {
-							return <div style={Object.assign({}, classes.wells, square_size)} key={ii}>{i}, {ii} {width}</div>})
+							return <div style={Object.assign({}, classes.wells, square_size)} key={ii}>{i}, {ii} {square_size.width} {width}</div>})
 						}
 					</Box>)
 			})}
