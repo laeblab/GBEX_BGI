@@ -1,3 +1,19 @@
+# Todo
+Ok jeg har basic layout og interaktion.
+Nu er det vist tid til at integrere med GBEX.
+
+Del 0: Modeller
+location -> box -> well
+
+Del 1: App load
+* Link til at gå ind i appen
+* Load a siden skal ske via en funktion i GBEX der genererer tree_view og box_info
+* Ved klik på well, så get info om well content
+
+Del 2: Widget view
+* Ved createview skal appen kunne åbnes og en selected well skal kunne sendes tilbage til create formen
+* 
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

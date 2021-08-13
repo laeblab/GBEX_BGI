@@ -12,8 +12,8 @@ const classes = {
 	},
 }
 
-export default function TheTree(props: {a_func: (event: React.ChangeEvent<{}>, nodeIds: string) => void, tree_data: {id: string, name:string, children: any}}) {
-	const { a_func, tree_data } = props
+export default function TheTree(props: {BoxSelectFunc: (event: React.ChangeEvent<{}>, nodeIds: string) => void, tree_data: {id: string, name:string, children: any}}) {
+	const { BoxSelectFunc, tree_data } = props
 
 	const renderTree = (nodes: { id: string, name: string, children: any }) => (
 		<TreeItem key={nodes.id} nodeId={nodes.id} label={nodes.name}>
@@ -28,7 +28,7 @@ export default function TheTree(props: {a_func: (event: React.ChangeEvent<{}>, n
 			defaultCollapseIcon={<ExpandMoreIcon />}
 			defaultExpandIcon={<ChevronRightIcon />}
 			sx={{ height: 110, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
-			onNodeSelect={a_func}
+			onNodeSelect={BoxSelectFunc}
 		>
 			{renderTree(tree_data)}
 		</TreeView>
