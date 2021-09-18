@@ -69,6 +69,7 @@ INSTALLED_APPS = [
 	'drf_yasg2',
 	'GBEX_app.apps.GbexAppConfig',
 	'GBEX_bigfiles.apps.GbexBigfilesConfig',
+	'GBEX_storage',
 	'django_filters',
 ]
 

@@ -8,6 +8,8 @@ from GBEX_app.views import GBEXindex, BulkUpdateView, BulkUploadView, GBEXList, 
 	ArchiveView, GBEXUpdateView, GBEXCreateView
 from itertools import chain
 
+from GBEX_storage.views import StorageIndex
+
 
 def url_gen(model, kind):
 	mnl = model.__name__  # save the model name, because we will use it a lot
@@ -41,5 +43,6 @@ def url_gen(model, kind):
 
 urlpatterns = [
 	path('', GBEXindex.as_view(), name='GBEXindex'),
+	path('storage', StorageIndex.as_view(), name='StorageIndex'),
 	path('User/autocomplete/', GBEXAutocomplete.as_view(model=User, search_fields=["username", "first_name", "last_name"]), name='User-autocomplete'),
 ] + list(chain.from_iterable([url_gen(model, getattr(model, "model_kind")) for model in apps.get_app_config('GBEX_app').get_models() if hasattr(model, "model_kind")]))

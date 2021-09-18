@@ -7,9 +7,9 @@ location -> box -> well
 
 Del 1: App load
 * Link til at gå ind i appen
-* Load a siden skal ske via en funktion i GBEX der genererer tree_view og box_info
+* Load af siden skal ske via en funktion i GBEX der genererer tree_view og box_info
   * Template for siden er vist nemmest at basere på create-react-app build output.
-    * Python script der konvertere det til en django template og måske linker static files eller noget...
+    * Python script der konvertere det til en django template og måske linker static files eller noget...ellers så bare manual adopt det
 * Ved klik på well, så get info om well content
 
 Del 2: Widget view
