@@ -11,6 +11,10 @@
 {% endblock %}
 
 {% block page_js_block %}
+    <script>
+        window.my_tree = {{ my_tree|safe }}
+        window.box_info = {{ box_info|safe }}
+    </script>
     <script>!function (e) {
         function r(r) {
             for (var n, a, f = r[0], i = r[1], l = r[2], p = 0, s = []; p < f.length; p++) a = f[p], Object.prototype.hasOwnProperty.call(o, a) && o[a] && s.push(o[a][0]), o[a] = 0;
@@ -69,6 +73,6 @@
         var c = i;
         t()
     }([])</script>
-    <script src="{% static '/static/js/2.406f8af6.chunk.js' %}"></script>
-    <script src="{% static '/static/js/main.f963bf45.chunk.js' %}"></script>
+    <script src="{% static '/static/js/2.764d7142.chunk.js' %}"></script>
+    <script src="{% static '/static/js/main.11d1bdc4.chunk.js' %}"></script>
 {% endblock %}
