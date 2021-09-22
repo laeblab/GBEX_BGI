@@ -9,7 +9,7 @@ def create_location_tree(parent_loc=None):
 			*[{"id": box.id, "name": box.name} for box in Box.objects.filter(location=loc)],
 			*create_location_tree(loc)
 		]
-		tree.append({"id": loc.id, "name": loc.name, "children": children})
+		tree.append({"id": f"loc{loc.id}", "name": loc.name, "children": children})
 	return tree
 
 

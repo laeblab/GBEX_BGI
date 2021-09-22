@@ -130,7 +130,7 @@ USE_I18N = False
 USE_L10N = False
 USE_TZ = True
 DATE_FORMAT = 'c'
-STATIC_URL = '/static_gbex/'
+STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "shared/static")
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 SENDFILE_ROOT = MEDIA_ROOT = os.environ.get('UPLOAD_PERMANENT_LOCATION')

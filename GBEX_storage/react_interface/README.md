@@ -1,16 +1,15 @@
 # Todo
-Ok jeg har basic layout og interaktion.
-Nu er det vist tid til at integrere med GBEX.
+Del 0: React modul (prototype done)
+Del 1: Modeller (Færdig..eller first try)
+location -> box -> vial((through_table) <- Gbex-ting, f.eks. batch (Many2Many)
 
-Del 0: Modeller (Færdig..eller first try)
-location -> box -> well
-
-Del 1: App load
-* Link til at gå ind i appen
-* Load af siden skal ske via en funktion i GBEX der genererer tree_view og box_info
+Del 2: App load
+* Link til at gå ind i appen (link lavet, men ingen visuel link)
+  * path('storage', StorageIndex.as_view(), name='StorageIndex') tilføjet GBEX_app/urls.py
+* Load af siden skal ske via en funktion i GBEX der genererer tree_view og box_info (lavet)
   * Template for siden er vist nemmest at basere på create-react-app build output.
-    * Python script der konvertere det til en django template og måske linker static files eller noget...ellers så bare manual adopt det
-* Ved klik på well, så get info om well content
+    * manuelt adapted. Skal manuelt opdateres med js+css ved rebuild
+* Ved klik på well, så get info om well content (vial)
 
 Del 2: Widget view
 * Ved createview skal appen kunne åbnes og en selected well skal kunne sendes tilbage til create formen

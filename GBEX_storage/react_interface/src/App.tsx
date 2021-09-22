@@ -8,7 +8,7 @@ import useDimensions from "react-cool-dimensions";
 declare global {
     interface Window {
         box_info: {[key: string]: {content: number[], size: {rows: number, columns: number}}},
-        my_tree: [id: string, name: string, children: any]
+        my_tree: {id: string, name: string, children: any}[]
     }
 }
 
@@ -27,31 +27,19 @@ const box_info: {[key: string]: {content: number[], size: {rows: number, columns
     '3': {content: [...Array(8*12).keys()], size: {rows: 8, columns: 12}},
 }
 
-const mytree = {
-    id: 'root',
-    name: 'Rum931',
-    children: [
-        {
-            id: '1',
-            name: 'løs box',
-        },
-        {
-            id: 'fre4',
-            name: 'Fryser -80',
-            children: [
-                {
-                    id: '2',
-                    name: 'Box 1',
-                },
-                {
-                    id: '3',
-                    name: 'Box CHO',
-                },
-            ],
-        },
-    ],
-}
-*/
+const my_tree = {
+    data: [
+        { id: 'root', name: 'Rum931', children: [
+            { id: '1', name: 'løs box', },
+            { id: 'fre4', name: 'Fryser -80', children: [
+                    { id: '2', name: 'Box 1', },
+                    { id: '3', name: 'Box CHO', },
+                ],
+            },
+        ]},
+    ]
+}*/
+
 export default function App() {
     const { observe, width, height } = useDimensions()
     const [box, setBox] = useState({content: [0], size: {rows: 1, columns: 1}});
