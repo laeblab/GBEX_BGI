@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.views.generic import TemplateView
 from .models import Location, Box, Vial
 
@@ -13,6 +14,14 @@ def create_location_tree(parent_loc=None):
 	return tree
 
 
+def vial_info(request, box_index, vial_index):
+	v = Vial.objects.filter(box=box_index, pos_index=vial_index)
+	if v:
+		return JsonResponse({'data': v[0].content_object.__str__()})
+	else:
+		return JsonResponse({'data': "No vial"})
+
+
 class StorageIndex(TemplateView):
 	template_name = 'GBEX_storage/index.html'
 
@@ -24,21 +33,10 @@ class StorageIndex(TemplateView):
 		# 3. Lav en liste af boxes (kaldet box_info) som er en liste af boxes med id, deres dimensions og internt til hvre box, en liste af labels på de vials der er der i.
 
 		context['my_tree'] = create_location_tree()
-		context['box_info'] = {box.id: {"content": [x for x in range(box.rows*box.columns)], "size": {"rows": box.rows, "columns": box.columns}} for box in Box.objects.all()}
-		return context
 
-"""
-    id: 'root',
-    name: 'Rum931',
-    children: [
-    	{id: '1', name: 'løs box',},
-        {id: 'fre4', name: 'Fryser -80', children: [
-                { id: '2', name: 'Box 1',},
-                { id: '3', name: 'Box CHO',},],},
-    ],
-    
-    const box_info: {[key: string]: {content: number[], size: {rows: number, columns: number}}} = {
-    '1': {content: [...Array(3*3).keys()], size: {rows: 3, columns: 3}},
-    '2': {content: [...Array(9*9).keys()], size: {rows: 9, columns: 9}},
-    '3': {content: [...Array(8*12).keys()], size: {rows: 8, columns: 12}},
-"""
+		# Her skal du ændre ændre content til at vise koordinat (A1, H6, etc) + navne på linkede vial objects
+		context['box_info'] = {
+			box.id: {"content": [x for x in range(box.rows*box.columns)],
+					 "size": {"rows": box.rows, "columns": box.columns}} for box in Box.objects.all()
+		}
+		return context

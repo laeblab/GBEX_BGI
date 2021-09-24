@@ -43,6 +43,5 @@ def url_gen(model, kind):
 
 urlpatterns = [
 	path('', GBEXindex.as_view(), name='GBEXindex'),
-	path('storage', StorageIndex.as_view(), name='StorageIndex'),
 	path('User/autocomplete/', GBEXAutocomplete.as_view(model=User, search_fields=["username", "first_name", "last_name"]), name='User-autocomplete'),
 ] + list(chain.from_iterable([url_gen(model, getattr(model, "model_kind")) for model in apps.get_app_config('GBEX_app').get_models() if hasattr(model, "model_kind")]))

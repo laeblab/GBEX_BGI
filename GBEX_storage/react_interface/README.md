@@ -1,3 +1,7 @@
+#Instrucions
+Add to app list in settings
+Add url path('storage/', decorator_include(login_required, 'GBEX_storage.urls')),
+
 ATT DU HAR ÆNDRET SETTINGS static/url!!!
 
 # Todo
