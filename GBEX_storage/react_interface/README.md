@@ -1,7 +1,22 @@
+ATT DU HAR ÆNDRET SETTINGS static/url!!!
+
 # Todo
 Del 0: React modul (prototype done)
 Del 1: Modeller (Færdig..eller first try)
-location -> box -> vial((through_table) <- Gbex-ting, f.eks. batch (Many2Many)
+model muligheder (tager model 1: location -> box -> vial -> Gbex-ting, f.eks. batch)
+   1) vial linker ud med contenttype til gbex-ting
+      1) Fordele:
+         1Kun en gbex-ting per vial
+         2Ingen ændring af gbex modeller nødvendig 
+      2) Ulemper:
+         1) Opsætning af link er besværligt fra create/update form
+            1) Kan evt fungere ved at man altid opsætter via storage appen og bare viser storage info 
+   2) gbex-ting linker til vial via many2many til vial (fordi gbex-tingen kan være i flere vials)
+      1) Fordele:
+         1Virker med create/update form (men kræver vel teknisk set at man går ind i appen alligevel...)
+      2) ulemper
+         1) SKal kode til at forhindre flere gbex-ting på 1 vial (muligvis ikke super vigtigt da appen ikke tillader det)
+         2) skal ændre på gbex-modellerne (tænker umiddelbart det er fint)
 
 Del 2: App load
 * Link til at gå ind i appen (link lavet, men ingen visuel link)

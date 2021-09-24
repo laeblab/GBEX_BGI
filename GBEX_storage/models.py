@@ -23,8 +23,12 @@ class Box(models.Model):
 
 class Vial(models.Model):
 	box = models.ForeignKey(Box, on_delete=models.PROTECT)
+	####
+	# pos_index must be unique with Box
+	# https://docs.djangoproject.com/en/3.2/ref/models/constraints/#django.db.models.UniqueConstraint
+	####
 	pos_index = models.PositiveIntegerField()  # consider row+column instead of index
-	content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+	content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT, null=True)
 	object_id = models.PositiveIntegerField(null=True)
 	content_object = GenericForeignKey('content_type', 'object_id')
 
