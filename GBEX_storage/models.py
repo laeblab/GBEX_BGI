@@ -22,6 +22,7 @@ class Box(models.Model):
 
 
 class Vial(models.Model):
+	name = models.TextField()  # copy the name from content_object
 	box = models.ForeignKey(Box, on_delete=models.PROTECT)
 	####
 	# pos_index must be unique with Box
@@ -33,4 +34,9 @@ class Vial(models.Model):
 	content_object = GenericForeignKey('content_type', 'object_id')
 
 	def __str__(self):
-		return self.content_object.name
+		return self.name
+
+	# try to save some db lookups
+	def save(self, *args, **kwargs):
+		self.name = self.content_object.name
+		super().save(*args, **kwargs)

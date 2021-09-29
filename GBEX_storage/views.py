@@ -35,8 +35,10 @@ class StorageIndex(TemplateView):
 		context['my_tree'] = create_location_tree()
 
 		# Her skal du ændre ændre content til at vise koordinat (A1, H6, etc) + navne på linkede vial objects
-		context['box_info'] = {
-			box.id: {"content": [x for x in range(box.rows*box.columns)],
-					 "size": {"rows": box.rows, "columns": box.columns}} for box in Box.objects.all()
-		}
+		context['box_info'] = {}
+		for box in Box.objects.prefetch_related("vial_set").all():
+			size = {"rows": box.rows, "columns": box.columns}
+			vials = {x["pos_index"]: x["name"] for x in box.vial_set.all().values("name", "pos_index")}
+			content = [vials[x] if x in vials else x for x in range(box.rows * box.columns)]
+			context['box_info'][box.id] = {"size": size, "content": content}
 		return context
