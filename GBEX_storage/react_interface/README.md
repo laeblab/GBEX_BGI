@@ -29,9 +29,13 @@ Del 2: App load
   * Template for siden er vist nemmest at basere på create-react-app build output.
     * manuelt adapted. Skal manuelt opdateres med js+css ved rebuild
 * Ved klik på well, så get info om well content (vial)
+  * Overvej at gøre det editable. Altså måske bare load et lille single item table vertikalt eller noget
 ***** OVERVEJ HVOR MEGET DER SKAL LOADES AF GANGEN
 1. load location og boxes -> async load vial names -> async load vial 
-2. load location og boxes OG vial names -> async load vial content
+2. load location og boxes OG vial names -> async load vial content (pt valgt)
+* Ved klik på well der IKKE indeholder noget, så giv mulighed for at linke til noget
+  * Der skal være en liste over link-bare modeller
+  * Der skal så displayes en autocomplete widget for disse modeller, en per model
 
 Del 2: Widget view
 * Ved createview skal appen kunne åbnes og en selected well skal kunne sendes tilbage til create formen

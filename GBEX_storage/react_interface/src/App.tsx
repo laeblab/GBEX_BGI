@@ -7,7 +7,7 @@ import useDimensions from "react-cool-dimensions";
 
 declare global {
     interface Window {
-        box_info: {[key: string]: {content: number[], size: {rows: number, columns: number}}},
+        box_info: {[key: string]: {content: string[], size: {rows: number, columns: number}}},
         my_tree: {id: string, name: string, children: any}[],
     }
 }
@@ -23,9 +23,9 @@ const classes = {
 
 export default function App() {
     const { observe, width, height } = useDimensions()
-    const [box, setBox] = useState({id: "", content: [0], size: {rows: 1, columns: 1}});
+    const [box, setBox] = useState({id: "", content: [""], size: {rows: 1, columns: 1}});
     const [well, setWell] = useState(-1)
-    const [wellText, setWellText] = useState("Select a well to see info")
+    const [wellText, setWellText] = useState({})
 
     const handleTreeSelect = (event: React.ChangeEvent<{}>, nodeIds: string) => {
         if (nodeIds in window.box_info) {
@@ -39,7 +39,7 @@ export default function App() {
 
         fetch("vial_info/"+box.id+"/"+well_id, { credentials: 'include' })
             .then(response => response.json())
-            .then(res => setWellText(res.data))
+            .then(json => setWellText(json))
             .catch(error => console.log(error))
     }
 
@@ -56,7 +56,13 @@ export default function App() {
                     <TheBox selected_well={well} WellSelectFunc={handleWellSelect} box_info={box} height={height} width={width}/>
                 </div>
                 <Box id="storage_well" flexGrow={1} style={classes.well}>
-                    {wellText}{well+1}
+                    <ul>
+                        {
+                            Object.entries(wellText).map(
+                                ([val_name,value],i) => <li key={i}>{val_name}: {value}</li>
+                            )
+                        }
+                    </ul>
                 </Box>
             </Box>
         </Box>

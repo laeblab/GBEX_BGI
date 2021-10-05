@@ -1,6 +1,7 @@
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 from .models import Location, Box, Vial
+from GBEX_app.helpers import model_to_list_list
 
 
 def create_location_tree(parent_loc=None):
@@ -17,9 +18,10 @@ def create_location_tree(parent_loc=None):
 def vial_info(request, box_index, vial_index):
 	v = Vial.objects.filter(box=box_index, pos_index=vial_index)
 	if v:
-		return JsonResponse({'data': v[0].content_object.__str__()})
+		p = v[0].content_object
+		return JsonResponse({a:b for (a,b) in zip(p.order, model_to_list_list(p._meta.model.objects.filter(id=p.id))[0])})
 	else:
-		return JsonResponse({'data': "No vial"})
+		return JsonResponse({'No vial': ""})
 
 
 class StorageIndex(TemplateView):
@@ -39,6 +41,6 @@ class StorageIndex(TemplateView):
 		for box in Box.objects.prefetch_related("vial_set").all():
 			size = {"rows": box.rows, "columns": box.columns}
 			vials = {x["pos_index"]: x["name"] for x in box.vial_set.all().values("name", "pos_index")}
-			content = [vials[x] if x in vials else x for x in range(box.rows * box.columns)]
+			content = [vials[x] if x in vials else x+1 for x in range(box.rows * box.columns)]
 			context['box_info'][box.id] = {"size": size, "content": content}
 		return context
