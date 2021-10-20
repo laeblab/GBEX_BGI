@@ -1,3 +1,6 @@
+# BUGS
+Mini skrift når jeg går in på storage...mærkeligt
+
 #Instrucions
 Add to app list in settings
 Add url path('storage/', decorator_include(login_required, 'GBEX_storage.urls')),
