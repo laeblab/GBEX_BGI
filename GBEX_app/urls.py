@@ -8,8 +8,6 @@ from GBEX_app.views import GBEXindex, BulkUpdateView, BulkUploadView, GBEXList, 
 	ArchiveView, GBEXUpdateView, GBEXCreateView
 from itertools import chain
 
-from GBEX_storage.views import StorageIndex
-
 
 def url_gen(model, kind):
 	mnl = model.__name__  # save the model name, because we will use it a lot

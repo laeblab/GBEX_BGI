@@ -19,8 +19,8 @@ export default function TheTree(props: { BoxSelectFunc: (event: React.ChangeEven
 			<TreeItem key={node.id} nodeId={node.id} label={node.name}>
 				{Array.isArray(node.children) ? [
 					renderTree(node.children),
-					<TreeItem nodeId={node.id + "new_box"} label={"New Box"}/>,
-					<TreeItem nodeId={node.id + "new_location"} label={"New Location"}/>
+					<TreeItem nodeId={node.id + "_newBox"} label={"New Box"}/>,
+					<TreeItem nodeId={node.id + "_newLocation"} label={"New Location"}/>
 				] : null}
 			</TreeItem>))
 	)

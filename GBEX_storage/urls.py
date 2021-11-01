@@ -1,8 +1,9 @@
 from django.urls import path
-
-from .views import StorageIndex, vial_info
+from django.views.generic import TemplateView
+from .views import vial_info, get_locs_and_boxes
 
 urlpatterns = [
-    path('', StorageIndex.as_view(), name='StorageIndex'),
+    path('', TemplateView.as_view(template_name='GBEX_storage/index.html'), name='StorageIndex'),
     path('vial_info/<box_index>/<vial_index>', vial_info, name='vial_info'),
+    path('locsNboxs', get_locs_and_boxes, name='loc_box'),
 ]
