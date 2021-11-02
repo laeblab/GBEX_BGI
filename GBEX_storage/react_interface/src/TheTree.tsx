@@ -34,6 +34,7 @@ export default function TheTree(props: { BoxSelectFunc: (event: React.ChangeEven
 			onNodeSelect={BoxSelectFunc}
 		>
 			{renderTree(tree_data)}
+			<TreeItem nodeId={"root_newLocation"} label={"New Location"}/>
 		</TreeView>
 	);
 }

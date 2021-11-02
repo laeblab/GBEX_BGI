@@ -38,13 +38,13 @@ def vial_info(request, box_index, vial_index):
 
 def get_locs_and_boxes(request):
 	if 'Newstuff' in request.headers:
-		print(request.headers['Newstuff'])
-		parts = request.headers['Newstuff'].split("_")
+		parts = request.headers['Newstuff'].split("_")  # should be [loc/box, id, NewLocation/NewBox]
 		if parts[-1] == 'newLocation':
-			print(f"new location {parts[0]}")
-			Location.objects.create(name="NewLoc", parent_loc_id=parts[1])
+			parent = parts[-2]
+			if parent == 'root':
+				parent = None
+			Location.objects.create(name="NewLoc", parent_loc_id=parent)
 		elif parts[-1] == "newBox":
-			print(f"new box {parts[0]}")
-			Box.objects.create(name="NewBox", location_id=parts[1], rows=10, columns=10)
+			Box.objects.create(name="NewBox", location_id=parts[-2], rows=10, columns=10)
 	context = {'my_tree': create_location_tree(), 'box_info': create_box_info()}
 	return JsonResponse(context)
