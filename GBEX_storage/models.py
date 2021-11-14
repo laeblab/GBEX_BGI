@@ -5,7 +5,7 @@ from django.db import models
 
 class Location(models.Model):
 	name = models.TextField()
-	parent_loc = models.ForeignKey("self", on_delete=models.PROTECT, null=True)
+	parent_loc = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True)
 
 	def __str__(self):
 		return self.name

@@ -1,8 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import Box from '@material-ui/core/Box';
-import TheTree from './TheTree';
+import React, {useEffect, useState} from 'react'
+import Box from '@material-ui/core/Box'
+import TheTree from './TheTree'
 import TheBox from './TheBox'
-import useDimensions from "react-cool-dimensions";
+import TheEditor from './TheEditor'
+import useDimensions from "react-cool-dimensions"
 
 
 type TreeType = {id: string, name: string, children: any}
@@ -78,6 +79,7 @@ export default function App() {
                     <TheBox selected_well={well} WellSelectFunc={setWell} box_info={box} height={height} width={width}/>
                 </div>
                 <Box id="storage_well" flexGrow={1} style={classes.well}>
+                    <TheEditor />
                     <ul>
                         {
                             Object.entries(wellText).map(
