@@ -7,7 +7,7 @@ import useDimensions from "react-cool-dimensions"
 
 
 export type TreeType = {id: string, name: string, children: any}
-export type BoxInfoType = {[key: string]: {content: string[], size: {rows: number, columns: number}}}
+export type BoxInfoType = {[key: string]: {content: { name:string, id:number }[], size: {rows: number, columns: number}}}
 
 const classes = {
     root: { height: "100%" },
@@ -19,12 +19,13 @@ const classes = {
 
 export default function App() {
     const { observe, width, height } = useDimensions()
-    const [box, setBox] = useState({id: "", content: [""], size: {rows: 1, columns: 1}}); // box contain information about the currently selected box
+    const [box, setBox] = useState({id: "", content: [{name:"A1", id:-1}], size: {rows: 1, columns: 1}}); // box contain information about the currently selected box
     const [selectedItem, setSelectedItem] = useState({type:'loc', pk:"1"}) // the right panel shows an update form based on this
     // box_info is a dict that contains all box names + size + names of vials
-    const [box_info, setBoxInfo] = useState<BoxInfoType>({"box1": {content: ["hello", "you"], size: {rows: 1, columns: 1}}, "box2": {content: ["hello", "you"], size: {rows: 1, columns: 1}}})
+    const [box_info, setBoxInfo] = useState<BoxInfoType>({"box1": {content: [{name:"A1", id:-1}], size: {rows: 1, columns: 1}}, "box2": {content: [{name:"A1", id:-1}], size: {rows: 1, columns: 1}}})
     // my_tree contains a hierarchy of locations and boxes
     const [my_tree, setMyTree] = useState<TreeType[]>([{id: "root_loc", name: "root loc", children: []}]);
+
     useEffect(() => {
         fetch("locsNboxs", {credentials: 'include'})
             .then(res => res.json())
@@ -87,7 +88,7 @@ export default function App() {
                     <TheBox selected_well={well} WellSelectFunc={changeWell} box_info={box} height={height} width={width}/>
                 </div>
                 <Box id="storage_well" flexGrow={1} style={classes.well}>
-                    <TheEditor target_type={selectedItem.type} target_pk={selectedItem.pk} setBoxInfo={setBoxInfo} setMyTree={setMyTree}/>
+                    {/*<TheEditor target_type={selectedItem.type} target_pk={selectedItem.pk} setBoxInfo={setBoxInfo} setMyTree={setMyTree}/>*/}
                     <ul>
                         {
                             Object.entries(wellText).map(

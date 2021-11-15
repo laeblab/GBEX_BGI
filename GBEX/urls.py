@@ -10,9 +10,10 @@ from decorator_include import decorator_include
 
 from GBEX_app.drf import GBEX_API_ViewSets
 from GBEX_bigfiles.views import download_file
+from GBEX_storage.drf import Storage_API
 
 router = routers.DefaultRouter()
-for name, viewset in GBEX_API_ViewSets:
+for name, viewset in [*GBEX_API_ViewSets, *Storage_API]:
 	router.register(name, viewset)
 
 schema_view = get_schema_view(

@@ -1,22 +1,6 @@
 from django.http import JsonResponse
-from django.views.generic import UpdateView
 from .models import Location, Box, Vial
 from GBEX_app.helpers import model_to_list_list
-
-
-class GBEXStorageUpdateView(UpdateView):
-	"""
-	Change the UpdateView to return an updated storage info object instead of redirecting on success
-	"""
-	template_name = "GBEX_storage/update_form.html"
-	fields = '__all__'
-
-	#def get_form_class(self):
-	#	return modelform_factory(self.model, fields=[self.kwargs['column']], widgets=self.widgets)
-
-	def form_valid(self, form):
-		form.save()
-		return JsonResponse({'my_tree': create_location_tree(), 'box_info': create_box_info()})
 
 
 def create_location_tree(parent_loc=None):
@@ -37,19 +21,21 @@ def create_box_info():
 	# Her skal du ændre ændre content til at vise koordinat (A1, H6, etc) + navne på linkede vial objects
 	for box in Box.objects.prefetch_related("vial_set").all():
 		size = {"rows": box.rows, "columns": box.columns}
-		vials = {x["pos_index"]: x["name"] for x in box.vial_set.all().values("name", "pos_index")}
-		content = [vials[x] if x in vials else x + 1 for x in range(box.rows * box.columns)]
+		# take a moment here to unlink vials that no longer fit in the box after a box resize
+		Vial.objects.filter(box=box, pos_index__gt=box.rows * box.columns).update(box=None)
+		vials = {x["pos_index"]: {'name': x["name"], 'id': x["id"]} for x in box.vial_set.all().values("id", "name", "pos_index")}
+		content = [vials[x] if x in vials else {'name': x + 1, 'id': -1} for x in range(box.rows * box.columns)]
 		box_info[box.id] = {"size": size, "content": content}
 	return box_info
 
 
-def vial_info(request, box_index, vial_index):
-	v = Vial.objects.filter(box=box_index, pos_index=vial_index)
-	if v:
-		p = v[0].content_object
-		return JsonResponse({a: b for (a, b) in zip(p.order, model_to_list_list(p._meta.model.objects.filter(id=p.id))[0])})
-	else:
-		return JsonResponse({'No vial': ""})
+#def vial_info(request, box_index, vial_index):
+#	v = Vial.objects.filter(box=box_index, pos_index=vial_index)
+#	if v:
+#		p = v[0].content_object
+#		return JsonResponse({a: b for (a, b) in zip(p.order, model_to_list_list(p._meta.model.objects.filter(id=p.id))[0])})
+#	else:
+#		return JsonResponse({'No vial': ""})
 
 
 def get_locs_and_boxes(request):

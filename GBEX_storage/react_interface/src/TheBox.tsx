@@ -15,7 +15,7 @@ const classes = {
 		},
 }
 
-export default function TheBox(props: {selected_well: number, WellSelectFunc: (well_id: number) => void, box_info: {content: string[], size: {rows: number, columns: number}}, height: number, width: number}) {
+export default function TheBox(props: {selected_well: number, WellSelectFunc: (well_id: number) => void, box_info: {content: { name:string, id:number }[], size: {rows: number, columns: number}}, height: number, width: number}) {
 	const {box_info, height, width} = props
 	const {rows, columns} = box_info['size']
 
@@ -47,7 +47,7 @@ export default function TheBox(props: {selected_well: number, WellSelectFunc: (w
 								onClick={() => props.WellSelectFunc(i*columns+ii)}
 								style={Object.assign({}, classes.wells, square_size, well_style)}
 								key={ii}>
-								{box_info['content'][i*columns+ii]}
+								{box_info['content'][i*columns+ii].name}
 							</div>})
 						}
 					</Box>)
