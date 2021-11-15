@@ -1,6 +1,22 @@
 from django.http import JsonResponse
+from django.views.generic import UpdateView
 from .models import Location, Box, Vial
 from GBEX_app.helpers import model_to_list_list
+
+
+class GBEXStorageUpdateView(UpdateView):
+	"""
+	Change the UpdateView to return an updated storage info object instead of redirecting on success
+	"""
+	template_name = "GBEX_storage/update_form.html"
+	fields = '__all__'
+
+	#def get_form_class(self):
+	#	return modelform_factory(self.model, fields=[self.kwargs['column']], widgets=self.widgets)
+
+	def form_valid(self, form):
+		form.save()
+		return JsonResponse({'my_tree': create_location_tree(), 'box_info': create_box_info()})
 
 
 def create_location_tree(parent_loc=None):

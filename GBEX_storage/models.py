@@ -4,15 +4,18 @@ from django.db import models
 
 
 class Location(models.Model):
-	name = models.TextField()
+	name = models.CharField(max_length=255)
 	parent_loc = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True)
 
 	def __str__(self):
 		return self.name
 
+	class Meta:
+		ordering = ('id', )
+
 
 class Box(models.Model):
-	name = models.TextField()
+	name = models.CharField(max_length=255)
 	location = models.ForeignKey(Location, on_delete=models.PROTECT)
 	rows = models.PositiveIntegerField()
 	columns = models.PositiveIntegerField()
@@ -20,9 +23,12 @@ class Box(models.Model):
 	def __str__(self):
 		return self.name
 
+	class Meta:
+		ordering = ('id', )
+
 
 class Vial(models.Model):
-	name = models.TextField()  # copy the name from content_object
+	name = models.CharField(max_length=255)  # copy the name from content_object
 	box = models.ForeignKey(Box, on_delete=models.PROTECT)
 	####
 	# pos_index must be unique with Box
@@ -40,3 +46,6 @@ class Vial(models.Model):
 	def save(self, *args, **kwargs):
 		self.name = self.content_object.name
 		super().save(*args, **kwargs)
+
+	class Meta:
+		ordering = ('id', )

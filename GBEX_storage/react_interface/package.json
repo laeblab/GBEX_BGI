@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@emotion/react": "^11.4.1",
-    "@emotion/styled": "^11.3.0",
+    "@emotion/react": "^11.6.0",
+    "@emotion/styled": "^11.6.0",
     "@fontsource/roboto": "^4.5.1",
-    "@material-ui/core": "^5.0.0-beta.4",
-    "@material-ui/icons": "^5.0.0-beta.4",
-    "@material-ui/lab": "^5.0.0-alpha.43",
+    "@mui/icons-material": "^5.1.0",
+    "@mui/lab": "^5.0.0-alpha.54",
+    "@mui/material": "^5.1.0",
     "@testing-library/jest-dom": "^5.14.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.2.1",
@@ -21,7 +21,8 @@
     "react-cool-dimensions": "^2.0.7",
     "react-dom": "^17.0.2",
     "react-scripts": "latest",
-    "typescript": "^4.3.5",
+    "react-spring": "^9.3.0",
+    "typescript": "4.3.5",
     "web-vitals": "^2.1.0"
   },
   "scripts": {
@@ -40,7 +41,8 @@
     "production": [
       ">1%",
       "not dead",
-      "not op_mini all"
+      "not op_mini all",
+      "not ie 11"
     ],
     "development": [
       "last 1 firefox version"
