@@ -1,10 +1,9 @@
 import React, {useEffect, useState} from 'react'
 import InnerHTML from 'dangerously-set-html-content'
-import {TreeType, BoxInfoType} from "./App";
 
 const form_style = {display: "inline-flex"};
 
-export default function MyEditor(props: {target_type: string, target_pk: string, setBoxInfo: React.Dispatch<React.SetStateAction<BoxInfoType>>, setMyTree: React.Dispatch<React.SetStateAction<TreeType[]>>;}) {
+export default function MyEditor(props: {target_type: string, target_pk: string}) {
 	let url = ""
 	switch(props.target_type) {
 		case 'loc':
@@ -25,8 +24,7 @@ export default function MyEditor(props: {target_type: string, target_pk: string,
 		fetch(url, {method: 'post', credentials: 'include',	body: new FormData(event.currentTarget)})
 			.then(res => res.json())
             .then(json => {
-                props.setBoxInfo(json.box_info)
-                props.setMyTree(json.my_tree)
+
             })
 			.catch(error => console.log(error));
 

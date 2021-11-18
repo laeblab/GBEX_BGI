@@ -58,7 +58,7 @@ const data = [
 ]
 
 
-export default function TheTree(props: { NodeSelectFunc: (nodeIds: string) => void, tree_data: { id: string, name: string, children: any }[] }) {
+export default function TheTree(props: { tree_data: TreeNode[] }) {
 	/*const renderTree = (nodes: { id: string, name: string, children: any }[]) => (
 		nodes.map((node) => (
 			<TreeItem key={node.id} nodeId={node.id} label={node.name} TransitionComponent={TransitionComponent} ContentComponent={EditTreeItem}>
@@ -69,7 +69,7 @@ export default function TheTree(props: { NodeSelectFunc: (nodeIds: string) => vo
 				] : null}
 			</TreeItem>))
 	){renderTree(props.tree_data)}<TreeItem nodeId={"root_newLocation"} label={"New Location"} endIcon={<AddIcon/>}/>*/
-    const [nodes, setNodes] = useState<TreeNode[]>([]);
+    const [nodes, setNodes] = useState<TreeNode[]>(props.tree_data);
     const [editing, setEditing] = useState<string|number|undefined>("");
 
     const nodeTemplate = (node: TreeNode, options: TreeNodeTemplateOptions) => {
@@ -92,15 +92,11 @@ export default function TheTree(props: { NodeSelectFunc: (nodeIds: string) => vo
         }
     }
 
-    useEffect(() => {
-        setNodes(data)
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
 	return (
 		<Tree
 			style={{maxWidth: 400, overflowY: 'auto'}}
 			dragdropScope="main_tree"
-			value={nodes}
+			value={props.tree_data}
             nodeTemplate={nodeTemplate}
             onDragDrop={event => {console.log(event); setNodes(event.value)}}
 		/>
