@@ -1,5 +1,4 @@
 import React, {useEffect, useState} from 'react'
-import Box from '@mui/material/Box';
 import TheTree from './TheTree'
 import TheBox from './TheBox'
 import TheEditor from './TheEditor'
@@ -8,14 +7,6 @@ import useDimensions from "react-cool-dimensions"
 
 export type TreeType = {id: string, name: string, children: any}
 export type BoxInfoType = {[key: string]: {content: { name:string, id:number }[], size: {rows: number, columns: number}}}
-
-const classes = {
-    root: { height: "100%" },
-    top: { height: "100px", backgroundColor: 'red' },
-    well: { backgroundColor: 'salmon', overflow: "auto", },
-    paper: { padding: 5, height: "100%" },
-}
-
 
 export default function App() {
     const { observe, width, height } = useDimensions()
@@ -76,28 +67,19 @@ export default function App() {
     }
 
     return (
-        <Box display="flex" flexDirection="column" style={classes.root}>
-            <div id="storage_top" style={classes.top}>
-                header
-            </div>
-            <Box display="flex" flexGrow={1} id="storage_bottom">
-                <div id="storage_tree">
+        <div id="storage_root">
+            <div id="storage_top">header</div>
+            <div id="storage_bottom">
+                <div id="storage_left">
                     <TheTree NodeSelectFunc={handleTreeSelect} tree_data={my_tree}/>
                 </div>
-                <div id="storage_box" ref={observe}>
+                <div id="storage_middle" ref={observe}>
                     <TheBox selected_well={well} WellSelectFunc={changeWell} box_info={box} height={height} width={width}/>
                 </div>
-                <Box id="storage_well" flexGrow={1} style={classes.well}>
+                <div id="storage_right">
                     {/*<TheEditor target_type={selectedItem.type} target_pk={selectedItem.pk} setBoxInfo={setBoxInfo} setMyTree={setMyTree}/>*/}
-                    <ul>
-                        {
-                            Object.entries(wellText).map(
-                                ([val_name,value],i) => <li key={i}>{val_name}: {value}</li>
-                            )
-                        }
-                    </ul>
-                </Box>
-            </Box>
-        </Box>
+                </div>
+            </div>
+        </div>
     )
 }

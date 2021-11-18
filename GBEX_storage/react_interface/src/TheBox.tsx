@@ -1,9 +1,6 @@
 import React from 'react';
-import Box from '@mui/material/Box';
 
 const classes = {
-		box_root: {
-		},
 		wells: {
 			TextAlign: 'center',
 			backgroundColor: 'white',
@@ -34,10 +31,10 @@ export default function TheBox(props: {selected_well: number, WellSelectFunc: (w
 	}
 
 	return (
-		<div style={classes.box_root}>
+		<div>
 			{[...Array(rows)].map((e, i) => {
 				return (
-					<Box display="flex" flexGrow={1} key={i}>
+					<div style={{display: "flex", flexGrow: 1}} key={i}>
 						{[...Array(columns)].map((ee, ii) => {
 							let well_style = {backgroundColor: "white"}
 							if (i*columns+ii === props.selected_well) {
@@ -50,7 +47,7 @@ export default function TheBox(props: {selected_well: number, WellSelectFunc: (w
 								{box_info['content'][i*columns+ii].name}
 							</div>})
 						}
-					</Box>)
+					</div>)
 			})}
 		</div>
 	);

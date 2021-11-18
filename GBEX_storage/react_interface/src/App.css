@@ -4,22 +4,46 @@ html {
 body {
     min-height: 100%;
     height: 100%;
+    display: flex;
+    flex-flow: column;
 }
 
 #root {
     height: 100%;
 }
 
-#storage_box {
+#storage_root {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#storage_top {
+    height: 100px;
+    background-color: red;
+}
+
+#storage_bottom {
+    display: flex;
+    flex-grow: 1;
+}
+
+#storage_left {
+    width: 25%;
+    background-color: green;
+    overflow: auto;
+    resize: horizontal;
+}
+
+#storage_middle {
     width: 50%;
     background-color: blue;
     overflow: auto;
     resize: horizontal;
 }
 
-#storage_tree {
-    width: 25%;
-    background-color: green;
+#storage_right {
+    flex-grow: 1;
+    background-color: salmon;
     overflow: auto;
-    resize: horizontal;
 }
