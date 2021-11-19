@@ -71,11 +71,16 @@ INSTALLED_APPS = [
 	'GBEX_bigfiles.apps.GbexBigfilesConfig',
 	'GBEX_storage',
 	'django_filters',
+	"corsheaders",  # delete. Just here for react development
 ]
+CORS_ALLOW_ALL_ORIGINS = True  # delete. Just here for react development
+CORS_ALLOW_CREDENTIALS = True  # delete. Just here for react development
+
 
 MIDDLEWARE = [
 	'django.middleware.security.SecurityMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
+	"corsheaders.middleware.CorsMiddleware",  # delete
 	'django.middleware.common.CommonMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
 	'django.contrib.auth.middleware.AuthenticationMiddleware',

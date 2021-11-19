@@ -1,104 +1,126 @@
 import React, { useState, useEffect } from 'react';
-import { Tree, TreeNodeTemplateOptions } from 'primereact/tree';
+import { Tree, TreeNodeTemplateOptions, TreeSelectionKeys, TreeDragDropParams } from 'primereact/tree';
 import TreeNode from "primereact/treenode";
 import { InputText } from 'primereact/inputtext';
+import { Button } from 'primereact/button';
+
+function getCookie(name: string){
+	let cookieValue = null;
+	if (document.cookie && document.cookie !== '') {
+		const cookies = document.cookie.split(';');
+		for (let i = 0; i < cookies.length; i++) {
+			const cookie = cookies[i].trim();
+			// Does this cookie string begin with the name we want?
+			if (cookie.substring(0, name.length + 1) === (name + '=')) {
+				cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+				break;
+			}
+		}
+	}
+	return cookieValue;
+}
 
 
-const data = [
-    {
-        "key": "0",
-        "label": "Documents",
-        "data": "Documents Folder",
-        "icon": "pi pi-fw pi-inbox",
-        "children": [{
-            "key": "0-0",
-            "label": "Work",
-            "data": "Work Folder",
-            "icon": "pi pi-fw pi-cog",
-            "children": [{ "key": "0-0-0", "label": "Expenses.doc", "icon": "pi pi-fw pi-file", "data": "Expenses Document" }, { "key": "0-0-1", "label": "Resume.doc", "icon": "pi pi-fw pi-file", "data": "Resume Document" }]
-        },
-        {
-            "key": "0-1",
-            "label": "Home",
-            "data": "Home Folder",
-            "icon": "pi pi-fw pi-home",
-            "children": [{ "key": "0-1-0", "label": "Invoices.txt", "icon": "pi pi-fw pi-file", "data": "Invoices for this month" }]
-        }]
-    },
-    {
-        "key": "1",
-        "label": "Events",
-        "data": "Events Folder",
-        "icon": "pi pi-fw pi-calendar",
-        "children": [
-            { "key": "1-0", "label": "Meeting", "icon": "pi pi-fw pi-calendar-plus", "data": "Meeting" },
-            { "key": "1-1", "label": "Product Launch", "icon": "pi pi-fw pi-calendar-plus", "data": "Product Launch" },
-            { "key": "1-2", "label": "Report Review", "icon": "pi pi-fw pi-calendar-plus", "data": "Report Review" }]
-    },
-    {
-        "key": "2",
-        "label": "Movies",
-        "data": "Movies Folder",
-        "icon": "pi pi-fw pi-star-fill",
-        "children": [{
-            "key": "2-0",
-            "icon": "pi pi-fw pi-star-fill",
-            "label": "Al Pacino",
-            "data": "Pacino Movies",
-            "children": [{ "key": "2-0-0", "label": "Scarface", "icon": "pi pi-fw pi-video", "data": "Scarface Movie" }, { "key": "2-0-1", "label": "Serpico", "icon": "pi pi-fw pi-video", "data": "Serpico Movie" }]
-        },
-        {
-            "key": "2-1",
-            "label": "Robert De Niro",
-            "icon": "pi pi-fw pi-star-fill",
-            "data": "De Niro Movies",
-            "children": [{ "key": "2-1-0", "label": "Goodfellas", "icon": "pi pi-fw pi-video", "data": "Goodfellas Movie" }, { "key": "2-1-1", "label": "Untouchables", "icon": "pi pi-fw pi-video", "data": "Untouchables Movie" }]
-        }]
-    }
-]
+export default function TheTree() {
+    const [nodes, setNodes] = useState<TreeNode[]>([])
+	const [selected, setSelected] = useState<TreeSelectionKeys>("")
+	const [editing, setEditing] = useState(false)
+	const [nameinput, setNameInput] = useState<string|undefined>('')
+	const [staleTree, setStale] = useState(false)
 
+    useEffect(() => {
+		// edit link
+        fetch("http://127.0.0.1:8000/storage/locsNboxs", {credentials: 'include'})
+            .then(res => res.json())
+            .then(json => { setNodes(json.tree); setStale(false) })
+            .catch(error => console.log(error))
+    }, [staleTree])
 
-export default function TheTree(props: { tree_data: TreeNode[] }) {
-	/*const renderTree = (nodes: { id: string, name: string, children: any }[]) => (
-		nodes.map((node) => (
-			<TreeItem key={node.id} nodeId={node.id} label={node.name} TransitionComponent={TransitionComponent} ContentComponent={EditTreeItem}>
-				{Array.isArray(node.children) ? [
-					renderTree(node.children),
-					<TreeItem nodeId={node.id + "_newBox"} label={"New Box"} endIcon={<AddIcon/>}/>,
-					<TreeItem nodeId={node.id + "_newLocation"} label={"New Location"} endIcon={<AddIcon/>}/>
-				] : null}
-			</TreeItem>))
-	){renderTree(props.tree_data)}<TreeItem nodeId={"root_newLocation"} label={"New Location"} endIcon={<AddIcon/>}/>*/
-    const [nodes, setNodes] = useState<TreeNode[]>(props.tree_data);
-    const [editing, setEditing] = useState<string|number|undefined>("");
+	const doNameChange = () => {
+		let kind = 'Box'
+		let key = selected
+		if (typeof selected === 'string' && selected.startsWith('loc')) {
+			// we got a location
+			kind = 'Location'
+			key = selected.split('_').splice(1).join('_') // Location keys are written loc_key
+		}
+		const requestHeaders: HeadersInit = new Headers();
+		const csrftoken = getCookie('csrftoken')
+		if (typeof csrftoken === 'string') {
+			requestHeaders.set('X-CSRFToken', csrftoken)
+			requestHeaders.set('Content-Type', 'application/json')
+			fetch("http://127.0.0.1:8000/api/" + kind + "/" + key + "/", {
+				mode: 'same-origin',
+				method: 'patch',
+				body: JSON.stringify({name: nameinput}),
+				headers: requestHeaders})
+				.then(json => setStale(true)).catch(error => console.log(error))
+		}
+		setEditing(false)
+	}
+
+	const doParentChange = (e: TreeDragDropParams) => {
+		console.log(e);
+		setNodes(e.value) // optimistic update of gui
+		let child = e.dragNode.key
+		let new_parent = e.dropNode.key
+
+		let kind = 'Box'
+		let key = child
+		if (typeof key === 'string' && key.startsWith('loc')) {
+			// we got a location
+			kind = 'Location'
+			key = key.split('_').splice(1).join('_') // Location keys are written loc_key
+		}
+
+		const requestHeaders: HeadersInit = new Headers();
+		const csrftoken = getCookie('csrftoken')
+		if (typeof csrftoken === 'string') {
+			requestHeaders.set('X-CSRFToken', csrftoken)
+			requestHeaders.set('Content-Type', 'application/json')
+			fetch("http://127.0.0.1:8000/api/" + kind + "/" + key + "/", {
+				mode: 'same-origin',
+				method: 'patch',
+				body: JSON.stringify({name: nameinput}),
+				headers: requestHeaders})
+				.then(json => setStale(true)).catch(error => console.log(error))
+		}
+		setEditing(false)
+
+	}
 
     const nodeTemplate = (node: TreeNode, options: TreeNodeTemplateOptions) => {
-        if (node.key === editing) {
-            return (
-                <span className={options.className}>
-                    <InputText defaultValue={node.label} />
-                    <i onClick={(e) => setEditing("")} className={"pi pi-check"}
-                       style={{fontSize: '1.5em', position: 'relative', left: '20px'}}/>
-                </span>
-            )
-        } else {
-            return (
-                <span className={options.className}>
-                    <b>{node.label}</b>
-                    <i onClick={(e) => setEditing(node.key)} className={"pi pi-pencil"}
-                       style={{fontSize: '1.5em', position: 'relative', left: '20px'}}/>
-                </span>
-            )
-        }
+        if (node.key === selected) {
+			if (editing) {
+				return (
+					<div className="p-inputgroup">
+						<InputText value={nameinput} onInput={e => setNameInput(e.currentTarget.value)} />
+						<Button onClick={() => {doNameChange(); node.label = nameinput;}} icon="pi pi-check" className="p-button-success"/>
+						<Button onClick={e => setEditing(false)} icon="pi pi-times" className="p-button-danger"/>
+					</div>
+					)
+			} else {
+				return (
+					<span className={options.className}>
+						<b>{node.label}</b>
+						<i onClick={e => {setNameInput(node.label); setEditing(true)}} className={"pi pi-pencil"} style={{fontSize: '1.5em', position: 'relative', left: '20px'}}/>
+						<i className={"pi pi-times p-button-dange"} style={{fontSize: '1.5em', position: 'relative', left: '20px'}}/>
+					</span>)
+			}
+		} else {return (<span className={options.className}><b>{node.label}</b></span>)}
     }
 
 	return (
 		<Tree
 			style={{maxWidth: 400, overflowY: 'auto'}}
-			dragdropScope="main_tree"
-			value={props.tree_data}
+			dragdropScope="treedrop"
+			selectionMode={"single"}
+			value={nodes}
             nodeTemplate={nodeTemplate}
-            onDragDrop={event => {console.log(event); setNodes(event.value)}}
+			filter={true}
+			selectionKeys={selected}
+			onSelectionChange={e => {if (e.value !== selected) {setEditing(false); setSelected(e.value)}}}
+			onDragDrop={e => {doParentChange(e)}}
 		/>
 	);
 }

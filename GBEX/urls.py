@@ -36,6 +36,7 @@ urlpatterns = [
 	path('api/', include(router.urls)),
 	path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 	path('downloads/<model>/<inst_name>/<filename>', download_file, name='download_url'),
-	path('storage/', decorator_include(login_required, 'GBEX_storage.urls')),
+	#path('storage/', decorator_include(login_required, 'GBEX_storage.urls')),
+	path('storage/', include('GBEX_storage.urls')),
 	path('', decorator_include(login_required, 'GBEX_app.urls')),
 ]

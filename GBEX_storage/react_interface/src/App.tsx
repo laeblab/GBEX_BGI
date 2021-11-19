@@ -6,7 +6,6 @@ import useDimensions from "react-cool-dimensions"
 import TreeNode from "primereact/treenode";
 
 
-//export type TreeType = {id: string, name: string, children: any}
 //export type BoxInfoType = {[key: string]: {content: { name:string, id:number }[], size: {rows: number, columns: number}}}
 
 export default function App() {
@@ -16,19 +15,6 @@ export default function App() {
     // box_info is a dict that contains all box names + size + names of vials
     //const [box_info, setBoxInfo] = useState<BoxInfoType>({"box1": {content: [{name:"A1", id:-1}], size: {rows: 1, columns: 1}}, "box2": {content: [{name:"A1", id:-1}], size: {rows: 1, columns: 1}}})
     // my_tree contains a hierarchy of locations and boxes
-    const [my_tree, setMyTree] = useState<TreeNode[]>([{key: "root_loc", label: "root loc", children: []}]);
-
-    useEffect(() => {
-        console.log("fethcing")
-        fetch("locsNboxs", {credentials: 'include'})
-            .then(res => res.json())
-            .then(json => {
-                console.log("fetched")
-                console.log(json.tree)
-                setMyTree(json.tree)
-            })
-            .catch(error => console.log(error))
-    }, [])
     /*
     //well contains the currently selected well index
     const [well, setWell] = useState(-1)
@@ -76,7 +62,7 @@ export default function App() {
             <div id="storage_top">header</div>
             <div id="storage_bottom">
                 <div id="storage_left">
-                    <TheTree tree_data={my_tree}/>
+                    <TheTree />
                 </div>
                 <div id="storage_middle" ref={observe}>
                     {/*<TheBox selected_well={well} WellSelectFunc={changeWell} box_info={box} height={height} width={width}/>*/}
