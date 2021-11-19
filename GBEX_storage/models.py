@@ -5,7 +5,7 @@ from django.db import models
 
 class Location(models.Model):
 	name = models.CharField(max_length=255)
-	parent_loc = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True)
+	parent = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True)
 
 	def __str__(self):
 		return self.name
@@ -16,7 +16,7 @@ class Location(models.Model):
 
 class Box(models.Model):
 	name = models.CharField(max_length=255)
-	location = models.ForeignKey(Location, on_delete=models.PROTECT)
+	parent = models.ForeignKey(Location, on_delete=models.PROTECT)
 	rows = models.PositiveIntegerField()
 	columns = models.PositiveIntegerField()
 
@@ -29,7 +29,7 @@ class Box(models.Model):
 
 class Vial(models.Model):
 	name = models.CharField(max_length=255)  # copy the name from content_object
-	box = models.ForeignKey(Box, on_delete=models.PROTECT)
+	parent = models.ForeignKey(Box, on_delete=models.PROTECT)
 	####
 	# pos_index must be unique with Box
 	# https://docs.djangoproject.com/en/3.2/ref/models/constraints/#django.db.models.UniqueConstraint

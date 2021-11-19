@@ -9,18 +9,18 @@ def create_location_tree(parent_loc=None):
 	# Her skal du ændre ændre content til at vise koordinat (A1, H6, etc) + navne på linkede vial objects
 	for box in Box.objects.prefetch_related("vial_set").all():
 		# take a moment here to unlink vials that no longer fit in the box after a box resize
-		Vial.objects.filter(box=box, pos_index__gt=box.rows * box.columns).update(box=None)
+		Vial.objects.filter(parent=box, pos_index__gt=box.rows * box.columns).update(parent=None)
 		vials = {x["pos_index"]: {'name': x["name"], 'id': x["id"]} for x in box.vial_set.all().values("id", "name", "pos_index")}
 		content = [vials[x] if x in vials else {'name': x + 1, 'id': -1} for x in range(box.rows * box.columns)]
 		box_info[box.id] = content
 
 	tree = []
-	for loc in Location.objects.filter(parent_loc=parent_loc):
+	for loc in Location.objects.filter(parent=parent_loc):
 		children = [
-			*[{"key": box.id, "label": box.name, "data": {'rows': box.rows, 'columns': box.columns, 'vials': box_info[box.id]}} for box in Box.objects.filter(location=loc)],
+			*[{"key": box.id, "label": box.name, "icon": "pi pi-table", "droppable": False, "leaf": True, "data": {'rows': box.rows, 'columns': box.columns, 'vials': box_info[box.id]}} for box in Box.objects.filter(parent=loc)],
 			*create_location_tree(loc)
 		]
-		tree.append({"key": f"loc_{loc.id}", "label": loc.name, "children": children})
+		tree.append({"key": f"loc_{loc.id}", "label": loc.name, "icon": "pi pi-building", "children": children})
 	return tree
 
 
