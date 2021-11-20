@@ -4,6 +4,7 @@ import TreeNode from "primereact/treenode";
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
+import { confirmDialog } from 'primereact/confirmdialog';
 
 function getCookie(name: string){
 	let cookieValue = null;
@@ -79,13 +80,21 @@ export default function TheTree() {
 	}
 
 	const doParentChange = (e: TreeDragDropParams) => {
+		console.log(e)
 		if (e.dropNode || String(e.dragNode.key).startsWith("loc_")) { // check if we have a parent and if we DONT then only allow locations to be dropped there
 			setNodes(e.value) // optimistic update of gui
 			let body = {parent: ""}
 			if (e.dropNode) {
 				body = {parent: String(e.dropNode.key).split('_').splice(1).join('_')}
 			}
-			doApiPatch(String(e.dragNode.key), body)
+			// check if dragnode er loc
+			confirmDialog({
+				message: 'You are about to move ' + e.dragNode.label + ' into ' + e.dropNode.label + '.\nAre you sure you want to proceed?',
+				header: 'Confirmation',
+				icon: 'pi pi-exclamation-triangle',
+				position: 'left',
+				accept: () => doApiPatch(String(e.dragNode.key), body),
+			});
 		}
 	}
 
