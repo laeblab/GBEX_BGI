@@ -8,6 +8,7 @@ from rest_framework import serializers, viewsets, permissions
 
 from GBEX_bigfiles.drf import ResumableDRFFileField
 from GBEX_bigfiles.fields import ResumableFileField
+from GBEX_app.models.models import GBEXModelBase
 from .helpers import get_free_id
 
 
@@ -18,7 +19,8 @@ GBEX_API_ViewSets = []
 for model in apps.get_app_config('GBEX_app').get_models():
 	file_fields = [x.name for x in model._meta.fields if isinstance(x, ResumableFileField)]
 	name_dict = {}
-	if "name" in [x.name for x in model._meta.fields]:
+	if issubclass(model, GBEXModelBase):
+	#if "name" in [x.name for x in model._meta.fields]:
 		name_dict["name"] = serializers.CharField(default=partial(get_free_id, model))
 
 	serial = type(f"{model.__name__}Serializer", (serializers.ModelSerializer, ), {

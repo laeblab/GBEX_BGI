@@ -45,7 +45,7 @@ export default function TheTree() {
             .catch(error => console.log(error))
     }, [staleTree])
 
-	const doApiPatch = (key: string, body: {}) => {
+	const doApiPatch = (key: string, body: {}, method='patch' ) => {
 		let kind = 'Box'
 		if (key.startsWith('loc')) { // we got a location
 			kind = 'Location'
@@ -56,9 +56,11 @@ export default function TheTree() {
 		if (typeof csrftoken === 'string') {
 			requestHeaders.set('X-CSRFToken', csrftoken)
 			requestHeaders.set('Content-Type', 'application/json')
-			fetch("http://127.0.0.1:8000/api/" + kind + "/" + key + "/", {
+			let url = "http://127.0.0.1:8000/api/" + kind + "/"
+			if (method === 'patch') { url += key + "/" }
+			fetch(url, {
 				mode: 'same-origin',
-				method: 'patch',
+				method: method,
 				body: JSON.stringify(body),
 				headers: requestHeaders})
 				.then(json => setStale(true)).catch(error => console.log(error))
@@ -66,7 +68,9 @@ export default function TheTree() {
 	}
 
 	const doNewLocBox = () => {
-
+		setNewChild(false)
+		let body = {name: nameinput, parent: String(selected).split('_').splice(1).join('_'), rows: 10, columns: 10}
+		if (nameinput) { doApiPatch(selectedNewType.code, body, "post")}
 	}
 
 	const doNameChange = () => {
@@ -102,8 +106,8 @@ export default function TheTree() {
 						</div>
 						<div className="p-field">
 							<div className="p-inputgroup">
-								<InputText placeholder="Name it!"/>
-								<Button onClick={e => {doNewLocBox(); setNewChild(false)}} icon="pi pi-check" className="p-button-success"/>
+								<InputText value={nameinput} placeholder="Name it!" onInput={e => setNameInput(e.currentTarget.value)} />
+								<Button onClick={e => doNewLocBox()} icon="pi pi-check" className="p-button-success"/>
 								<Button onClick={e => setNewChild(false)} icon="pi pi-times" className="p-button-danger"/>
 							</div>
 						</div>
@@ -115,7 +119,7 @@ export default function TheTree() {
 						<div style={{flexGrow: 2, display: "flex", justifyContent: "space-evenly"}}>
 							<Button tooltip="Edit name" tooltipOptions={{position: 'top'}} onClick={e => {setNameInput(node.label); setEditing(true)}} icon={"pi pi-pencil"} className={"p-button-rounded p-button-text"} />
 							<Button tooltip="Delete this...and all its children :(" tooltipOptions={{position: 'top'}} icon={"pi pi-times"} className={"p-button-rounded p-button-text"} />
-							<Button tooltip="Add new box/location" tooltipOptions={{position: 'top'}} onClick={e => setNewChild(true)} icon={"pi pi-plus"} className={"p-button-rounded p-button-text"}/>
+							{String(selected).startsWith("loc_") ? <Button tooltip="Add new box/location" tooltipOptions={{position: 'top'}} onClick={e => setNewChild(true)} icon={"pi pi-plus"} className={"p-button-rounded p-button-text"}/>: null}
 						</div>
 					</div>)
 			}

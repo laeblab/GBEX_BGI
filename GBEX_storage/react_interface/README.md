@@ -1,5 +1,6 @@
 # BUGS
 Mini skrift når jeg går in på storage...mærkeligt
+Kan ikke oprette loc på root fordi loc/box kun kan oprettes på eksisterende loc
 
 #Instructions
 Add to app list in settings
@@ -9,9 +10,7 @@ Add drf stuff in GBEX/urls
 ATT DU HAR ÆNDRET SETTINGS static/url!!!
 
 # Todo
-find ud af at sende besked til drf via react om navne skift på box+loc
-måske skift tree til en der understøtter drag and drop
-
+Lav "confirmation dialog" ved flyt af loc
 
 
 # rememberings
