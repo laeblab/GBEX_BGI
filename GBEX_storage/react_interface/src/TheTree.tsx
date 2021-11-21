@@ -84,10 +84,7 @@ export default function TheTree() {
 		if (e.dropNode || String(e.dragNode.key).startsWith("loc_")) { // check if we have a parent and if we DONT then only allow locations to be dropped there
 			setNodes(e.value) // optimistic update of gui
 			let body = {parent: ""}
-			if (e.dropNode) {
-				body = {parent: String(e.dropNode.key).split('_').splice(1).join('_')}
-			}
-			// check if dragnode er loc
+			if (e.dropNode) { body = {parent: String(e.dropNode.key).split('_').splice(1).join('_')}}
 			confirmDialog({
 				message: 'You are about to move ' + e.dragNode.label + ' into ' + e.dropNode.label + '.\nAre you sure you want to proceed?',
 				header: 'Confirmation',
@@ -123,8 +120,8 @@ export default function TheTree() {
 					</div>)
 			} else {
 				return (
-					<div className={options.className} style={{display: "flex", justifyContent: "space-between", width: "100%"}}>
-						<span style={{flexGrow: 2}}><b>{node.label}</b></span>
+					<div style={{display: "flex", alignItems: 'center', justifyContent: "space-between", width: "100%"}}>
+						<span className={options.className} style={{flexGrow: 2}}><b>{node.label}</b></span>
 						<div style={{flexGrow: 2, display: "flex", justifyContent: "space-evenly"}}>
 							<Button tooltip="Edit name" tooltipOptions={{position: 'top'}} onClick={e => {setNameInput(node.label); setEditing(true)}} icon={"pi pi-pencil"} className={"p-button-rounded p-button-text"} />
 							<Button tooltip="Delete this...and all its children :(" tooltipOptions={{position: 'top'}} icon={"pi pi-times"} className={"p-button-rounded p-button-text"} />
