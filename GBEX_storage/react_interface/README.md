@@ -10,7 +10,8 @@ Add drf stuff in GBEX/urls
 ATT DU HAR ÆNDRET SETTINGS static/url!!!
 
 # Todo
-Lav "confirmation dialog" ved flyt af loc
+
+
 
 
 # rememberings

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
 import { Tree, TreeNodeTemplateOptions, TreeSelectionKeys, TreeDragDropParams } from 'primereact/tree';
 import TreeNode from "primereact/treenode";
 import { InputText } from 'primereact/inputtext';
@@ -23,7 +23,7 @@ function getCookie(name: string){
 }
 
 
-export default function TheTree() {
+export default function TheTree(props:{setBox: Dispatch<SetStateAction<{ vials: { name: string; id: number; }[]; rows: number; columns: number;}>>}) {
     const [nodes, setNodes] = useState<TreeNode[]>([])
 	const [selected, setSelected] = useState<TreeSelectionKeys>("")
 	const [editing, setEditing] = useState(false)
@@ -141,7 +141,18 @@ export default function TheTree() {
             nodeTemplate={nodeTemplate}
 			filter={true}
 			selectionKeys={selected}
-			onSelectionChange={e => {if (e.value !== selected) {setEditing(false); setNewChild(false); setSelected(e.value)}}}
+			onSelectionChange={e => {
+				if (e.value !== selected) {
+					setEditing(false);
+					setNewChild(false);
+					setSelected(e.value)
+				}
+			}}
+			onSelect={e => {
+				if (e.node.hasOwnProperty('data')) {
+					props.setBox(e.node.data)
+				}
+			}}
 			onDragDrop={e => {doParentChange(e)}}
 		/>
 	);

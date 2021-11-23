@@ -34,14 +34,4 @@ def create_location_tree(parent_loc=None):
 
 
 def get_locs_and_boxes(request):
-	if 'Newstuff' in request.headers:
-		parts = request.headers['Newstuff'].split("_")  # should be [loc/box, id, NewLocation/NewBox]
-		if parts[-1] == 'newLocation':
-			parent = parts[-2]
-			if parent == 'root':
-				parent = None
-			Location.objects.create(name="NewLoc", parent_loc_id=parent)
-		elif parts[-1] == "newBox":
-			Box.objects.create(name="NewBox", location_id=parts[-2], rows=10, columns=10)
-
 	return JsonResponse({'tree': create_location_tree()})

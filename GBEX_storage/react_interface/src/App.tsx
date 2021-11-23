@@ -10,29 +10,29 @@ import TreeNode from "primereact/treenode";
 
 export default function App() {
     const { observe, width, height } = useDimensions()
-    //const [box, setBox] = useState({id: "", content: [{name:"A1", id:-1}], size: {rows: 1, columns: 1}}); // box contain information about the currently selected box
+    const [box, setBox] = useState({vials: [{name:"A1", id:-1}], rows: 1, columns: 1}); // box contain information about the currently selected box
     //const [selectedItem, setSelectedItem] = useState({type:'loc', pk:"1"}) // the right panel shows an update form based on this
     // box_info is a dict that contains all box names + size + names of vials
     //const [box_info, setBoxInfo] = useState<BoxInfoType>({"box1": {content: [{name:"A1", id:-1}], size: {rows: 1, columns: 1}}, "box2": {content: [{name:"A1", id:-1}], size: {rows: 1, columns: 1}}})
     // my_tree contains a hierarchy of locations and boxes
-    /*
+
     //well contains the currently selected well index
     const [well, setWell] = useState(-1)
     // wellText contains the information from a well that is currently selected
-    const [wellText, setWellText] = useState({})
-    useEffect(() => {
-        if (box.id) {
-            fetch("vial_info/"+box.id+"/"+well, { credentials: 'include' })
-                .then(response => response.json())
-                .then(json => setWellText(json))
-                .catch(error => console.log(error))
-        }
-    }, [well, box.id]);
+    //const [wellText, setWellText] = useState({})
+    //useEffect(() => {
+    //    if (box.id) {
+    //        fetch("vial_info/"+box.id+"/"+well, { credentials: 'include' })
+    //            .then(response => response.json())
+    //            .then(json => setWellText(json))
+    //            .catch(error => console.log(error))
+    //    }
+    //}, [well, box.id]);
     const changeWell = (wellid: number) => {
         setWell(wellid)
-        setSelectedItem({type:'vial', pk:wellid.toString()})
+        //setSelectedItem({type:'vial', pk:wellid.toString()})
     }
-    */
+
 
     /*
     const handleTreeSelect = (nodeId: string) => {
@@ -62,10 +62,10 @@ export default function App() {
             <div id="storage_top">header</div>
             <div id="storage_bottom">
                 <div id="storage_left">
-                    <TheTree />
+                    <TheTree setBox={setBox} />
                 </div>
                 <div id="storage_middle" ref={observe}>
-                    {/*<TheBox selected_well={well} WellSelectFunc={changeWell} box_info={box} height={height} width={width}/>*/}
+                    <TheBox selected_well={well} WellSelectFunc={changeWell} box_info={box} height={height} width={width}/>
                 </div>
                 <div id="storage_right">
                     {/*<TheEditor target_type={selectedItem.type} target_pk={selectedItem.pk} setBoxInfo={setBoxInfo} setMyTree={setMyTree}/>*/}

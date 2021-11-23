@@ -12,39 +12,38 @@ const classes = {
 		},
 }
 
-export default function TheBox(props: {selected_well: number, WellSelectFunc: (well_id: number) => void, box_info: {content: { name:string, id:number }[], size: {rows: number, columns: number}}, height: number, width: number}) {
+export default function TheBox(props: {selected_well: number, WellSelectFunc: (well_id: number) => void, box_info: {vials: { name:string, id:number }[], rows: number, columns: number}, height: number, width: number}) {
 	const {box_info, height, width} = props
-	const {rows, columns} = box_info['size']
 
-	let limw = width/columns
-	let limh = height/rows
+	let limw = width/box_info.columns
+	let limh = height/box_info.rows
 
 	let square_size = {
-		height: width / columns,
-		width: width / columns
+		height: width / box_info.columns,
+		width: width / box_info.columns
 	}
 	if (limh < limw) {
 		square_size = {
-			height: height / rows,
-			width: height / rows
+			height: height / box_info.rows,
+			width: height / box_info.rows
 		}
 	}
 
 	return (
 		<div>
-			{[...Array(rows)].map((e, i) => {
+			{[...Array(box_info.rows)].map((e, i) => {
 				return (
 					<div style={{display: "flex", flexGrow: 1}} key={i}>
-						{[...Array(columns)].map((ee, ii) => {
+						{[...Array(box_info.columns)].map((ee, ii) => {
 							let well_style = {backgroundColor: "white"}
-							if (i*columns+ii === props.selected_well) {
+							if (i*box_info.columns+ii === props.selected_well) {
 								well_style = {backgroundColor: "red"}
 							}
 							return <div
-								onClick={() => props.WellSelectFunc(i*columns+ii)}
+								onClick={() => props.WellSelectFunc(i*box_info.columns+ii)}
 								style={Object.assign({}, classes.wells, square_size, well_style)}
 								key={ii}>
-								{box_info['content'][i*columns+ii].name}
+								{box_info.vials[i*box_info.columns+ii].name}
 							</div>})
 						}
 					</div>)
