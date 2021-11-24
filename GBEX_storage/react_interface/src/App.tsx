@@ -17,7 +17,7 @@ export default function App() {
     // my_tree contains a hierarchy of locations and boxes
 
     //well contains the currently selected well index
-    const [well, setWell] = useState(-1)
+    const [selectedWell, setSelectedWell] = useState(-1)
     // wellText contains the information from a well that is currently selected
     //const [wellText, setWellText] = useState({})
     //useEffect(() => {
@@ -29,7 +29,6 @@ export default function App() {
     //    }
     //}, [well, box.id]);
     const changeWell = (wellid: number) => {
-        setWell(wellid)
         //setSelectedItem({type:'vial', pk:wellid.toString()})
     }
 
@@ -65,7 +64,7 @@ export default function App() {
                     <TheTree setBox={setBox} />
                 </div>
                 <div id="storage_middle" ref={observe}>
-                    <TheBox selected_well={well} WellSelectFunc={changeWell} box_info={box} height={height} width={width}/>
+                    <TheBox selected_well={selectedWell} WellSelectFunc={setSelectedWell} box_info={box} height={height} width={width}/>
                 </div>
                 <div id="storage_right">
                     {/*<TheEditor target_type={selectedItem.type} target_pk={selectedItem.pk} setBoxInfo={setBoxInfo} setMyTree={setMyTree}/>*/}

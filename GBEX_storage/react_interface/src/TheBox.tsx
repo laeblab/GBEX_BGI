@@ -14,10 +14,8 @@ const classes = {
 
 export default function TheBox(props: {selected_well: number, WellSelectFunc: (well_id: number) => void, box_info: {vials: { name:string, id:number }[], rows: number, columns: number}, height: number, width: number}) {
 	const {box_info, height, width} = props
-
 	let limw = width/box_info.columns
 	let limh = height/box_info.rows
-
 	let square_size = {
 		height: width / box_info.columns,
 		width: width / box_info.columns
