@@ -1,11 +1,14 @@
 from django.db import models
 from django.urls import reverse_lazy, reverse
 from django.forms import DateInput
+from django.contrib.contenttypes.fields import GenericRelation
 
 from dal import autocomplete
 
 from GBEX_bigfiles.fields import ResumableFileField
 from GBEX_app.helpers import get_upload_path
+from GBEX_storage.models import Vial
+from GBEX_storage.helpers import pos_to_coord
 
 from .models import BaseOption, GBEXModelBase, AbstractBatch, default_order, default_widgets, default_readonly
 from .LabDocuments import SOP
@@ -53,23 +56,36 @@ class Plasmid(InventoryItem):
 class PlasmidBatch(AbstractBatch):
 	Parent = models.ForeignKey(Plasmid, on_delete=models.PROTECT)
 	Barcode = models.TextField(blank=True, null=True)
-	Location = models.TextField(blank=True, null=True)
+	Location = GenericRelation(Vial, related_query_name="PlasmidBatch")
 	SequenceVerified = models.BooleanField(default=False)
 
 	order = [*default_order, 'Location', 'Barcode', 'SequenceVerified', 'Parent']
 	symbol = "PL_Batch"
 
-	col_read_only = [*default_readonly, 'Parent']
+	col_read_only = [*default_readonly, 'Parent', 'Location']
+	col_html_string = ['Location']
+	col_display_func_dict = {
+		'Location': lambda item: ", ".join(
+			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.pos_index, ab.parent.columns)}" for ab in
+			item.Location.all()) if item.Location.all() else "",
+	}
 
 
 class Primers(InventoryItem):
 	Sequence = models.TextField(blank=True, null=True)
 	Tm = models.PositiveIntegerField("Tm (°C)", blank=True, null=True)
 	Conc = models.PositiveIntegerField("Conc (uM)", blank=True, null=True)
-	Location = models.TextField(blank=True, null=True)
+	Location = GenericRelation(Vial, related_query_name="Primers")
 
 	order = [*inventory_order, "Sequence", 'Tm', 'Conc', "Location"]
 	symbol = "PR"
+	col_read_only = [*default_readonly, 'Location']
+	col_html_string = ['Location']
+	col_display_func_dict = {
+		'Location': lambda item: ", ".join(
+			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.pos_index, ab.parent.columns)}" for ab in
+			item.Location.all()) if item.Location.all() else "",
+	}
 
 
 class SpeciesOption(BaseOption):
@@ -118,14 +134,19 @@ class Strain(InventoryItem):
 
 class StrainBatch(AbstractBatch):
 	Parent = models.ForeignKey(Strain, on_delete=models.PROTECT)
-	Location = models.TextField(blank=True, null=True)
+	Location = GenericRelation(Vial, related_query_name="StrainBatch")
 	Barcode = models.TextField(blank=True, null=True)
 	TubesLeft = models.PositiveIntegerField(blank=True, null=True)
 
 	order = [*default_order, 'TubesLeft', 'Barcode', 'Location', 'Parent']
 	symbol = "ST_Batch"
-
-	col_read_only = [*default_readonly, 'Parent']
+	col_html_string = ['Location']
+	col_display_func_dict = {
+		'Location': lambda item: ", ".join(
+			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.pos_index, ab.parent.columns)}" for ab in
+			item.Location.all()) if item.Location.all() else "",
+	}
+	col_read_only = [*default_readonly, 'Parent', 'Location']
 
 
 class CellLine(InventoryItem):
@@ -157,7 +178,7 @@ class CellLine(InventoryItem):
 
 class CellLineBatch(AbstractBatch):
 	Parent = models.ForeignKey(CellLine, on_delete=models.PROTECT)
-	Location = models.TextField(blank=True, null=True)
+	Location = GenericRelation(Vial, related_query_name="CellLineBatch")
 	Barcode = models.TextField(blank=True, null=True)
 	TubesLeft = models.PositiveIntegerField(blank=True, null=True)
 	Mycoplasma = models.DateField(blank=True, null=True)
@@ -165,11 +186,15 @@ class CellLineBatch(AbstractBatch):
 	order = [*default_order, 'Location', 'Barcode', 'TubesLeft', 'Mycoplasma', 'Parent']
 	symbol = "CL_Batch"
 
-	col_read_only = [*default_readonly, 'Parent']
+	col_read_only = [*default_readonly, 'Parent', 'Location']
+	col_html_string = ['Location']
 
 	widgets = {
 		**default_widgets,
 		"Mycoplasma": DateInput(attrs={'data-isdate': "yes"})
+	}
+	col_display_func_dict = {
+		'Location': lambda item: ", ".join(f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.pos_index, ab.parent.columns)}" for ab in item.Location.all()) if item.Location.all() else "",
 	}
 
 
@@ -195,14 +220,17 @@ class CultureMedia(InventoryItem):
 
 class CultureMediaBatch(AbstractBatch):
 	Parent = models.ForeignKey(CultureMedia, on_delete=models.PROTECT)
-	Location = models.TextField(blank=True, null=True)
+	Location = GenericRelation(Vial, related_query_name="CultureMediaBatch")
 	Barcode = models.TextField(blank=True, null=True)
 
 	order = [*default_order, 'Location', 'Barcode', 'Parent']
 	symbol = "CM_Batch"
 
-	col_read_only = [*default_readonly, 'Parent']
-
+	col_read_only = [*default_readonly, 'Parent', 'Location']
+	col_html_string = ['Location']
+	col_display_func_dict = {
+		'Location': lambda item: ", ".join(f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.pos_index, ab.parent.columns)}" for ab in item.Location.all()) if item.Location.all() else "",
+	}
 
 class CRISPRoption(BaseOption):
 	pass
@@ -217,11 +245,17 @@ class gRNA(InventoryItem):
 	TargetFwdPrimer = models.ForeignKey(Primers, on_delete=models.PROTECT, blank=True, null=True, related_name='gRNA_fwd_primer')
 	TargetRevPrimer = models.ForeignKey(Primers, on_delete=models.PROTECT, blank=True, null=True, related_name='gRNA_rev_primer')
 	PCRProduct = models.TextField(blank=True, null=True)
-	Location = models.TextField(blank=True, null=True)
+	Location = GenericRelation(Vial, related_query_name="gRNA")
 
 	order = [*inventory_order, 'CRISPR_enzyme', 'TargetSpecies', 'TargetGenome', 'TargetSequence', 'FullOligoSequence', 'TargetFwdPrimer', 'TargetRevPrimer', 'PCRProduct', 'Location']
 	symbol = "gRNA"
-
+	col_read_only = [*default_readonly, 'Parent', 'Location']
+	col_html_string = ['Location']
+	col_display_func_dict = {
+		'Location': lambda item: ", ".join(
+			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.pos_index, ab.parent.columns)}" for ab in
+			item.Location.all()) if item.Location.all() else "",
+	}
 	widgets = {
 		**default_widgets,
 		'CRISPR_enzyme': autocomplete.ModelSelect2(url=reverse_lazy('CRISPRoption-autocomplete')),
@@ -292,7 +326,8 @@ class AntiGenBody(InventoryItem):
 
 class AntiGenBodyBatch(AbstractBatch):
 	Parent = models.ForeignKey(AntiGenBody, on_delete=models.PROTECT)
-	Location = models.TextField(blank=True, null=True)
+	Location = GenericRelation(Vial, related_query_name="AntiGenBodyBatch")
+
 	ProductionCellLine = models.ForeignKey(CellLineBatch, blank=True, null=True, on_delete=models.PROTECT)
 	order = [*default_order, 'Location', 'ProductionCellLine', 'Parent']
 	symbol = "ABAG_Batch"
@@ -302,4 +337,10 @@ class AntiGenBodyBatch(AbstractBatch):
 		'ProductionCellLine': autocomplete.ModelSelect2(url=reverse_lazy('CellLineBatch-autocomplete')),
 	}
 
-	col_read_only = [*default_readonly, 'Parent']
+	col_read_only = [*default_readonly, 'Parent', 'Location']
+	col_html_string = ['Location']
+	col_display_func_dict = {
+		'Location': lambda item: ", ".join(
+			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.pos_index, ab.parent.columns)}" for ab in
+			item.Location.all()) if item.Location.all() else "",
+	}

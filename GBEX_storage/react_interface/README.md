@@ -10,8 +10,19 @@ Add drf stuff in GBEX/urls
 ATT DU HAR ÆNDRET SETTINGS static/url!!!
 
 # Todo
-
-
+* metode til at redigere box size
+* metode til vial display/assign
+  * der skal kunne vælges flere brønde på en gang
+    * drag select
+    * shift/ctrl select??
+  * hvis vials er selected
+    * hvis 1 vial skal der hentes info via API
+    * vis assign objekt:
+      * liste med godkendte modeller (maybe alle Inventory children)
+        * ved valg i liste, hente liste over "model type" instances og vis i searchable liste (måske brug autocomplete light)
+        * assign bør ideelt set ske via API...men det er måske svært
+* GBEX_app interaktion
+  * I list view, via Location column/field, skal man kunne tilgå GBEX_storage. Evt. links til storage der åbner box og selecter well
 
 
 # rememberings

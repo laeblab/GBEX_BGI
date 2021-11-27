@@ -1,6 +1,7 @@
 from datetime import datetime
 from django.core.exceptions import PermissionDenied
 from django.utils import timezone
+from django.contrib.contenttypes.fields import GenericRelation
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 
@@ -57,7 +58,7 @@ def model_to_list_list(query_set):
 
 	# figure out which fields are relational for pre-fetching
 	for field in query_set.model._meta.get_fields():
-		if not field.auto_created:
+		if not field.auto_created and not isinstance(field, GenericRelation):  # apparently you cant "select related" on GenericRelation
 			if field.is_relation:
 				if field.many_to_many:
 					m2ms.append(field.name)

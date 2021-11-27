@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from .models import Location, Box, Vial
-from GBEX_app.helpers import model_to_list_list
+from .helpers import pos_to_coord
 
 
 def create_location_tree(parent_loc=None):
@@ -11,7 +11,7 @@ def create_location_tree(parent_loc=None):
 		# take a moment here to unlink vials that no longer fit in the box after a box resize
 		Vial.objects.filter(parent=box, pos_index__gt=box.rows * box.columns).update(parent=None)
 		vials = {x["pos_index"]: {'name': x["name"], 'id': x["id"]} for x in box.vial_set.all().values("id", "name", "pos_index")}
-		content = [vials[x] if x in vials else {'name': x + 1, 'id': -1} for x in range(box.rows * box.columns)]
+		content = [vials[x] if x in vials else {'name': pos_to_coord(x, box.columns), 'id': -1} for x in range(box.rows * box.columns)]
 		box_info[box.id] = content
 
 	tree = []
