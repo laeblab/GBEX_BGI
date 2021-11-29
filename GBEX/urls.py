@@ -13,7 +13,7 @@ from GBEX_bigfiles.views import download_file
 from GBEX_storage.drf import Storage_API
 
 router = routers.DefaultRouter()
-for name, viewset in [*GBEX_API_ViewSets, *Storage_API]:
+for name, viewset in [*[(mo.__name__, vi) for mo, vi in GBEX_API_ViewSets.items()], *Storage_API]:
 	router.register(name, viewset)
 
 schema_view = get_schema_view(

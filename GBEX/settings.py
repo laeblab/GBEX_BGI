@@ -67,11 +67,13 @@ INSTALLED_APPS = [
 	'rest_framework',
 	'rest_framework.authtoken',
 	'drf_yasg2',
+	'django_filters',
+	'generic_relations',
+	"corsheaders",  # delete. Just here for react development
 	'GBEX_app.apps.GbexAppConfig',
 	'GBEX_bigfiles.apps.GbexBigfilesConfig',
 	'GBEX_storage',
-	'django_filters',
-	"corsheaders",  # delete. Just here for react development
+
 ]
 CORS_ALLOW_ALL_ORIGINS = True  # delete. Just here for react development
 CORS_ALLOW_CREDENTIALS = True  # delete. Just here for react development

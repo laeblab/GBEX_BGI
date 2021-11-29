@@ -12,7 +12,7 @@ from GBEX_app.models.models import GBEXModelBase
 from .helpers import get_free_id
 
 
-GBEX_API_ViewSets = []
+GBEX_API_ViewSets = {}
 
 # Iterate through all GBEX_app models and create a DRF serializer and viewset
 # Special care is taken on the "ResumableFileFields and a default is added to "name" fields
@@ -35,7 +35,7 @@ for model in apps.get_app_config('GBEX_app').get_models():
 		"filter_fields": '__all__',
 		#"filterset_fields": [x.name for x in model._meta.fields if not (isinstance(x, ResumableFileField) or isinstance(x, JSONField))]  # by default filters dont work with resumablefilefield nor JSONfields
 	})
-	GBEX_API_ViewSets.append((model.__name__, viewset))
+	GBEX_API_ViewSets[model] = viewset
 
 # also add the User model
 model = User
@@ -48,4 +48,4 @@ viewset = type(f"{model.__name__}ViewSet", (viewsets.ModelViewSet,), {
 	"permission_classes": [permissions.IsAuthenticated],
 	"filter_fields": '__all__',
 })
-GBEX_API_ViewSets.append((model.__name__, viewset))
+GBEX_API_ViewSets[model] = viewset

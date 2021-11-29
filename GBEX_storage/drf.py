@@ -1,7 +1,7 @@
 from rest_framework import serializers, viewsets, permissions
 from .models import Location, Box, Vial
-from GBEX_app.models.Inventory import StrainBatch, CellLineBatch, PlasmidBatch
 from GBEX_app.drf import GBEX_API_ViewSets
+from generic_relations.relations import GenericRelatedField
 
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -16,30 +16,11 @@ class BoxSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 
-class VialRelatedField(serializers.RelatedField):
-	def get_queryset(self):
-		print(self)
-		return StrainBatch.objects.all()
-
-	def to_representation(self, value):
-		print(value)
-		if isinstance(value, StrainBatch):
-			#serializer = BookmarkSerializer(value)
-			return "Strain: " + value.name
-		elif isinstance(value, CellLineBatch):
-			return "Cell: " + value.name
-			#serializer = NoteSerializer(value)
-		elif isinstance(value, PlasmidBatch):
-			return [x for x in GBEX_API_ViewSets if x[0].lower() == 'plasmidbatch'][0][1].serializer_class(value).data
-			#return "plasbas: " + value.name
-		else:
-			raise Exception('Unexpected type of object', value)
-
-		#return serializer.data
+linkable_models = ['AntiGenBodyBatch', 'CellLineBatch','CultureMediaBatch','gRNA','PlasmidBatch','Primers','StrainBatch','Toxins']
 
 
 class VialSerializer(serializers.ModelSerializer):
-	content_object = VialRelatedField()
+	content_object = GenericRelatedField({mo: vi.serializer_class() for mo, vi in GBEX_API_ViewSets.items()})# if x[0] in linkable_models})
 
 	class Meta:
 		model = Vial
