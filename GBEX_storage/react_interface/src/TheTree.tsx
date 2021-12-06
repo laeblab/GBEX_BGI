@@ -1,26 +1,11 @@
-import React, { useState, useEffect, Dispatch, SetStateAction } from 'react';
-import { Tree, TreeNodeTemplateOptions, TreeSelectionKeys, TreeDragDropParams } from 'primereact/tree';
+import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
+import {Tree, TreeDragDropParams, TreeNodeTemplateOptions, TreeSelectionKeys} from 'primereact/tree';
 import TreeNode from "primereact/treenode";
-import { InputText } from 'primereact/inputtext';
-import { Button } from 'primereact/button';
-import { Dropdown } from 'primereact/dropdown';
-import { confirmDialog } from 'primereact/confirmdialog';
-
-function getCookie(name: string){
-	let cookieValue = null;
-	if (document.cookie && document.cookie !== '') {
-		const cookies = document.cookie.split(';');
-		for (let i = 0; i < cookies.length; i++) {
-			const cookie = cookies[i].trim();
-			// Does this cookie string begin with the name we want?
-			if (cookie.substring(0, name.length + 1) === (name + '=')) {
-				cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-				break;
-			}
-		}
-	}
-	return cookieValue;
-}
+import {InputText} from 'primereact/inputtext';
+import {Button} from 'primereact/button';
+import {Dropdown} from 'primereact/dropdown';
+import {confirmDialog} from 'primereact/confirmdialog';
+import {getCookie} from "./index";
 
 
 export default function TheTree(props:{setBox: Dispatch<SetStateAction<{ vials: { name: string; id: number; }[]; rows: number; columns: number;}>>}) {

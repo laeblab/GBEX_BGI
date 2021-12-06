@@ -7,7 +7,13 @@ Add to app list in settings
 Add url path('storage/', decorator_include(login_required, 'GBEX_storage.urls')),
 Add drf stuff in GBEX/urls
 
-ATT DU HAR ÆNDRET SETTINGS static/url!!!
+ATT:
+  DU HAR ÆNDRET SETTINGS static/url!!!
+  Nogle urls er hardcoded til 127.0.0.1 for dev reasons
+
+# Todo Next
+* [x] Ved valg af well skal vial hentes via API 
+* [ ] og hvis det er et batch objekt så skal parent også hentes...api'en siger ikke hvilken model der er parent...måske ændre api til hyperlinked?
 
 # Todo
 * metode til at redigere box size
@@ -16,7 +22,7 @@ ATT DU HAR ÆNDRET SETTINGS static/url!!!
     * drag select
     * shift/ctrl select??
   * hvis vials er selected
-    * hvis 1 vial skal der hentes info via API
+    * hvis 1 vial skal der hentes info via API og hvis det er et batch objekt, så skal parent nok også vises
     * vis assign objekt:
       * liste med godkendte modeller (maybe alle Inventory children)
         * ved valg i liste, hente liste over "model type" instances og vis i searchable liste (måske brug autocomplete light)
@@ -27,9 +33,9 @@ ATT DU HAR ÆNDRET SETTINGS static/url!!!
 
 # rememberings
 Tree-modules
-MIU doesnt support drag/drop YET, so I dropped it.
-Now testing PrimeReact
-* Alternatives:
-  * Ant Design (ant.design)
-  * frontend-collective (https://github.com/frontend-collective/react-sortable-tree)
-  * tree (https://github.com/react-component/tree)
+  MIU doesnt support drag/drop YET, so I dropped it.
+  Now testing PrimeReact
+  * Alternatives:
+    * Ant Design (ant.design)
+    * frontend-collective (https://github.com/frontend-collective/react-sortable-tree)
+    * tree (https://github.com/react-component/tree)
