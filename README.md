@@ -59,6 +59,7 @@ There are a few base models that should to be used:
 
 
 ### Changelog
+* (next) changed API to hyperlinked models
 * (03/05/2021) Reverted bulk edit code.
 * (21/08/2020) Fixed bugs with row selection functions when too many rows were selected
 * (21/08/2020) Fixed various minor bugs in bulk edit

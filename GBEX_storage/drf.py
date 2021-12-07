@@ -2,6 +2,7 @@ from rest_framework import serializers, viewsets, permissions
 from .models import Location, Box, Vial
 from GBEX_app.drf import GBEX_API_ViewSets
 from generic_relations.relations import GenericRelatedField
+from GBEX_app.models.Inventory import AntiGenBodyBatch, CellLineBatch, CultureMediaBatch, PlasmidBatch, StrainBatch, gRNA, Primers, Toxins
 
 
 class LocationSerializer(serializers.ModelSerializer):
@@ -16,11 +17,14 @@ class BoxSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 
-linkable_models = ['AntiGenBodyBatch', 'CellLineBatch','CultureMediaBatch','gRNA','PlasmidBatch','Primers','StrainBatch','Toxins']
+linkable_models = [AntiGenBodyBatch, CellLineBatch, CultureMediaBatch, PlasmidBatch, StrainBatch, gRNA, Primers, Toxins]
 
 
 class VialSerializer(serializers.ModelSerializer):
-	content_object = GenericRelatedField({mo: vi.serializer_class() for mo, vi in GBEX_API_ViewSets.items()})# if x[0] in linkable_models})
+	content_object = GenericRelatedField({
+			#mo: vi.serializer_class() for mo, vi in GBEX_API_ViewSets.items()
+			model: type(f"{model.__name__}Serializer", (serializers.HyperlinkedModelSerializer,), {"Meta": type(f"{model.__name__}Serializer.Meta", (), {"model": model, "fields": "__all__"})})() for model in linkable_models
+	})# if x[0] in linkable_models})
 
 	class Meta:
 		model = Vial
