@@ -23,7 +23,10 @@ linkable_models = [AntiGenBodyBatch, CellLineBatch, CultureMediaBatch, PlasmidBa
 class VialSerializer(serializers.ModelSerializer):
 	content_object = GenericRelatedField({
 			#mo: vi.serializer_class() for mo, vi in GBEX_API_ViewSets.items()
-			model: type(f"{model.__name__}Serializer", (serializers.HyperlinkedModelSerializer,), {"Meta": type(f"{model.__name__}Serializer.Meta", (), {"model": model, "fields": "__all__"})})() for model in linkable_models
+			model: type(f"{model.__name__}Serializer", (serializers.HyperlinkedModelSerializer,), {
+				"responsible": serializers.SlugRelatedField(slug_field='username', read_only=True),
+				**{key: serializers.SlugRelatedField(slug_field='name', read_only=True) for key in ['Parent'] if hasattr(model, 'Parent')},
+				"Meta": type(f"{model.__name__}Serializer.Meta", (), {"model": model, "fields": "__all__"})})() for model in linkable_models
 	})# if x[0] in linkable_models})
 
 	class Meta:

@@ -13,7 +13,7 @@ ATT:
 
 # Todo Next
 * [x] Ved valg af well skal vial hentes via API 
-* [ ] og hvis det er et batch objekt så skal parent også hentes...api'en siger ikke hvilken model der er parent...måske ændre api til hyperlinked?
+* [ ] og hvis det er et batch objekt så skal parent også hentes..
 * [ ] Implement box/loc delete
 
 # Todo

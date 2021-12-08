@@ -53,6 +53,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 INSTALLED_APPS = [
+"corsheaders",  # delete. Just here for react development
 	'dal',
 	'dal_select2',
 	'django.contrib.admin',
@@ -69,7 +70,7 @@ INSTALLED_APPS = [
 	'drf_yasg2',
 	'django_filters',
 	'generic_relations',
-	"corsheaders",  # delete. Just here for react development
+
 	'GBEX_app.apps.GbexAppConfig',
 	'GBEX_bigfiles.apps.GbexBigfilesConfig',
 	'GBEX_storage',
@@ -156,7 +157,7 @@ REST_FRAMEWORK = {
 		'rest_framework.authentication.SessionAuthentication',
 	),
 	'DEFAULT_PERMISSION_CLASSES': (
-		'rest_framework.permissions.IsAuthenticated',
+		'rest_framework.permissions.IsAuthenticated'
 	),
 	'DEFAULT_FILTER_BACKENDS': ['url_filter.integrations.drf.DjangoFilterBackend',] #'django_filters.rest_framework.DjangoFilterBackend']
 }

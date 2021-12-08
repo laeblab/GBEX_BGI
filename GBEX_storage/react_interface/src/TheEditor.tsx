@@ -17,7 +17,7 @@ export default function MyEditor(props: {selected_well: {id: number, name: strin
 
     useEffect(() => {
 		if (props.selected_well.id !== -1) {
-			fetch("/api/Vial/"+props.selected_well.id)
+			fetch("http://127.0.0.1:8000/api/Vial/"+props.selected_well.id)
 				.then(res => res.json())
 				.then(json => setVialContent(json))
     }}, [props.selected_well.id])
@@ -27,11 +27,16 @@ export default function MyEditor(props: {selected_well: {id: number, name: strin
 	//		<button type="submit">Update</button>
 	//	</form>
 	//)
+	const nono_names = ["url","name","created","edited","archived"]
 	return (
 		<div>
 			{props.selected_well.name}
 			<ul>
-				{Object.entries(vial_content.content_object).map((([i,s]) => (<li>{i}:{s}</li>)))}
+				{
+					Object.entries(vial_content.content_object).map((([i,s]) => (
+						nono_names.includes(i) ? null:<li>{i}:{s}</li>
+					)))
+				}
 			</ul>
 		</div>
 	)
