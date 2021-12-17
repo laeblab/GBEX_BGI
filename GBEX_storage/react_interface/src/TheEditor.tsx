@@ -33,9 +33,17 @@ export default function MyEditor(props: {selected_well: {id: number, name: strin
 			{props.selected_well.name}
 			<ul>
 				{
-					Object.entries(vial_content.content_object).map((([i,s]) => (
-						nono_names.includes(i) ? null:<li>{i}:{s}</li>
-					)))
+					Object.entries(vial_content.content_object).map((([i,s]) => {
+						if (nono_names.includes(i)) {
+							return null
+						} else if (typeof s === 'object' && s !== null) {
+							return Object.entries(s).map((([ii,ss]) => (
+								typeof ss === 'object' ? null:<li>{ii}:{ss}</li>
+							)))
+						} else {
+							return <li>{i}:{s}</li>
+						}}
+					))
 				}
 			</ul>
 		</div>

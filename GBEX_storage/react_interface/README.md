@@ -13,7 +13,8 @@ ATT:
 
 # Todo Next
 * [x] Ved valg af well skal vial hentes via API 
-* [ ] og hvis det er et batch objekt så skal parent også hentes..
+* [x] og hvis det er et batch objekt så skal parent også hentes..
+  * [ ] I drf.py skal du lige tjekke om modellen er af model_kind=batch 
 * [ ] Implement box/loc delete
 
 # Todo
@@ -30,6 +31,7 @@ ATT:
         * assign bør ideelt set ske via API...men det er måske svært
 * GBEX_app interaktion
   * I list view, via Location column/field, skal man kunne tilgå GBEX_storage. Evt. links til storage der åbner box og selecter well
+  * En måde at finde ledige positions?
 
 
 # rememberings
