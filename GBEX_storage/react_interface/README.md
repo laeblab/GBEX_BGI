@@ -14,7 +14,7 @@ ATT:
 # Todo Next
 * [x] Ved valg af well skal vial hentes via API 
 * [x] og hvis det er et batch objekt så skal parent også hentes..
-  * [ ] I drf.py skal du lige tjekke om modellen er af model_kind=batch 
+  * [x] I drf.py skal du lige tjekke om modellen er af model_kind=batch 
 * [ ] Implement box/loc delete
 
 # Todo

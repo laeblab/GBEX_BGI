@@ -7,7 +7,7 @@ from dal import autocomplete
 
 from GBEX_bigfiles.fields import ResumableFileField
 from GBEX_app.helpers import get_upload_path
-from GBEX_storage.models import Vial
+#from GBEX_storage.models import Vial
 from GBEX_storage.helpers import pos_to_coord
 
 from .models import BaseOption, GBEXModelBase, AbstractBatch, default_order, default_widgets, default_readonly
@@ -56,7 +56,7 @@ class Plasmid(InventoryItem):
 class PlasmidBatch(AbstractBatch):
 	Parent = models.ForeignKey(Plasmid, on_delete=models.PROTECT)
 	Barcode = models.TextField(blank=True, null=True)
-	Location = GenericRelation(Vial, related_query_name="PlasmidBatch")
+	Location = GenericRelation("GBEX_storage.Vial", related_query_name="PlasmidBatch")
 	SequenceVerified = models.BooleanField(default=False)
 
 	order = [*default_order, 'Location', 'Barcode', 'SequenceVerified', 'Parent']
@@ -75,7 +75,7 @@ class Primers(InventoryItem):
 	Sequence = models.TextField(blank=True, null=True)
 	Tm = models.PositiveIntegerField("Tm (°C)", blank=True, null=True)
 	Conc = models.PositiveIntegerField("Conc (uM)", blank=True, null=True)
-	Location = GenericRelation(Vial, related_query_name="Primers")
+	Location = GenericRelation("GBEX_storage.Vial", related_query_name="Primers")
 
 	order = [*inventory_order, "Sequence", 'Tm', 'Conc', "Location"]
 	symbol = "PR"
@@ -134,7 +134,7 @@ class Strain(InventoryItem):
 
 class StrainBatch(AbstractBatch):
 	Parent = models.ForeignKey(Strain, on_delete=models.PROTECT)
-	Location = GenericRelation(Vial, related_query_name="StrainBatch")
+	Location = GenericRelation("GBEX_storage.Vial", related_query_name="StrainBatch")
 	Barcode = models.TextField(blank=True, null=True)
 	TubesLeft = models.PositiveIntegerField(blank=True, null=True)
 
@@ -178,7 +178,7 @@ class CellLine(InventoryItem):
 
 class CellLineBatch(AbstractBatch):
 	Parent = models.ForeignKey(CellLine, on_delete=models.PROTECT)
-	Location = GenericRelation(Vial, related_query_name="CellLineBatch")
+	Location = GenericRelation("GBEX_storage.Vial", related_query_name="CellLineBatch")
 	Barcode = models.TextField(blank=True, null=True)
 	TubesLeft = models.PositiveIntegerField(blank=True, null=True)
 	Mycoplasma = models.DateField(blank=True, null=True)
@@ -220,7 +220,7 @@ class CultureMedia(InventoryItem):
 
 class CultureMediaBatch(AbstractBatch):
 	Parent = models.ForeignKey(CultureMedia, on_delete=models.PROTECT)
-	Location = GenericRelation(Vial, related_query_name="CultureMediaBatch")
+	Location = GenericRelation("GBEX_storage.Vial", related_query_name="CultureMediaBatch")
 	Barcode = models.TextField(blank=True, null=True)
 
 	order = [*default_order, 'Location', 'Barcode', 'Parent']
@@ -245,7 +245,7 @@ class gRNA(InventoryItem):
 	TargetFwdPrimer = models.ForeignKey(Primers, on_delete=models.PROTECT, blank=True, null=True, related_name='gRNA_fwd_primer')
 	TargetRevPrimer = models.ForeignKey(Primers, on_delete=models.PROTECT, blank=True, null=True, related_name='gRNA_rev_primer')
 	PCRProduct = models.TextField(blank=True, null=True)
-	Location = GenericRelation(Vial, related_query_name="gRNA")
+	Location = GenericRelation("GBEX_storage.Vial", related_query_name="gRNA")
 
 	order = [*inventory_order, 'CRISPR_enzyme', 'TargetSpecies', 'TargetGenome', 'TargetSequence', 'FullOligoSequence', 'TargetFwdPrimer', 'TargetRevPrimer', 'PCRProduct', 'Location']
 	symbol = "gRNA"
@@ -326,7 +326,7 @@ class AntiGenBody(InventoryItem):
 
 class AntiGenBodyBatch(AbstractBatch):
 	Parent = models.ForeignKey(AntiGenBody, on_delete=models.PROTECT)
-	Location = GenericRelation(Vial, related_query_name="AntiGenBodyBatch")
+	Location = GenericRelation("GBEX_storage.Vial", related_query_name="AntiGenBodyBatch")
 
 	ProductionCellLine = models.ForeignKey(CellLineBatch, blank=True, null=True, on_delete=models.PROTECT)
 	order = [*default_order, 'Location', 'ProductionCellLine', 'Parent']

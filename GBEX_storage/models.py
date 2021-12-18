@@ -1,6 +1,9 @@
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
+from GBEX_app.models.Inventory import AntiGenBodyBatch, CellLineBatch, CultureMediaBatch, PlasmidBatch, StrainBatch, gRNA, Primers, Toxins
+from functools import reduce
+from operator import or_
 
 
 class Location(models.Model):
@@ -35,7 +38,10 @@ class Vial(models.Model):
 	# https://docs.djangoproject.com/en/3.2/ref/models/constraints/#django.db.models.UniqueConstraint
 	####
 	pos_index = models.PositiveIntegerField()  # consider row+column instead of index
-	content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT, null=True)
+
+	linkable_models = [AntiGenBodyBatch, CellLineBatch, CultureMediaBatch, PlasmidBatch, StrainBatch, gRNA, Primers, Toxins]
+	limit = reduce(or_, [models.Q(model=m) for m in linkable_models])
+	content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT, null=True, limit_choices_to=limit)
 	object_id = models.PositiveIntegerField(null=True)
 	content_object = GenericForeignKey('content_type', 'object_id')
 

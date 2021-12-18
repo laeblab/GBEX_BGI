@@ -20,7 +20,9 @@ export default function MyEditor(props: {selected_well: {id: number, name: strin
 			fetch("http://127.0.0.1:8000/api/Vial/"+props.selected_well.id)
 				.then(res => res.json())
 				.then(json => setVialContent(json))
-    }}, [props.selected_well.id])
+		} else {
+			setVialContent({content_object: {a:'a'}})
+		}}, [props.selected_well.id])
 	//return (
 	//	<form onSubmit={handleSubmit} style={form_style}>
 	//		<InnerHTML html={formtext} />
