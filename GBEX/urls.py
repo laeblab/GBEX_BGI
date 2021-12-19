@@ -22,7 +22,7 @@ schema_view = get_schema_view(
 		default_version="v1"
 	),
 	public=False,
-	permission_classes=(permissions.IsAuthenticated,),
+	#permission_classes=(permissions.IsAuthenticated,),
 )
 
 # generally views that are used to log the user in or has its own authentication machinery needs to be here

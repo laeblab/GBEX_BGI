@@ -6,7 +6,7 @@ from django.http import JsonResponse, HttpResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.template.defaultfilters import striptags
-from django.utils.translation import ugettext
+from django.utils.translation import gettext
 from django.views.generic import TemplateView, CreateView, UpdateView, View
 from django.views.generic.base import TemplateResponseMixin, ContextMixin
 from django.views.generic.edit import FormView
@@ -216,7 +216,7 @@ class GBEXAutocomplete(Select2QuerySetView):
 		if display_create_option and self.has_add_permission(self.request):
 			create_option = [{
 				'id': q,
-				'text': ugettext('Create "%(new_value)s"') % {'new_value': q},
+				'text': gettext('Create "%(new_value)s"') % {'new_value': q},
 				'create_id': True,
 			}]
 		return create_option

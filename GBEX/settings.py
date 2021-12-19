@@ -1,6 +1,9 @@
 import os
 import logging
+
+import django.core.cache.backends.memcached
 import ldap
+import rest_framework.permissions
 from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
 
 ADD_REVERSION_ADMIN = True  # Django Reversion
@@ -135,7 +138,6 @@ AUTH_PASSWORD_VALIDATORS = [
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'Europe/Copenhagen'
 USE_I18N = False
-USE_L10N = False
 USE_TZ = True
 DATE_FORMAT = 'c'
 STATIC_URL = '/static/'
@@ -146,18 +148,19 @@ SENDFILE_URL = "/protected"
 
 CACHES = {
 	'default': {
-		'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+		'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
 		'LOCATION': '127.0.0.1:11211',
 	}
 }
 
 REST_FRAMEWORK = {
 	'DEFAULT_AUTHENTICATION_CLASSES': (
-		'rest_framework.authentication.TokenAuthentication',
-		'rest_framework.authentication.SessionAuthentication',
+	#	'rest_framework.authentication.TokenAuthentication',
+	#	'rest_framework.authentication.SessionAuthentication',
 	),
 	'DEFAULT_PERMISSION_CLASSES': (
-		'rest_framework.permissions.IsAuthenticated',
+		#'rest_framework.permissions.IsAuthenticated',
+		'rest_framework.permissions.AllowAny',
 	),
 	'DEFAULT_FILTER_BACKENDS': ['url_filter.integrations.drf.DjangoFilterBackend',] #'django_filters.rest_framework.DjangoFilterBackend']
 }

@@ -10,17 +10,6 @@ export default function App() {
     const [selectedWell, setSelectedWell] = useState({id: -1, name: "A1", pos: -1})
     useEffect(() => { setSelectedWell({id: -1, name: "A1", pos: -1}) }, [box]);
 
-    // wellText contains the information from a well that is currently selected
-    //const [wellText, setWellText] = useState({})
-    //useEffect(() => {
-    //    if (box.id) {
-    //        fetch("vial_info/"+box.id+"/"+well, { credentials: 'include' })
-    //            .then(response => response.json())
-    //            .then(json => setWellText(json))
-    //            .catch(error => console.log(error))
-    //    }
-    //}, [well, box.id]);
-
     return (
         <div id="storage_root">
             <div id="storage_top">header</div>

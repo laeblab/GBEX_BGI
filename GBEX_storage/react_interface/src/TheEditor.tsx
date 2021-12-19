@@ -4,6 +4,16 @@ import {getCookie} from "./index";
 
 const form_style = {display: "inline-flex"};
 
+function object2ul(obj: object, no_no_words: string[]) {
+	return Object.entries(obj).map((([i,s]) => {
+		if (no_no_words.includes(i)) {
+			return null
+		} else if (typeof s === 'object' && s !== null) {
+			return <li key={i}>{i}:<ul>{object2ul(s, no_no_words)}</ul></li>
+		} else { return <li key={i}>{i}:{s}</li>}
+	}))
+}
+
 export default function MyEditor(props: {selected_well: {id: number, name: string, pos: number}}) {
 	//const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 	//	event.preventDefault();
@@ -13,7 +23,7 @@ export default function MyEditor(props: {selected_well: {id: number, name: strin
     //        })
 	//		.catch(error => console.log(error));
 	//}
-	const [vial_content, setVialContent] = useState({content_object: {a:'a'}});
+	const [vial_content, setVialContent] = useState<{content_object: {[key: string]: string | object}}>({content_object: {a:'a'}});
 
     useEffect(() => {
 		if (props.selected_well.id !== -1) {
@@ -29,25 +39,11 @@ export default function MyEditor(props: {selected_well: {id: number, name: strin
 	//		<button type="submit">Update</button>
 	//	</form>
 	//)
-	const nono_names = ["url","name","created","edited","archived"]
+	const nono_names = ["id", "url","created","edited","archived"]
 	return (
 		<div>
 			{props.selected_well.name}
-			<ul>
-				{
-					Object.entries(vial_content.content_object).map((([i,s]) => {
-						if (nono_names.includes(i)) {
-							return null
-						} else if (typeof s === 'object' && s !== null) {
-							return Object.entries(s).map((([ii,ss]) => (
-								typeof ss === 'object' ? null:<li>{ii}:{ss}</li>
-							)))
-						} else {
-							return <li>{i}:{s}</li>
-						}}
-					))
-				}
-			</ul>
+			<ul> { object2ul(vial_content.content_object, nono_names) }	</ul>
 		</div>
 	)
 }

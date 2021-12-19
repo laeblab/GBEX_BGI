@@ -31,19 +31,19 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<{ vials: 
             .catch(error => console.log(error))
     }, [staleTree])
 
-	const doApiPatch = (key: string, body: {}, method='patch' ) => {
+	const doApiCall = (key: string, body: {}, method='patch' ) => {
 		let kind = 'Box'
 		if (key.startsWith('loc')) { // we got a location
 			kind = 'Location'
-			key = key.split('_').splice(1).join('_') // Location keys are written loc_key
 		}
+		key = key.split('_').splice(1).join('_') // Location keys are written loc_key or box_key
 		const requestHeaders: HeadersInit = new Headers();
 		const csrftoken = getCookie('csrftoken')
 		if (typeof csrftoken === 'string') {
 			requestHeaders.set('X-CSRFToken', csrftoken)
 			requestHeaders.set('Content-Type', 'application/json')
 			let url = "http://127.0.0.1:8000/api/" + kind + "/"
-			if (method === 'patch') { url += key + "/" }
+			if (['patch', 'delete'].includes(method)) { url += key + "/" }
 			fetch(url, {
 				mode: 'same-origin',
 				method: method,
@@ -56,16 +56,19 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<{ vials: 
 	const doNewLocBox = () => {
 		setNewChild(false)
 		let body = {name: nameinput, parent: String(selected).split('_').splice(1).join('_'), rows: 10, columns: 10}
-		if (nameinput) { doApiPatch(selectedNewType.code, body, "post")}
+		if (nameinput) { doApiCall(selectedNewType.code, body, "post")}
 	}
 
 	const doNameChange = () => {
 		setEditing(false)
-		if (nameinput) { doApiPatch(String(selected), {name: nameinput})}
+		if (nameinput) { doApiCall(String(selected), {name: nameinput})}
+	}
+
+	const doDelete = () => {
+		doApiCall(String(selected), {}, 'delete')
 	}
 
 	const doParentChange = (e: TreeDragDropParams) => {
-		console.log(e)
 		if (e.dropNode || String(e.dragNode.key).startsWith("loc_")) { // check if we have a parent and if we DONT then only allow locations to be dropped there
 			setNodes(e.value) // optimistic update of gui
 			let body = {parent: ""}
@@ -75,13 +78,13 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<{ vials: 
 				header: 'Confirmation',
 				icon: 'pi pi-exclamation-triangle',
 				position: 'left',
-				accept: () => doApiPatch(String(e.dragNode.key), body),
+				accept: () => doApiCall(String(e.dragNode.key), body),
 			});
 		}
 	}
 
     const nodeTemplate = (node: TreeNode, options: TreeNodeTemplateOptions) => {
-        if (node.key === selected) {
+		if (node.key === selected) {
 			if (editing) {
 				return (
 					<div className="p-inputgroup">

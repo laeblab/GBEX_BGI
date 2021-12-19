@@ -31,7 +31,7 @@ for model in apps.get_app_config('GBEX_app').get_models():
 	viewset = type(f"{model.__name__}ViewSet", (viewsets.ModelViewSet,), {
 		"queryset": model.objects.all(),
 		"serializer_class": serial,
-		"permission_classes": [permissions.IsAuthenticated],
+		#"permission_classes": [permissions.IsAuthenticated],
 		"filter_fields": '__all__',
 		#"filterset_fields": [x.name for x in model._meta.fields if not (isinstance(x, ResumableFileField) or isinstance(x, JSONField))]  # by default filters dont work with resumablefilefield nor JSONfields
 	})
@@ -45,7 +45,7 @@ serial = type(f"{model.__name__}Serializer", (serializers.ModelSerializer, ), {
 viewset = type(f"{model.__name__}ViewSet", (viewsets.ModelViewSet,), {
 	"queryset": model.objects.all(),
 	"serializer_class": serial,
-	"permission_classes": [permissions.IsAuthenticated],
+	#"permission_classes": [permissions.IsAuthenticated],
 	"filter_fields": '__all__',
 })
 GBEX_API_ViewSets[model] = viewset
