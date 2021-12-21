@@ -1,4 +1,4 @@
-import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
+import React, {Dispatch, SetStateAction, SyntheticEvent, useEffect, useState} from 'react';
 import {Tree, TreeDragDropParams, TreeNodeTemplateOptions, TreeSelectionKeys} from 'primereact/tree';
 import TreeNode from "primereact/treenode";
 import {InputText} from 'primereact/inputtext';
@@ -10,7 +10,8 @@ import {getCookie} from "./index";
 
 export default function TheTree(props:{setBox: Dispatch<SetStateAction<{ vials: { name: string; id: number; }[]; rows: number; columns: number;}>>}) {
     const [nodes, setNodes] = useState<TreeNode[]>([])
-	const [selected, setSelected] = useState<TreeSelectionKeys>("")
+	const [selectedKey, setSelectedKey] = useState<TreeSelectionKeys>("")
+	//const [selectedNode, setSelectedNode] = useState<TreeNode>()
 	const [editing, setEditing] = useState(false)
 	const [nameinput, setNameInput] = useState<string|undefined>('')
 	const [staleTree, setStale] = useState(false)
@@ -38,14 +39,16 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<{ vials: 
 		}
 		key = key.split('_').splice(1).join('_') // Location keys are written loc_key or box_key
 		const requestHeaders: HeadersInit = new Headers();
-		const csrftoken = getCookie('csrftoken')
+		console.log("Find this line and revert it for production. Fantastic system I got here...")
+		const csrftoken = "DEVELOPMENT" //getCookie('csrftoken')
+
 		if (typeof csrftoken === 'string') {
 			requestHeaders.set('X-CSRFToken', csrftoken)
 			requestHeaders.set('Content-Type', 'application/json')
 			let url = "http://127.0.0.1:8000/api/" + kind + "/"
 			if (['patch', 'delete'].includes(method)) { url += key + "/" }
 			fetch(url, {
-				mode: 'same-origin',
+				//mode: 'same-origin',
 				method: method,
 				body: JSON.stringify(body),
 				headers: requestHeaders})
@@ -55,17 +58,38 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<{ vials: 
 
 	const doNewLocBox = () => {
 		setNewChild(false)
-		let body = {name: nameinput, parent: String(selected).split('_').splice(1).join('_'), rows: 10, columns: 10}
+		let body = {name: nameinput, parent: String(selectedKey).split('_').splice(1).join('_'), rows: 10, columns: 10}
 		if (nameinput) { doApiCall(selectedNewType.code, body, "post")}
 	}
 
 	const doNameChange = () => {
 		setEditing(false)
-		if (nameinput) { doApiCall(String(selected), {name: nameinput})}
+		if (nameinput) { doApiCall(String(selectedKey), {name: nameinput})}
 	}
 
-	const doDelete = () => {
-		doApiCall(String(selected), {}, 'delete')
+	const test = () : (number| string)[] => {
+		return [1, 2, "3"]
+	}
+
+	const gather_the_children = (parent: TreeNode) : (TreeNode)[] => {
+		if (parent.hasOwnProperty("children") && Array.isArray(parent.children) && parent.children.length > 0) {
+			return parent.children.flatMap(c => {
+				return [c, ...gather_the_children(c)]
+			})
+		} else return []
+	}
+
+	const order66 = (e: TreeNode) => {
+		let hit_list = [e, ...gather_the_children(e)]
+		console.log(hit_list)
+
+		confirmDialog({
+			message: (<span>{"You are about to delete " + hit_list.length + " items:"}<br />{hit_list.map(c => c.label).join(", ")}<br />{"Are you sure you want to proceed?"}</span>),
+			header: 'Execute order 66?',
+			icon: 'pi pi-exclamation-triangle',
+			position: 'left',
+			accept: () => doApiCall(String(selectedKey), {}, 'delete'),
+		});
 	}
 
 	const doParentChange = (e: TreeDragDropParams) => {
@@ -74,8 +98,8 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<{ vials: 
 			let body = {parent: ""}
 			if (e.dropNode) { body = {parent: String(e.dropNode.key).split('_').splice(1).join('_')}}
 			confirmDialog({
-				message: 'You are about to move ' + e.dragNode.label + ' into ' + e.dropNode.label + '.\nAre you sure you want to proceed?',
-				header: 'Confirmation',
+				message: 'You are about to move ' + e.dragNode.label + ' into ' + e.dropNode.label + '. Are you sure you want to proceed?',
+				header: 'Change location?',
 				icon: 'pi pi-exclamation-triangle',
 				position: 'left',
 				accept: () => doApiCall(String(e.dragNode.key), body),
@@ -84,7 +108,7 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<{ vials: 
 	}
 
     const nodeTemplate = (node: TreeNode, options: TreeNodeTemplateOptions) => {
-		if (node.key === selected) {
+		if (node.key === selectedKey) {
 			if (editing) {
 				return (
 					<div className="p-inputgroup">
@@ -112,8 +136,8 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<{ vials: 
 						<span className={options.className} style={{flexGrow: 2}}><b>{node.label}</b></span>
 						<div style={{flexGrow: 2, display: "flex", justifyContent: "space-evenly"}}>
 							<Button tooltip="Edit name" tooltipOptions={{position: 'top'}} onClick={e => {setNameInput(node.label); setEditing(true)}} icon={"pi pi-pencil"} className={"p-button-rounded p-button-text"} />
-							<Button tooltip="Delete this...and all its children :(" tooltipOptions={{position: 'top'}} icon={"pi pi-times"} className={"p-button-rounded p-button-text"} />
-							{String(selected).startsWith("loc_") ? <Button tooltip="Add new box/location" tooltipOptions={{position: 'top'}} onClick={e => setNewChild(true)} icon={"pi pi-plus"} className={"p-button-rounded p-button-text"}/>: null}
+							<Button tooltip="Delete this...and all its children :(" tooltipOptions={{position: 'top'}} onClick={e => order66(node)} icon={"pi pi-times"} className={"p-button-rounded p-button-text"} />
+							{String(selectedKey).startsWith("loc_") ? <Button tooltip="Add new box/location" tooltipOptions={{position: 'top'}} onClick={e => setNewChild(true)} icon={"pi pi-plus"} className={"p-button-rounded p-button-text"}/>: null}
 						</div>
 					</div>)
 			}
@@ -124,19 +148,21 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<{ vials: 
 		<Tree
 			style={{maxWidth: 400, overflowY: 'auto'}}
 			dragdropScope="treedrop"
-			selectionMode={"single"}
+			selectionMode="single"
 			value={nodes}
             nodeTemplate={nodeTemplate}
 			filter={true}
-			selectionKeys={selected}
+			filterPlaceholder="Search for box or location"
+			selectionKeys={selectedKey}
 			onSelectionChange={e => {
-				if (e.value !== selected) {
+				if (e.value !== selectedKey) {
 					setEditing(false);
 					setNewChild(false);
-					setSelected(e.value)
+					setSelectedKey(e.value)
 				}
 			}}
 			onSelect={e => {
+				//setSelectedNode(e.node)
 				if (e.node.hasOwnProperty('data')) {
 					props.setBox(e.node.data)
 				}
