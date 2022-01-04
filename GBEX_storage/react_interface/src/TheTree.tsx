@@ -1,4 +1,4 @@
-import React, {Dispatch, SetStateAction, SyntheticEvent, useEffect, useState} from 'react';
+import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
 import {Tree, TreeDragDropParams, TreeNodeTemplateOptions, TreeSelectionKeys} from 'primereact/tree';
 import TreeNode from "primereact/treenode";
 import {InputText} from 'primereact/inputtext';
@@ -6,9 +6,10 @@ import {Button} from 'primereact/button';
 import {Dropdown} from 'primereact/dropdown';
 import {confirmDialog} from 'primereact/confirmdialog';
 import {getCookie} from "./index";
+import {Box} from "./App"
 
-
-export default function TheTree(props:{setBox: Dispatch<SetStateAction<{ vials: { name: string; id: number; }[]; rows: number; columns: number;}>>}) {
+//Dispatch<SetStateAction<{ vials: { name: string; id: number; }[]; rows: number; columns: number;}>>
+export default function TheTree(props:{setBox: Dispatch<SetStateAction<Box>>}) {
     const [nodes, setNodes] = useState<TreeNode[]>([])
 	const [selectedKey, setSelectedKey] = useState<TreeSelectionKeys>("")
 	//const [selectedNode, setSelectedNode] = useState<TreeNode>()
@@ -67,10 +68,6 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<{ vials: 
 		if (nameinput) { doApiCall(String(selectedKey), {name: nameinput})}
 	}
 
-	const test = () : (number| string)[] => {
-		return [1, 2, "3"]
-	}
-
 	const gather_the_children = (parent: TreeNode) : (TreeNode)[] => {
 		if (parent.hasOwnProperty("children") && Array.isArray(parent.children) && parent.children.length > 0) {
 			return parent.children.flatMap(c => {
@@ -81,7 +78,6 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<{ vials: 
 
 	const order66 = (e: TreeNode) => {
 		let hit_list = [e, ...gather_the_children(e)]
-		console.log(hit_list)
 
 		confirmDialog({
 			message: (<span>{"You are about to delete " + hit_list.length + " items:"}<br />{hit_list.map(c => c.label).join(", ")}<br />{"Are you sure you want to proceed?"}</span>),

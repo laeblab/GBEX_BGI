@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react'
+import {Vial} from './App'
 import InnerHTML from 'dangerously-set-html-content'
 import {getCookie} from "./index";
 
@@ -14,7 +15,7 @@ function object2ul(obj: object, no_no_words: string[]) {
 	}))
 }
 
-export default function MyEditor(props: {selected_well: {id: number, name: string, pos: number}}) {
+export default function MyEditor(props: {selected_well: Vial}) {
 	//const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 	//	event.preventDefault();
 	//	fetch(url, {method: 'post', credentials: 'include',	body: new FormData(event.currentTarget)})

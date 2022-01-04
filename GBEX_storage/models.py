@@ -8,7 +8,7 @@ from operator import or_
 
 class Location(models.Model):
 	name = models.CharField(max_length=255)
-	parent = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True)
+	parent = models.ForeignKey("self", on_delete=models.CASCADE, null=True, blank=True)
 
 	def __str__(self):
 		return self.name
@@ -19,7 +19,7 @@ class Location(models.Model):
 
 class Box(models.Model):
 	name = models.CharField(max_length=255)
-	parent = models.ForeignKey(Location, on_delete=models.PROTECT)
+	parent = models.ForeignKey(Location, on_delete=models.CASCADE)
 	rows = models.PositiveIntegerField()
 	columns = models.PositiveIntegerField()
 
@@ -32,12 +32,9 @@ class Box(models.Model):
 
 class Vial(models.Model):
 	name = models.CharField(max_length=255)  # copy the name from content_object
-	parent = models.ForeignKey(Box, on_delete=models.PROTECT)
-	####
-	# pos_index must be unique with Box
-	# https://docs.djangoproject.com/en/3.2/ref/models/constraints/#django.db.models.UniqueConstraint
-	####
-	pos_index = models.PositiveIntegerField()  # consider row+column instead of index
+	parent = models.ForeignKey(Box, on_delete=models.CASCADE)
+	box_row = models.PositiveIntegerField()
+	box_column = models.PositiveIntegerField()
 
 	linkable_models = [AntiGenBodyBatch, CellLineBatch, CultureMediaBatch, PlasmidBatch, StrainBatch, gRNA, Primers, Toxins]
 	limit = reduce(or_, [models.Q(model=m) for m in linkable_models])
@@ -55,3 +52,4 @@ class Vial(models.Model):
 
 	class Meta:
 		ordering = ('id', )
+		constraints = [models.UniqueConstraint(fields=['parent', 'box_row', 'box_column'], name='unique_vial_box'), ]

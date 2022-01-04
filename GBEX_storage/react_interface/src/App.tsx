@@ -4,10 +4,28 @@ import TheBox from './TheBox'
 import TheEditor from './TheEditor'
 import useDimensions from "react-cool-dimensions"
 
+export interface Vial {
+    name: string,
+    id: number,
+    box_row?: number,
+    box_column?: number
+    pos?: number
+}
+
+export interface Vials {
+    [key: string]: Vial
+}
+
+export interface Box {
+    vials: Vials,
+    rows: number,
+    columns: number
+}
+
 export default function App() {
     const { observe, width, height } = useDimensions()
-    const [box, setBox] = useState({vials: [{id: -1, name:"A1"}], rows: 1, columns: 1}); // box contain information about the currently selected box
-    const [selectedWell, setSelectedWell] = useState({id: -1, name: "A1", pos: -1})
+    const [box, setBox] = useState<Box>({vials: {A1: {id: -1, name:"A1"}}, rows: 1, columns: 1}); // box contain information about the currently selected box
+    const [selectedWell, setSelectedWell] = useState<Vial>({id: -1, name: "A1", pos: -1})
     useEffect(() => { setSelectedWell({id: -1, name: "A1", pos: -1}) }, [box]);
 
     return (

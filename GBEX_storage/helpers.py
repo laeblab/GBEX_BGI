@@ -1,2 +1,2 @@
-def pos_to_coord(pos: int, cols: int) -> str:
-	return f"{chr(ord('A')+int(pos/cols))}{pos%cols+1}"
+def pos_to_coord(box_row: int, box_columns: int) -> str:
+	return f"{chr(ord('A')+box_row)}{box_columns+1}"
