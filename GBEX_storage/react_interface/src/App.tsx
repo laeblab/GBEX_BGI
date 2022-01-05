@@ -9,7 +9,6 @@ export interface Vial {
     id: number,
     box_row?: number,
     box_column?: number
-    pos?: number
 }
 
 export interface Vials {
@@ -24,9 +23,9 @@ export interface Box {
 
 export default function App() {
     const { observe, width, height } = useDimensions()
-    const [box, setBox] = useState<Box>({vials: {A1: {id: -1, name:"A1"}}, rows: 1, columns: 1}); // box contain information about the currently selected box
-    const [selectedWell, setSelectedWell] = useState<Vial>({id: -1, name: "A1", pos: -1})
-    useEffect(() => { setSelectedWell({id: -1, name: "A1", pos: -1}) }, [box]);
+    const [box, setBox] = useState<Box|undefined>()
+    const [selectedWell, setSelectedWell] = useState<Vials|undefined>()
+    useEffect(() => { setSelectedWell(undefined) }, [box])
 
     return (
         <div id="storage_root">
@@ -36,10 +35,10 @@ export default function App() {
                     <TheTree setBox={setBox} />
                 </div>
                 <div id="storage_middle" ref={observe}>
-                    <TheBox selected_well={selectedWell} set_selected_well={setSelectedWell} box_info={box} height={height} width={width}/>
+                    {box===undefined ? null:<TheBox selected_well={selectedWell} set_selected_well={setSelectedWell} box_info={box} height={height} width={width}/>}
                 </div>
                 <div id="storage_right">
-                    <TheEditor selected_well={selectedWell}/>
+                    {selectedWell===undefined ? null: <TheEditor selected_well={selectedWell}/>}
                 </div>
             </div>
         </div>

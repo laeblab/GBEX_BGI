@@ -9,7 +9,7 @@ import {getCookie} from "./index";
 import {Box} from "./App"
 
 //Dispatch<SetStateAction<{ vials: { name: string; id: number; }[]; rows: number; columns: number;}>>
-export default function TheTree(props:{setBox: Dispatch<SetStateAction<Box>>}) {
+export default function TheTree(props:{setBox: Dispatch<SetStateAction<Box|undefined>>}) {
     const [nodes, setNodes] = useState<TreeNode[]>([])
 	const [selectedKey, setSelectedKey] = useState<TreeSelectionKeys>("")
 	//const [selectedNode, setSelectedNode] = useState<TreeNode>()
@@ -161,6 +161,8 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<Box>>}) {
 				//setSelectedNode(e.node)
 				if (e.node.hasOwnProperty('data')) {
 					props.setBox(e.node.data)
+				} else {
+					props.setBox(undefined)
 				}
 			}}
 			onDragDrop={e => {doParentChange(e)}}
