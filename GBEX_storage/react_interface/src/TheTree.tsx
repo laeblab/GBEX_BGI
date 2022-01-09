@@ -1,4 +1,4 @@
-import React, {Dispatch, SetStateAction, useEffect, useState} from 'react';
+import React, {Dispatch, SetStateAction, useEffect, useState, useRef} from 'react';
 import {Tree, TreeDragDropParams, TreeNodeTemplateOptions, TreeSelectionKeys} from 'primereact/tree';
 import TreeNode from "primereact/treenode";
 import {InputText} from 'primereact/inputtext';
@@ -7,6 +7,7 @@ import {Dropdown} from 'primereact/dropdown';
 import {confirmDialog} from 'primereact/confirmdialog';
 import {getCookie} from "./index";
 import {Box} from "./App"
+import { OverlayPanel } from 'primereact/overlaypanel';
 
 //Dispatch<SetStateAction<{ vials: { name: string; id: number; }[]; rows: number; columns: number;}>>
 export default function TheTree(props:{setBox: Dispatch<SetStateAction<Box|undefined>>}) {
@@ -20,6 +21,7 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<Box|undef
 	const [newChild, setNewChild] = useState(false)
 	const [selectedNewType, setSelectedNewType] = useState({ name: 'Box', code: 'box' })
 
+	const op = useRef<OverlayPanel>(null);
 	const newChildTypes = [
 		{ name: 'Box', code: 'box' },
 		{ name: 'Location', code: 'loc' },
@@ -141,31 +143,37 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<Box|undef
     }
 
 	return (
-		<Tree
-			style={{maxWidth: 400, overflowY: 'auto'}}
-			dragdropScope="treedrop"
-			selectionMode="single"
-			value={nodes}
-            nodeTemplate={nodeTemplate}
-			filter={true}
-			filterPlaceholder="Search for box or location"
-			selectionKeys={selectedKey}
-			onSelectionChange={e => {
-				if (e.value !== selectedKey) {
-					setEditing(false);
-					setNewChild(false);
-					setSelectedKey(e.value)
-				}
-			}}
-			onSelect={e => {
-				//setSelectedNode(e.node)
-				if (e.node.hasOwnProperty('data')) {
-					props.setBox(e.node.data)
-				} else {
-					props.setBox(undefined)
-				}
-			}}
-			onDragDrop={e => {doParentChange(e)}}
-		/>
+		<div>
+			<Tree
+				style={{maxWidth: 400, overflowY: 'auto'}}
+				dragdropScope="treedrop"
+				selectionMode="single"
+				value={nodes}
+				nodeTemplate={nodeTemplate}
+				filter={true}
+				filterPlaceholder="Search for box or location"
+				selectionKeys={selectedKey}
+				onSelectionChange={e => {
+					if (e.value !== selectedKey) {
+						setEditing(false);
+						setNewChild(false);
+						setSelectedKey(e.value)
+					}
+				}}
+				onSelect={e => {
+					//setSelectedNode(e.node)
+					if (e.node.hasOwnProperty('data')) {
+						props.setBox(e.node.data)
+					} else {
+						props.setBox(undefined)
+					}
+				}}
+				onDragDrop={e => {doParentChange(e)}}
+			/>
+			<Button label={"test"} onClick={e => op.current?.toggle(e)}/>
+			<OverlayPanel ref={op} dismissable={true}>
+				Hello
+			</OverlayPanel>
+		</div>
 	);
 }
