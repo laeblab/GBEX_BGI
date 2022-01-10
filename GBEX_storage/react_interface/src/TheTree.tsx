@@ -1,5 +1,5 @@
 import React, {Dispatch, SetStateAction, useEffect, useState, useRef} from 'react';
-import {Tree, TreeDragDropParams, TreeNodeTemplateOptions, TreeSelectionKeys} from 'primereact/tree';
+import {Tree, TreeDragDropParams, TreeNodeTemplateOptions} from 'primereact/tree';
 import TreeNode from "primereact/treenode";
 import {InputText} from 'primereact/inputtext';
 import {Button} from 'primereact/button';
@@ -11,8 +11,7 @@ import { OverlayPanel } from 'primereact/overlaypanel';
 
 //Dispatch<SetStateAction<{ vials: { name: string; id: number; }[]; rows: number; columns: number;}>>
 export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNode[]>>, nodes: TreeNode[], setStale: Dispatch<SetStateAction<boolean>>, setBox: Dispatch<SetStateAction<Box|undefined>>}) {
-	const [selectedKey, setSelectedKey] = useState<TreeSelectionKeys>("")
-	//const [selectedNode, setSelectedNode] = useState<TreeNode>()
+	const [selectedNode, setSelectedNode] = useState<TreeNode>()
 	const [editing, setEditing] = useState(false)
 	const [nameinput, setNameInput] = useState<string|undefined>('')
 	const [newChild, setNewChild] = useState(false)
@@ -23,6 +22,12 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 		{ name: 'Box', code: 'box' },
 		{ name: 'Location', code: 'loc' },
 	];
+
+	useEffect(() => {
+		console.log("boxeffect")
+		setSelectedNode(e.node)
+		props.setBox(selectedNode?.data)
+	}, [props.nodes, selectedNode])
 
 	const doApiCall = (key: string, body: {}, method='patch' ) => {
 		let kind = 'Box'
@@ -50,13 +55,13 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 
 	const doNewLocBox = () => {
 		setNewChild(false)
-		let body = {name: nameinput, parent: String(selectedKey).split('_').splice(1).join('_'), rows: 10, columns: 10}
+		let body = {name: nameinput, parent: String(selectedNode?.key).split('_').splice(1).join('_'), rows: 10, columns: 10}
 		if (nameinput) { doApiCall(selectedNewType.code, body, "post")}
 	}
 
 	const doNameChange = () => {
 		setEditing(false)
-		if (nameinput) { doApiCall(String(selectedKey), {name: nameinput})}
+		if (nameinput) { doApiCall(String(selectedNode?.key), {name: nameinput})}
 	}
 
 	const gather_the_children = (parent: TreeNode) : (TreeNode)[] => {
@@ -75,7 +80,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 			header: 'Execute order 66?',
 			icon: 'pi pi-exclamation-triangle',
 			position: 'left',
-			accept: () => doApiCall(String(selectedKey), {}, 'delete'),
+			accept: () => doApiCall(String(selectedNode?.key), {}, 'delete'),
 		});
 	}
 
@@ -95,7 +100,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 	}
 
     const nodeTemplate = (node: TreeNode, options: TreeNodeTemplateOptions) => {
-		if (node.key === selectedKey) {
+		if (node.key === selectedNode?.key) {
 			if (editing) {
 				return (
 					<div className="p-inputgroup">
@@ -124,7 +129,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 						<div style={{flexGrow: 2, display: "flex", justifyContent: "space-evenly"}}>
 							<Button tooltip="Edit name" tooltipOptions={{position: 'top'}} onClick={e => {setNameInput(node.label); setEditing(true)}} icon={"pi pi-pencil"} className={"p-button-rounded p-button-text"} />
 							<Button tooltip="Delete this...and all its children :(" tooltipOptions={{position: 'top'}} onClick={e => order66(node)} icon={"pi pi-times"} className={"p-button-rounded p-button-text"} />
-							{String(selectedKey).startsWith("loc_") ? <Button tooltip="Add new box/location" tooltipOptions={{position: 'top'}} onClick={e => setNewChild(true)} icon={"pi pi-plus"} className={"p-button-rounded p-button-text"}/>: null}
+							{String(selectedNode?.key).startsWith("loc_") ? <Button tooltip="Add new box/location" tooltipOptions={{position: 'top'}} onClick={e => setNewChild(true)} icon={"pi pi-plus"} className={"p-button-rounded p-button-text"}/>: null}
 						</div>
 					</div>)
 			}
@@ -137,25 +142,17 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 				style={{maxWidth: 400, overflowY: 'auto'}}
 				dragdropScope="treedrop"
 				selectionMode="single"
-				value={nodes}
+				value={props.nodes}
 				nodeTemplate={nodeTemplate}
 				filter={true}
 				filterPlaceholder="Search for box or location"
-				selectionKeys={selectedKey}
-				onSelectionChange={e => {
-					if (e.value !== selectedKey) {
+				selectionKeys={String(selectedNode?.key)}
+				onSelect={e => {
+					if (e.node.key !== selectedNode?.key) {
 						setEditing(false);
 						setNewChild(false);
-						setSelectedKey(e.value)
 					}
-				}}
-				onSelect={e => {
-					//setSelectedNode(e.node)
-					if (e.node.hasOwnProperty('data')) {
-						props.setBox(e.node.data)
-					} else {
-						props.setBox(undefined)
-					}
+					setSelectedNode(e.node)
 				}}
 				onDragDrop={e => {doParentChange(e)}}
 			/>
