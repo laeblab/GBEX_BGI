@@ -14,5 +14,25 @@ TokenAdmin.raw_id_fields = ['user']
 
 
 for model in apps.get_app_config('GBEX_app').get_models():
-	modeladmin = type(f"{model.__name__}Admin", (CompareVersionAdmin,), {})
-	admin.site.register(model, modeladmin)
+	if model.__name__ != "PlasmidBatch":
+		modeladmin = type(f"{model.__name__}Admin", (CompareVersionAdmin,), {})
+		admin.site.register(model, modeladmin)
+
+
+from .models.Inventory import PlasmidBatch
+from django.contrib.contenttypes.admin import GenericTabularInline
+from GBEX_storage.models import Vial
+from django import forms
+
+class GIMPform(forms.ModelForm):
+	class Meta:
+		model = Vial
+		fields = '__all__'
+
+class GIMP(GenericTabularInline):
+	model = Vial
+
+@admin.register(PlasmidBatch)
+class Test(CompareVersionAdmin):
+	inlines = [GIMP]
+	form = GIMPform

@@ -1,4 +1,4 @@
-from rest_framework import serializers, viewsets, permissions
+from rest_framework import serializers, viewsets
 from .models import Location, Box, Vial
 from generic_relations.relations import GenericRelatedField
 
@@ -40,21 +40,18 @@ class VialSerializer(serializers.ModelSerializer):
 class LocationViewSet(viewsets.ModelViewSet):
 	queryset = Location.objects.all()
 	serializer_class = LocationSerializer
-	#permission_classes = [permissions.IsAuthenticated]
 	filter_fields = '__all__'
 
 
 class BoxViewSet(viewsets.ModelViewSet):
 	queryset = Box.objects.all()
 	serializer_class = BoxSerializer
-	#permission_classes = [permissions.IsAuthenticated]
 	filter_fields = '__all__'
 
 
 class VialViewSet(viewsets.ModelViewSet):
 	queryset = Vial.objects.all()
 	serializer_class = VialSerializer
-	#permission_classes = [permissions.IsAuthenticated]
 	filter_fields = '__all__'
 
 

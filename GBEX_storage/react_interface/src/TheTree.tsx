@@ -9,29 +9,17 @@ import {getCookie} from "./index";
 import {Box} from "./App"
 
 //Dispatch<SetStateAction<{ vials: { name: string; id: number; }[]; rows: number; columns: number;}>>
-export default function TheTree(props:{setBox: Dispatch<SetStateAction<Box|undefined>>}) {
-    const [nodes, setNodes] = useState<TreeNode[]>([])
+export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNode[]>>, nodes: TreeNode[], setStale: Dispatch<SetStateAction<boolean>>, setBox: Dispatch<SetStateAction<Box|undefined>>}) {
 	const [selectedKey, setSelectedKey] = useState<TreeSelectionKeys>("")
 	//const [selectedNode, setSelectedNode] = useState<TreeNode>()
 	const [editing, setEditing] = useState(false)
 	const [nameinput, setNameInput] = useState<string|undefined>('')
-	const [staleTree, setStale] = useState(false)
-
 	const [newChild, setNewChild] = useState(false)
 	const [selectedNewType, setSelectedNewType] = useState({ name: 'Box', code: 'box' })
-
 	const newChildTypes = [
 		{ name: 'Box', code: 'box' },
 		{ name: 'Location', code: 'loc' },
 	];
-
-    useEffect(() => {
-		// edit link
-        fetch("http://127.0.0.1:8000/storage/locsNboxs", {credentials: 'include'})
-            .then(res => res.json())
-            .then(json => { setNodes(json.tree); setStale(false) })
-            .catch(error => console.log(error))
-    }, [staleTree])
 
 	const doApiCall = (key: string, body: {}, method='patch' ) => {
 		let kind = 'Box'
@@ -53,7 +41,7 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<Box|undef
 				method: method,
 				body: JSON.stringify(body),
 				headers: requestHeaders})
-				.then(json => setStale(true)).catch(error => console.log(error))
+				.then(json => props.setStale(c => !c)).catch(error => console.log(error))
 		}
 	}
 
@@ -90,7 +78,7 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<Box|undef
 
 	const doParentChange = (e: TreeDragDropParams) => {
 		if (e.dropNode || String(e.dragNode.key).startsWith("loc_")) { // check if we have a parent and if we DONT then only allow locations to be dropped there
-			setNodes(e.value) // optimistic update of gui
+			props.setNodes(e.value) // optimistic update of gui
 			let body = {parent: ""}
 			if (e.dropNode) { body = {parent: String(e.dropNode.key).split('_').splice(1).join('_')}}
 			confirmDialog({
@@ -145,7 +133,7 @@ export default function TheTree(props:{setBox: Dispatch<SetStateAction<Box|undef
 			style={{maxWidth: 400, overflowY: 'auto'}}
 			dragdropScope="treedrop"
 			selectionMode="single"
-			value={nodes}
+			value={props.nodes}
             nodeTemplate={nodeTemplate}
 			filter={true}
 			filterPlaceholder="Search for box or location"
