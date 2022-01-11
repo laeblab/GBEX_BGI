@@ -30,6 +30,8 @@ export default function App() {
 
     const [nodes, setNodes] = useState<TreeNode[]>([])
     const [staleTree, setStale] = useState(true)
+
+    // Primary data get. All other data should be derived from this to ensure components update correctly
     useEffect(() => {
         console.log("using effect")
         fetch("http://127.0.0.1:8000/storage/locsNboxs", {credentials: 'include'})
