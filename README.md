@@ -2,12 +2,15 @@
 
 # TODO
 * [ ] Check up on requirements.txt in regards to Django 4 compatability of several components
-* [ ] Update to Bootstrap 5 (maybe get rid of jquery or at least upgrade to latest)
 * [ ] Recreate Django app to get latest default settings.py
 * [ ] Reactivate security after development finishes.
 * [ ] Create tests
 
-DTU BGI Instance  
+# Long todo
+* [ ] Update to Bootstrap 5 (maybe get rid of jquery or at least upgrade to latest) or consider switching to primereact
+* [ ] Consider switching to django channels
+
+# DTU BGI Instance  
 To deploy with LDAP support remember to install
 * libsasl2-dev  
 * libldap2-dev  

@@ -24,35 +24,46 @@ export interface Box {
 
 export default function App() {
     const { observe, width, height } = useDimensions()
-    const [box, setBox] = useState<Box|undefined>()
-    const [selectedWell, setSelectedWell] = useState<Vials|undefined>()
-    useEffect(() => { setSelectedWell(undefined) }, [box])
-
+    const [box, setBox] = useState("")
+    const [well, setWell] = useState<Vials>()
     const [nodes, setNodes] = useState<TreeNode[]>([])
-    const [staleTree, setStale] = useState(true)
+    const [stale, setStale] = useState(true)
 
-    // Primary data get. All other data should be derived from this to ensure components update correctly
+    // Primary data get. All other data should be directly derived from this to ensure components update correctly
     useEffect(() => {
         console.log("using effect")
         fetch("http://127.0.0.1:8000/storage/locsNboxs", {credentials: 'include'})
             .then(res => res.json())
             .then(json => setNodes(json.tree))
             .catch(error => console.log(error))
-        setTimeout(() => setStale(!staleTree), 5000)
-    }, [staleTree]);
+        setTimeout(() => setStale(!stale), 5000)
+    }, [stale]);
+
+    const climb_tree = (qq: TreeNode[], key: string) : TreeNode|undefined => {
+        for (const e of qq) {
+            if (e.key === key) {
+                return e
+            } else if (e.hasOwnProperty("children") && e.children !== undefined) {
+                const deep: TreeNode|undefined = climb_tree(e.children, key)
+                if (deep) {
+                    return deep
+                }
+            }
+        }
+    }
 
     return (
         <div id="storage_root">
             <div id="storage_top">header</div>
             <div id="storage_bottom">
                 <div id="storage_left">
-                    <TheTree setNodes={setNodes} nodes={nodes} setStale={setStale} setBox={setBox} />
+                    <TheTree nodes={nodes} setNodes={setNodes} setStale={setStale} setBox={setBox} />
                 </div>
                 <div id="storage_middle" ref={observe}>
-                    {box===undefined ? null:<TheBox selected_well={selectedWell} set_selected_well={setSelectedWell} box_info={box} height={height} width={width}/>}
+                    {box==="" ? null:<TheBox selected_well={well} set_selected_well={setWell} box_info={climb_tree(nodes, box)?.data} height={height} width={width}/>}
                 </div>
                 <div id="storage_right">
-                    {selectedWell===undefined ? null: <TheEditor selected_well={selectedWell}/>}
+                    {well===undefined ? null: <TheEditor selected_well={well}/>}
                 </div>
             </div>
         </div>

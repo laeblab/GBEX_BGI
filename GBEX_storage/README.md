@@ -15,12 +15,6 @@ ATT:
   Bunke cors settings for dev reasons
 
 # Todo Next
-[ ] metode til short polling så andres updates dukker op
- - sat til 5 sek (burde self være websocket, men gider ikke)
- - diverse komponenter opdatere ikke...
-   - løsning 1: hent box i seperat fetch som så også skal short polles
-   - løsning 2: javascript extract box fra primær data og søg efter node med key=box id
-   - tænker løsning 2 er nemmest OG bedst. Dejlig kombo
 [ ] Opdater GBEX_app admin til at tjekke om der er generic keys som skal havde deres egen inline manager
 [ ] metode til at redigere box size
 [ ] herefter er det tid til vial assign
