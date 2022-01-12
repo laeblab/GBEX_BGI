@@ -63,15 +63,28 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 	const doBoxResize = () => {
 		// check if this will delete any vials
 		let vials = climb_tree(props.nodes, treeKey)
-		let lost_vials = false
+		let lost_vials: Vial[] = []
 		if (vials && vials.hasOwnProperty("data") && vials.data.hasOwnProperty("vials")) {
-			lost_vials = Object.values(vials.data.vials).some((v) => {
+			lost_vials = Object.values(vials.data.vials).filter((v ): v is Vial => {
 					return Number((v as Vial).box_column) >= newBoxSize[1] || Number((v as Vial).box_row) >= newBoxSize[0]
 			})
 		}
-		console.log(lost_vials)
+		if (lost_vials) {
+			confirmDialog({
+				message: (
+					<span>
+						{"This resize will delete " + lost_vials.length + " vial"+(lost_vials.length !== 1?"s":"")+":"}<br />
+						{lost_vials.map(c => String.fromCharCode('A'.charCodeAt(0)+Number((c as Vial).box_row))+(Number((c as Vial).box_column)+1)+":"+(c as Vial).name).join(", ")}<br />
+						{"Are you sure you want to proceed?"}</span>),
+				header: 'Execute order 66?',
+				icon: 'pi pi-exclamation-triangle',
+				position: 'left',
+				accept: () => doApiCall(treeKey, {rows: newBoxSize[0], columns: newBoxSize[1]}),
+			});
+		} else {
+			doApiCall(treeKey, {rows: newBoxSize[0], columns: newBoxSize[1]})
+		}
 		setEditing("")
-		doApiCall(treeKey, {rows: newBoxSize[0], columns: newBoxSize[1]})
 	}
 
 	const gather_the_children = (parent: TreeNode) : (TreeNode)[] => {
@@ -86,7 +99,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 		let hit_list = [e, ...gather_the_children(e)]
 
 		confirmDialog({
-			message: (<span>{"You are about to delete " + hit_list.length + " items:"}<br />{hit_list.map(c => c.label).join(", ")}<br />{"Are you sure you want to proceed?"}</span>),
+			message: (<span>{"You are about to delete " + hit_list.length + " item"+(hit_list.length !== 1?"s":"")+":"}<br />{hit_list.map(c => c.label).join(", ")}<br />{"Are you sure you want to proceed?"}</span>),
 			header: 'Execute order 66?',
 			icon: 'pi pi-exclamation-triangle',
 			position: 'left',

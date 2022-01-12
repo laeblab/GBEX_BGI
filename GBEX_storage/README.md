@@ -16,9 +16,10 @@ ATT:
   Bunke cors settings for dev reasons
 
 # Todo Next
-[ ] metode til at redigere box size
-  - Færdigør check om der er vials der bliver slettet ved resize og prompt om tilladelse
 [ ] herefter er det tid til vial assign
+  - drag select
+    - https://github.com/valerybugakov/react-selectable-fast
+    - https://github.com/Simonwep/selection
   - Vial <-> gbex link
   - Tillad også at Vials uden link som bare er "description" 
 
