@@ -36,10 +36,13 @@ class Vial(models.Model):
 	box_row = models.PositiveIntegerField()
 	box_column = models.PositiveIntegerField()
 
+	description = models.TextField(blank=True, null=True)
+
+	# linkable models is required for easy DRF integration
 	linkable_models = [AntiGenBodyBatch, CellLineBatch, CultureMediaBatch, PlasmidBatch, StrainBatch, gRNA, Primers, Toxins]
 	limit = reduce(or_, [models.Q(model=m) for m in linkable_models])
-	content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT, null=True, limit_choices_to=limit)
-	object_id = models.PositiveIntegerField(null=True)
+	content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT, null=True,  blank=True, limit_choices_to=limit)
+	object_id = models.PositiveIntegerField(null=True, blank=True)
 	content_object = GenericForeignKey('content_type', 'object_id')
 
 	def __str__(self):
@@ -47,7 +50,8 @@ class Vial(models.Model):
 
 	# try to save some db lookups
 	def save(self, *args, **kwargs):
-		self.name = self.content_object.name
+		if self.content_object:
+			self.name = self.content_object.name
 		super().save(*args, **kwargs)
 
 	class Meta:

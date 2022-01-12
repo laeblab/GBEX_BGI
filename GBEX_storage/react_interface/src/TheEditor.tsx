@@ -45,8 +45,10 @@ export default function MyEditor(props: {selected_well: Vials}) {
 	if (vial_content !== undefined) {
 		return (
 			<div>
-				{props.selected_well.name}
-				<ul> {object2ul(vial_content.content_object, nono_names)}    </ul>
+				<ul>
+					<li>name:{props.selected_well[Object.keys(props.selected_well)[0]].name}</li>
+					<li>description:{props.selected_well[Object.keys(props.selected_well)[0]].description}</li>
+				{ vial_content.content_object ? object2ul(vial_content.content_object, nono_names) : null} </ul>
 			</div>
 		)
 	} else {

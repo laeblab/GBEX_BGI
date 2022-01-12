@@ -2,12 +2,13 @@
 Mini skrift når jeg går in på storage...mærkeligt
 Kan ikke oprette loc på root fordi loc/box kun kan oprettes på eksisterende loc
 
-#Instructions
+#Instructions for adding to vanilla GBEX
 Add to app list in settings
 Add url path('storage/', decorator_include(login_required, 'GBEX_storage.urls')),
 Add drf stuff in GBEX/urls
-Add a generickey to Vial on the objects you want to be able to store
-If you want to be able to assign objects to Vials in admin, then modify GBEX_app/admin.py to accomodate GenericKeys
+Add a generic relation to Vial on the objects you want to be able to store
+  Also add those models to GBEX_storage/models -> Vial.linkable_models
+Modify GBEX_app/admin.py, to accommodate GenericKeys
 
 ATT:
   DU HAR ÆNDRET SETTINGS static/url!!!
@@ -15,9 +16,12 @@ ATT:
   Bunke cors settings for dev reasons
 
 # Todo Next
-[ ] Opdater GBEX_app admin til at tjekke om der er generic keys som skal havde deres egen inline manager
 [ ] metode til at redigere box size
+  - Færdigør check om der er vials der bliver slettet ved resize og prompt om tilladelse
 [ ] herefter er det tid til vial assign
+  - Vial <-> gbex link
+  - Tillad også at Vials uden link som bare er "description" 
+
 
 # Todo
 * metode til vial display/assign

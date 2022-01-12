@@ -6,14 +6,15 @@ import {Button} from 'primereact/button';
 import {Dropdown} from 'primereact/dropdown';
 import {confirmDialog} from 'primereact/confirmdialog';
 import {getCookie} from "./index";
-import {Box} from "./App"
+import {Box, climb_tree, Vial} from "./App"
 import { OverlayPanel } from 'primereact/overlaypanel';
 
-//Dispatch<SetStateAction<{ vials: { name: string; id: number; }[]; rows: number; columns: number;}>>
+
 export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNode[]>>, nodes: TreeNode[], setStale: Dispatch<SetStateAction<boolean>>, setBox: Dispatch<SetStateAction<string>>}) {
 	const [treeKey, setTreeKey] = useState("")
-	const [editing, setEditing] = useState(false)
+	const [editing, setEditing] = useState("")
 	const [nameinput, setNameInput] = useState<string|undefined>('')
+	const [newBoxSize, setNewBoxSize] = useState([1,1]) // rows, columns
 	const [newChild, setNewChild] = useState(false)
 	const [selectedNewType, setSelectedNewType] = useState({ name: 'Box', code: 'box' })
 
@@ -23,8 +24,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 		{ name: 'Location', code: 'loc' },
 	];
 
-	const doApiCall = (key: string, body: {}, method='patch' ) => {
-		let kind = 'Box'
+	const doApiCall = (key: string, body: {}, method='patch', kind="Box" ) => {
 		if (key.startsWith('loc')) { // we got a location
 			kind = 'Location'
 		}
@@ -49,13 +49,29 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 
 	const doNewLocBox = () => {
 		setNewChild(false)
-		let body = {name: nameinput, parent: treeKey.split('_').splice(1).join('_'), rows: 10, columns: 10}
-		if (nameinput) { doApiCall(selectedNewType.code, body, "post")}
+		if (nameinput) {
+			let body = {name: nameinput, parent: treeKey.split('_').splice(1).join('_'), rows: 10, columns: 10}
+			doApiCall(selectedNewType.code, body, "post")
+		}
 	}
 
 	const doNameChange = () => {
-		setEditing(false)
+		setEditing("")
 		if (nameinput) { doApiCall(treeKey, {name: nameinput})}
+	}
+
+	const doBoxResize = () => {
+		// check if this will delete any vials
+		let vials = climb_tree(props.nodes, treeKey)
+		let lost_vials = false
+		if (vials && vials.hasOwnProperty("data") && vials.data.hasOwnProperty("vials")) {
+			lost_vials = Object.values(vials.data.vials).some((v) => {
+					return Number((v as Vial).box_column) >= newBoxSize[1] || Number((v as Vial).box_row) >= newBoxSize[0]
+			})
+		}
+		console.log(lost_vials)
+		setEditing("")
+		doApiCall(treeKey, {rows: newBoxSize[0], columns: newBoxSize[1]})
 	}
 
 	const gather_the_children = (parent: TreeNode) : (TreeNode)[] => {
@@ -74,7 +90,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 			header: 'Execute order 66?',
 			icon: 'pi pi-exclamation-triangle',
 			position: 'left',
-			accept: () => doApiCall(treeKey, {}, 'delete'),
+			accept: () => {props.setBox(""); doApiCall(treeKey, {}, 'delete')},
 		});
 	}
 
@@ -95,12 +111,30 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 
     const nodeTemplate = (node: TreeNode, options: TreeNodeTemplateOptions) => {
 		if (node.key === treeKey) {
-			if (editing) {
+			if (editing === "edit_name") {
 				return (
 					<div className="p-inputgroup">
 						<InputText value={nameinput} onInput={e => setNameInput(e.currentTarget.value)} />
 						<Button onClick={() => {doNameChange(); node.label = nameinput;}} icon="pi pi-check" className="p-button-success"/>
-						<Button onClick={e => setEditing(false)} icon="pi pi-times" className="p-button-danger"/>
+						<Button onClick={e => setEditing("")} icon="pi pi-times" className="p-button-danger"/>
+					</div>)
+			} else if (editing === "edit_box_size") {
+				return (
+					<div className="p-formgroup-inline">
+						<div className="p-field" style={{display:"flex", width:"100%"}}>
+							<label htmlFor="nrn">Rows:</label>
+							<input style={{width:"100%"}} id="nrn" type="number" value={newBoxSize[0]} min="1" onChange={e => setNewBoxSize([Number(e.currentTarget.value), newBoxSize[1]])}/>
+						</div>
+						<div className="p-field" style={{display:"flex", width:"100%"}}>
+							<label htmlFor="ncn">Columns:</label>
+							<input style={{width:"100%"}} id="ncn" type="number" value={newBoxSize[1]} min="1" onChange={e => setNewBoxSize([newBoxSize[0], Number(e.currentTarget.value)])}/>
+						</div>
+						<div className="p-field">
+							<div className="p-inputgroup">
+								<Button onClick={doBoxResize} icon="pi pi-check" className="p-button-success"/>
+								<Button onClick={e => setEditing("")} icon="pi pi-times" className="p-button-danger"/>
+							</div>
+						</div>
 					</div>)
 			} else if (newChild) {
 				return (
@@ -121,9 +155,12 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 					<div style={{display: "flex", alignItems: 'center', justifyContent: "space-between", width: "100%"}}>
 						<span className={options.className} style={{flexGrow: 2}}><b>{node.label}</b></span>
 						<div style={{flexGrow: 2, display: "flex", justifyContent: "space-evenly"}}>
-							<Button tooltip="Edit name" tooltipOptions={{position: 'top'}} onClick={e => {setNameInput(node.label); setEditing(true)}} icon={"pi pi-pencil"} className={"p-button-rounded p-button-text"} />
+							<Button tooltip="Edit name" tooltipOptions={{position: 'top'}} onClick={e => {setNameInput(node.label); setEditing("edit_name")}} icon={"pi pi-pencil"} className={"p-button-rounded p-button-text"} />
 							<Button tooltip="Delete this...and all its children :(" tooltipOptions={{position: 'top'}} onClick={e => order66(node)} icon={"pi pi-times"} className={"p-button-rounded p-button-text"} />
-							{treeKey.startsWith("loc_") ? <Button tooltip="Add new box/location" tooltipOptions={{position: 'top'}} onClick={e => setNewChild(true)} icon={"pi pi-plus"} className={"p-button-rounded p-button-text"}/>: null}
+							{treeKey.startsWith("loc_") ?
+								<Button tooltip="Add new box/location" tooltipOptions={{position: 'top'}} onClick={e => setNewChild(true)} icon={"pi pi-plus"} className={"p-button-rounded p-button-text"}/>:
+								<Button tooltip="Resize box" tooltipOptions={{position: 'top'}} onClick={e => {setNewBoxSize([node.data.rows, node.data.columns]); setEditing("edit_box_size")}} icon={"pi pi-plus"} className={"p-button-rounded p-button-text"}/>
+							}
 						</div>
 					</div>)
 			}
@@ -143,11 +180,11 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 				selectionKeys={treeKey}
 				onSelectionChange={e => {
 					if (e.value !== treeKey) {
-						setEditing(false);
+						setEditing("");
 						setNewChild(false);
 					}
 					setTreeKey(String(e.value))
-					props.setBox(String(e.value))
+					if (String(e.value).startsWith('box')) props.setBox(String(e.value))
 				}}
 				onDragDrop={e => {doParentChange(e)}}
 			/>

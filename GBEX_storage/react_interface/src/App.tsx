@@ -9,7 +9,8 @@ export interface Vial {
     name: string,
     id: number,
     box_row?: number,
-    box_column?: number
+    box_column?: number,
+    description?: string
 }
 
 export interface Vials {
@@ -20,6 +21,19 @@ export interface Box {
     vials: Vials,
     rows: number,
     columns: number
+}
+
+export function climb_tree(qq: TreeNode[], key: string) : TreeNode|undefined {
+    for (const e of qq) {
+        if (e.key === key) {
+            return e
+        } else if (e.hasOwnProperty("children") && e.children !== undefined) {
+            const deep: TreeNode|undefined = climb_tree(e.children, key)
+            if (deep) {
+                return deep
+            }
+        }
+    }
 }
 
 export default function App() {
@@ -38,19 +52,6 @@ export default function App() {
             .catch(error => console.log(error))
         setTimeout(() => setStale(!stale), 5000)
     }, [stale]);
-
-    const climb_tree = (qq: TreeNode[], key: string) : TreeNode|undefined => {
-        for (const e of qq) {
-            if (e.key === key) {
-                return e
-            } else if (e.hasOwnProperty("children") && e.children !== undefined) {
-                const deep: TreeNode|undefined = climb_tree(e.children, key)
-                if (deep) {
-                    return deep
-                }
-            }
-        }
-    }
 
     return (
         <div id="storage_root">
