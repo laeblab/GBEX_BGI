@@ -18,7 +18,7 @@ def create_location_tree(parent_loc=None):
 	tree = []
 	for loc in Location.objects.filter(parent=parent_loc):
 		children = [
-			*[{"key": f"box_{box.id}", "label": str(box.name), "icon": "pi pi-table", "droppable": False, "leaf": True, "data": {'rows': box.rows, 'columns': box.columns, 'vials': box_info[box.id]}} for box in Box.objects.filter(parent=loc)],
+			*[{"key": f"box_{box.id}", "label": str(box.name), "icon": "pi pi-table", "droppable": False, "leaf": True, "data": {'id': f"box_{box.id}", 'rows': box.rows, 'columns': box.columns, 'vials': box_info[box.id]}} for box in Box.objects.filter(parent=loc)],
 			*create_location_tree(loc)
 		]
 		tree.append({"key": f"loc_{loc.id}", "label": str(loc.name), "icon": "pi pi-building", "children": children})

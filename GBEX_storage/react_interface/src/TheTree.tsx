@@ -10,7 +10,7 @@ import {Box, climb_tree, Vial} from "./App"
 import { OverlayPanel } from 'primereact/overlaypanel';
 
 
-export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNode[]>>, nodes: TreeNode[], setStale: Dispatch<SetStateAction<boolean>>, setBox: Dispatch<SetStateAction<string>>}) {
+export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNode[]>>, nodes: TreeNode[], setStale: Dispatch<SetStateAction<boolean>>, setBox: (box_id: string) => void}) {
 	const [treeKey, setTreeKey] = useState("")
 	const [editing, setEditing] = useState("")
 	const [nameinput, setNameInput] = useState<string|undefined>('')

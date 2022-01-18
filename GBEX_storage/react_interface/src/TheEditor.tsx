@@ -15,7 +15,7 @@ function object2ul(obj: object, no_no_words: string[]) {
 	}))
 }
 
-export default function MyEditor(props: {selected_well: Vials}) {
+export default function MyEditor(props: {selected_wells: Vials}) {
 	//const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 	//	event.preventDefault();
 	//	fetch(url, {method: 'post', credentials: 'include',	body: new FormData(event.currentTarget)})
@@ -25,7 +25,7 @@ export default function MyEditor(props: {selected_well: Vials}) {
 	//		.catch(error => console.log(error));
 	//}
 	const [vial_content, setVialContent] = useState<{content_object: {[key: string]: string | object | undefined}}>();
-	const id = props.selected_well[Object.keys(props.selected_well)[0]].id
+	const id = props.selected_wells[Object.keys(props.selected_wells)[0]].id
 
     useEffect(() => {
 		if (id !== -1) {
@@ -46,12 +46,12 @@ export default function MyEditor(props: {selected_well: Vials}) {
 		return (
 			<div>
 				<ul>
-					<li>name:{props.selected_well[Object.keys(props.selected_well)[0]].name}</li>
-					<li>description:{props.selected_well[Object.keys(props.selected_well)[0]].description}</li>
+					<li>name:{props.selected_wells[Object.keys(props.selected_wells)[0]].name}</li>
+					<li>description:{props.selected_wells[Object.keys(props.selected_wells)[0]].description}</li>
 				{ vial_content.content_object ? object2ul(vial_content.content_object, nono_names) : null} </ul>
 			</div>
 		)
 	} else {
-		return null
+		return <></>
 	}
 }

@@ -18,6 +18,7 @@ export interface Vials {
 }
 
 export interface Box {
+    id: string,
     vials: Vials,
     rows: number,
     columns: number
@@ -38,8 +39,9 @@ export function climb_tree(qq: TreeNode[], key: string) : TreeNode|undefined {
 
 export default function App() {
     const { observe, width, height } = useDimensions()
-    const [box, setBox] = useState("")
-    const [well, setWell] = useState<Vials>()
+    //const [box_id, setBoxId] = useState("")
+    const [box, setBox] = useState<Box>()
+    const [selected_wells, setSelectedWells] = useState<Set<string>>(() => new Set())
     const [nodes, setNodes] = useState<TreeNode[]>([])
     const [stale, setStale] = useState(true)
 
@@ -53,18 +55,25 @@ export default function App() {
         setTimeout(() => setStale(!stale), 5000)
     }, [stale]);
 
+    const setBoxFromId = (box_id: string) => {
+        if (box===undefined || box_id !== box.id) {
+            setBox(climb_tree(nodes, box_id)?.data)
+            setSelectedWells(() => new Set())
+        }
+    }
+
     return (
         <div id="storage_root">
             <div id="storage_top">header</div>
             <div id="storage_bottom">
                 <div id="storage_left">
-                    <TheTree nodes={nodes} setNodes={setNodes} setStale={setStale} setBox={setBox} />
+                    <TheTree nodes={nodes} setNodes={setNodes} setStale={setStale} setBox={setBoxFromId} />
                 </div>
                 <div id="storage_middle" ref={observe}>
-                    {box==="" ? null:<TheBox selected_well={well} set_selected_well={setWell} box_info={climb_tree(nodes, box)?.data} height={height} width={width}/>}
+                    {box===undefined ? null:<TheBox selected_wells={selected_wells} setSelectedWells={setSelectedWells} box_info={box} height={height} width={width}/>}
                 </div>
                 <div id="storage_right">
-                    {well===undefined ? null: <TheEditor selected_well={well}/>}
+                    {(selected_wells.size===0 || box===undefined) ? null: <TheEditor selected_wells={box.vials}/>}
                 </div>
             </div>
         </div>

@@ -1,22 +1,13 @@
 import React, { Dispatch, SetStateAction } from 'react';
-import {Vials, Box} from "./App"
+import {Box} from "./App"
+import SelectionArea, {SelectionEvent} from '@viselect/react';
 
-const classes = {
-		wells: {
-			TextAlign: 'center',
-			backgroundColor: 'white',
-			borderStyle: 'solid',
-			borderColor: 'black',
-			borderWidth: '1px',
-			minWidth: '50px',
-			minHeight: '50px'
-		},
-}
 
-export default function TheBox(props: {selected_well: Vials|undefined, set_selected_well: Dispatch<SetStateAction<Vials|undefined>>, box_info: Box, height: number, width: number}) {
+export default function TheBox(props: {selected_wells: Set<string>, setSelectedWells: Dispatch<SetStateAction<Set<string>>>, box_info: Box, height: number, width: number}) {
 	const {box_info, height, width} = props
 	const limw = width/box_info.columns
 	const limh = height/box_info.rows
+
 	let square_size = {
 		height: width / box_info.columns,
 		width: width / box_info.columns
@@ -28,32 +19,49 @@ export default function TheBox(props: {selected_well: Vials|undefined, set_selec
 		}
 	}
 
-	return (
-		<div>
-			{[...Array(box_info.rows)].map((e, row) => {
-				return (
-					<div style={{display: "flex", flexGrow: 1}} key={row}>
-						{[...Array(box_info.columns)].map((ee, column) => {
-							const coord = String.fromCharCode('A'.charCodeAt(0)+row)+(column+1)
-							let well_style = {backgroundColor: "white"}
-							let a = {id:-1, name:coord}
-							if (box_info.vials.hasOwnProperty(coord)) {
-								a = box_info.vials[coord]
-								well_style = {backgroundColor: "limegreen"}
-							}
-							if (props.selected_well !== undefined && props.selected_well.hasOwnProperty(coord)) {
-								well_style = {backgroundColor: "red"}
-							}
+	const extractIds = (els: Element[]): string[] => els.map(v => v.getAttribute('data-key')).filter(Boolean).map(String);
 
-							return <div
-								onClick={() => props.set_selected_well({[coord]: a})}
-								style={Object.assign({}, classes.wells, square_size, well_style)}
-								key={column}>
-								{a.name}
-							</div>})
-						}
-					</div>)
-			})}
-		</div>
+	const onStart = ({event, selection}: SelectionEvent) => {
+		if (!event?.ctrlKey && !event?.metaKey) {
+			selection.clearSelection();
+			props.setSelectedWells(() => new Set());
+		}
+	};
+
+	const onMove = ({store: {changed: {added, removed}}}: SelectionEvent) => {
+		props.setSelectedWells(prev => {
+			const next = new Set(prev);
+			extractIds(added).forEach(id => next.add(id));
+			extractIds(removed).forEach(id => next.delete(id));
+			return next;
+		});
+	};
+
+	return (
+			<SelectionArea className="container" onStart={onStart} onMove={onMove} selectables=".selectable"
+						   //next line switches overlap mode from "invert" to "keep"
+						   //behaviour={{overlap: "keep",  intersect: 'touch', startThreshold: 10,scrolling: {speedDivider: 10,manualSpeed: 750,startScrollMargins: {x: 0, y: 0}}}}
+				>
+				{[...Array(box_info.rows)].map((e, row) => {
+					return (
+						<div style={{display: "flex", flexGrow: 1}} key={row}>
+							{[...Array(box_info.columns)].map((ee, column) => {
+								const coord = String.fromCharCode('A'.charCodeAt(0)+row)+(column+1)
+								let a = {id:-1, name:coord}
+								if (box_info.vials.hasOwnProperty(coord)) {
+									a = box_info.vials[coord]
+								}
+
+								return <div
+									className={props.selected_wells.has(coord) ? 'selected selectable' : 'selectable'}
+									style={square_size}
+									data-key={coord}
+									key={coord}>
+									{a.name}
+								</div>})
+							}
+						</div>)
+				})}
+			</SelectionArea>
 	);
 }
