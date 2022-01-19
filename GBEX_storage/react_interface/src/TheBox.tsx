@@ -38,10 +38,7 @@ export default function TheBox(props: {selected_wells: Set<string>, setSelectedW
 	};
 
 	return (
-			<SelectionArea className="container" onStart={onStart} onMove={onMove} selectables=".selectable"
-						   //next line switches overlap mode from "invert" to "keep"
-						   //behaviour={{overlap: "keep",  intersect: 'touch', startThreshold: 10,scrolling: {speedDivider: 10,manualSpeed: 750,startScrollMargins: {x: 0, y: 0}}}}
-				>
+			<SelectionArea className="container" onStart={onStart} onMove={onMove} selectables=".selectable">
 				{[...Array(box_info.rows)].map((e, row) => {
 					return (
 						<div style={{display: "flex", flexGrow: 1}} key={row}>

@@ -26,20 +26,14 @@ export default function MyEditor(props: {selected_wells: Set<string>, vials: Via
 	//		.catch(error => console.log(error));
 	//}
 	const [vial_content, setVialContent] = useState<{content_object: {[key: string]: string | object | undefined}, name: string, description: string}>();
-	//const [vial_ids, setVialIds] = useState<Set<string>>(() => new Set())
+	const [vial_ids, setVialIds] = useState<Set<number>>(() => new Set())
 
     useEffect(() => {
 		// identify any non empty vials and see if they all target 1 ID.
-		const real_vial_pos = new Set(Array.from(props.selected_wells).filter(pos => props.vials.hasOwnProperty(pos)))
-		let vial_ids = []
+		setVialIds(new Set(Array.from(props.selected_wells).map(pos => props.vials[pos]?.id)))
 
-		let vial_id = -1
-		if (real_vials.size === 1) {
-			vial_id = props.vials[real_vials.values().next().value].id
-		}
-
-		if (vial_id !== -1) {
-			fetch("http://127.0.0.1:8000/api/Vial/"+vial_id+"/")
+		if (vial_ids.size === 1 && vial_ids.values().next().value !== undefined) {
+			fetch("http://127.0.0.1:8000/api/Vial/"+vial_ids.values().next().value+"/")
 				.then(res => res.json())
 				.then(json => setVialContent(json))
 		} else {
@@ -64,7 +58,8 @@ export default function MyEditor(props: {selected_wells: Set<string>, vials: Via
 	return <ul>
 		<li>Selected {props.selected_wells.size} position{props.selected_wells.size !== 1 ? "s": ""}.</li>
 		{vial_html ? <li>{vial_html}</li>: <li>To see vial content, select 1 vial or multiple vials with same content.</li>}
-		<Button>Set content of vial{props.selected_wells.size !== 1 ? "s": ""}</Button><Button>Delete selected vial{props.selected_wells.size !== 1 ? "s": ""}</Button>
+		<Button>Set content of vial{props.selected_wells.size !== 1 ? "s": ""}</Button>
+		<Button>Delete selected vial{props.selected_wells.size !== 1 ? "s": ""}</Button>
 
 	</ul>
 }

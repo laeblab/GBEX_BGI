@@ -39,7 +39,6 @@ export function climb_tree(qq: TreeNode[], key: string) : TreeNode|undefined {
 
 export default function App() {
     const { observe, width, height } = useDimensions()
-    //const [box_id, setBoxId] = useState("")
     const [box, setBox] = useState<Box>()
     const [selected_wells, setSelectedWells] = useState<Set<string>>(() => new Set())
     const [nodes, setNodes] = useState<TreeNode[]>([])
@@ -47,7 +46,6 @@ export default function App() {
 
     // Primary data get. All other data should be directly derived from this to ensure components update correctly
     useEffect(() => {
-        console.log("using effect")
         fetch("http://127.0.0.1:8000/storage/locsNboxs", {credentials: 'include'})
             .then(res => res.json())
             .then(json => setNodes(json.tree))

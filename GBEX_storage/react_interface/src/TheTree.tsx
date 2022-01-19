@@ -1,4 +1,4 @@
-import React, {Dispatch, SetStateAction, useEffect, useState, useRef} from 'react';
+import React, {Dispatch, SetStateAction, useState } from 'react';
 import {Tree, TreeDragDropParams, TreeNodeTemplateOptions} from 'primereact/tree';
 import TreeNode from "primereact/treenode";
 import {InputText} from 'primereact/inputtext';
@@ -6,8 +6,7 @@ import {Button} from 'primereact/button';
 import {Dropdown} from 'primereact/dropdown';
 import {confirmDialog} from 'primereact/confirmdialog';
 import {getCookie} from "./index";
-import {Box, climb_tree, Vial} from "./App"
-import { OverlayPanel } from 'primereact/overlaypanel';
+import { climb_tree, Vial } from "./App"
 
 
 export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNode[]>>, nodes: TreeNode[], setStale: Dispatch<SetStateAction<boolean>>, setBox: (box_id: string) => void}) {
@@ -18,7 +17,6 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 	const [newChild, setNewChild] = useState(false)
 	const [selectedNewType, setSelectedNewType] = useState({ name: 'Box', code: 'box' })
 
-	const op = useRef<OverlayPanel>(null);
 	const newChildTypes = [
 		{ name: 'Box', code: 'box' },
 		{ name: 'Location', code: 'loc' },
@@ -180,9 +178,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 		} else {return (<span className={options.className}><b>{node.label}</b></span>)}
     }
 
-	return (
-		<div>
-			<Tree
+	return (<Tree
 				style={{maxWidth: 400, overflowY: 'auto'}}
 				dragdropScope="treedrop"
 				selectionMode="single"
@@ -201,10 +197,5 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 				}}
 				onDragDrop={e => {doParentChange(e)}}
 			/>
-			<Button label={"test"} onClick={e => op.current?.toggle(e)}/>
-			<OverlayPanel ref={op} dismissable={true}>
-				Hello
-			</OverlayPanel>
-		</div>
 	);
 }
