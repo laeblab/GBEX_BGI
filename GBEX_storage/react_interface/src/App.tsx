@@ -73,7 +73,7 @@ export default function App() {
                     {box===undefined ? null:<TheBox selected_wells={selected_wells} setSelectedWells={setSelectedWells} box_info={box} height={height} width={width}/>}
                 </div>
                 <div id="storage_right">
-                    {(selected_wells.size===0 || box===undefined) ? null: <TheEditor selected_wells={box.vials}/>}
+                    {(selected_wells.size===0 || box===undefined) ? <ul><li>No vial selected</li></ul>: <TheEditor selected_wells={selected_wells} vials={box.vials}/>}
                 </div>
             </div>
         </div>
