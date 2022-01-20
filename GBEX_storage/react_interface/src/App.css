@@ -61,11 +61,15 @@ body {
 }
 
 .selectable {
-    text-align: center;
     background-color: white;
     border: black solid medium;
     min-width: 50px;
     min-height: 50px;
+    word-wrap: break-word;
+}
+
+.empty_position {
+    background-color: lightgrey;
 }
 
 .selected {

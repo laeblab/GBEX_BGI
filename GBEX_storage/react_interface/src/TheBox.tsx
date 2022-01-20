@@ -45,12 +45,15 @@ export default function TheBox(props: {selected_wells: Set<string>, setSelectedW
 							{[...Array(box_info.columns)].map((ee, column) => {
 								const coord = String.fromCharCode('A'.charCodeAt(0)+row)+(column+1)
 								let a = {id:-1, name:coord}
+								let classy = props.selected_wells.has(coord) ? 'selected selectable' : 'selectable'
 								if (box_info.vials.hasOwnProperty(coord)) {
 									a = box_info.vials[coord]
+								} else {
+									classy += " empty_position"
 								}
 
 								return <div
-									className={props.selected_wells.has(coord) ? 'selected selectable' : 'selectable'}
+									className={classy}
 									style={square_size}
 									data-key={coord}
 									key={coord}>

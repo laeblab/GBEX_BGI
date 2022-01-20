@@ -5,11 +5,10 @@ import {InputText} from 'primereact/inputtext';
 import {Button} from 'primereact/button';
 import {Dropdown} from 'primereact/dropdown';
 import {confirmDialog} from 'primereact/confirmdialog';
-import {getCookie} from "./index";
 import { climb_tree, Vial } from "./App"
 
 
-export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNode[]>>, nodes: TreeNode[], setStale: Dispatch<SetStateAction<boolean>>, setBox: (box_id: string) => void}) {
+export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNode[]>>, nodes: TreeNode[], setBox: (box_id: string) => void, apiCall: (key: string, body: {}, method?:string, kind?: string ) => void}) {
 	const [treeKey, setTreeKey] = useState("")
 	const [editing, setEditing] = useState("")
 	const [nameinput, setNameInput] = useState<string|undefined>('')
@@ -22,40 +21,17 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 		{ name: 'Location', code: 'loc' },
 	];
 
-	const doApiCall = (key: string, body: {}, method='patch', kind="Box" ) => {
-		if (key.startsWith('loc')) { // we got a location
-			kind = 'Location'
-		}
-		key = key.split('_').splice(1).join('_') // Location keys are written loc_key or box_key
-		const requestHeaders: HeadersInit = new Headers();
-		console.log("Find this line and revert it for production. Fantastic system I got here...")
-		const csrftoken = "DEVELOPMENT" //getCookie('csrftoken')
-
-		if (typeof csrftoken === 'string') {
-			requestHeaders.set('X-CSRFToken', csrftoken)
-			requestHeaders.set('Content-Type', 'application/json')
-			let url = "http://127.0.0.1:8000/api/" + kind + "/"
-			if (['patch', 'delete'].includes(method)) { url += key + "/" }
-			fetch(url, {
-				//mode: 'same-origin',
-				method: method,
-				body: JSON.stringify(body),
-				headers: requestHeaders})
-				.then(json => props.setStale(c => !c)).catch(error => console.log(error))
-		}
-	}
-
 	const doNewLocBox = () => {
 		setNewChild(false)
 		if (nameinput) {
 			let body = {name: nameinput, parent: treeKey.split('_').splice(1).join('_'), rows: 10, columns: 10}
-			doApiCall(selectedNewType.code, body, "post")
+			props.apiCall(selectedNewType.code, body, "post")
 		}
 	}
 
 	const doNameChange = () => {
 		setEditing("")
-		if (nameinput) { doApiCall(treeKey, {name: nameinput})}
+		if (nameinput) { props.apiCall(treeKey, {name: nameinput})}
 	}
 
 	const doBoxResize = () => {
@@ -67,7 +43,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 					return Number((v as Vial).box_column) >= newBoxSize[1] || Number((v as Vial).box_row) >= newBoxSize[0]
 			})
 		}
-		if (lost_vials) {
+		if (lost_vials.length !== 0) {
 			confirmDialog({
 				message: (
 					<span>
@@ -77,10 +53,10 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 				header: 'Execute order 66?',
 				icon: 'pi pi-exclamation-triangle',
 				position: 'left',
-				accept: () => doApiCall(treeKey, {rows: newBoxSize[0], columns: newBoxSize[1]}),
+				accept: () => props.apiCall(treeKey, {rows: newBoxSize[0], columns: newBoxSize[1]}),
 			});
 		} else {
-			doApiCall(treeKey, {rows: newBoxSize[0], columns: newBoxSize[1]})
+			props.apiCall(treeKey, {rows: newBoxSize[0], columns: newBoxSize[1]})
 		}
 		setEditing("")
 	}
@@ -101,7 +77,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 			header: 'Execute order 66?',
 			icon: 'pi pi-exclamation-triangle',
 			position: 'left',
-			accept: () => {props.setBox(""); doApiCall(treeKey, {}, 'delete')},
+			accept: () => {props.setBox(""); props.apiCall(treeKey, {}, 'delete')},
 		});
 	}
 
@@ -115,7 +91,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 				header: 'Change location?',
 				icon: 'pi pi-exclamation-triangle',
 				position: 'left',
-				accept: () => doApiCall(String(e.dragNode.key), body),
+				accept: () => props.apiCall(String(e.dragNode.key), body),
 			});
 		}
 	}
@@ -126,8 +102,8 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 				return (
 					<div className="p-inputgroup">
 						<InputText value={nameinput} onInput={e => setNameInput(e.currentTarget.value)} />
-						<Button onClick={() => {doNameChange(); node.label = nameinput;}} icon="pi pi-check" className="p-button-success"/>
-						<Button onClick={e => setEditing("")} icon="pi pi-times" className="p-button-danger"/>
+						<Button onClick={() => doNameChange()} icon="pi pi-check" className="p-button-success"/>
+						<Button onClick={() => setEditing("")} icon="pi pi-times" className="p-button-danger"/>
 					</div>)
 			} else if (editing === "edit_box_size") {
 				return (
@@ -179,7 +155,6 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
     }
 
 	return (<Tree
-				style={{maxWidth: 400, overflowY: 'auto'}}
 				dragdropScope="treedrop"
 				selectionMode="single"
 				value={props.nodes}
@@ -193,7 +168,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 						setNewChild(false);
 					}
 					setTreeKey(String(e.value))
-					if (String(e.value).startsWith('box')) props.setBox(String(e.value))
+					if (String(e.value).startsWith('box')) {props.setBox(String(e.value));console.log("set box", e.value)}
 				}}
 				onDragDrop={e => {doParentChange(e)}}
 			/>

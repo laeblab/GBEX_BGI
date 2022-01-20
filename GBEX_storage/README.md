@@ -1,6 +1,7 @@
 # BUGS
 Mini skrift når jeg går in på storage...mærkeligt
 Kan ikke oprette loc på root fordi loc/box kun kan oprettes på eksisterende loc
+chromium har vist problemer med drag and drop (check chrome på windows)
 
 #Instructions for adding to vanilla GBEX
 Add to app list in settings
