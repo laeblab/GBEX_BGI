@@ -56,10 +56,9 @@ export default function App() {
         setTimeout(() => setStale(!stale), 5000)
     }, [stale]);
 
-    // if nodes have changed, check if box should be updated
+    // if nodes have changed, just update the box as well
     useEffect(() => {
         if (box !== undefined) {
-            console.log("setting box in refresh", )
             setBox(climb_tree(nodes, box.id)?.data)
         }
     }, [nodes])
@@ -71,34 +70,45 @@ export default function App() {
         }
     }
 
-    const doApiCall = (key: string, body: {}, method='patch', kind="Box" ) => {
-        if (key.startsWith('loc')) { // we got a location
-            kind = 'Location'
-        }
-        key = key.split('_').splice(1).join('_') // Location keys are written loc_key or box_key
+    const doApiCall = (id: string|number, kind: "Location"|"Box"|"Vial", method: "get"|"post"|"patch"|"delete", body: object) : object => {
+        /* doApiCall
+            id: id of target object, if there is no target, then just pass an empty string
+            kind: one of Location, Box or Vial
+            method: HTML get, post, patch or delete
+            body: patch and post requires a body
+         */
         const requestHeaders: HeadersInit = new Headers();
-        console.log("Find this line and revert it for production. Fantastic system I got here...")
         const csrftoken = "DEVELOPMENT" //getCookie('csrftoken')
+        const str_id = String(id)
 
         if (typeof csrftoken === 'string') {
             requestHeaders.set('X-CSRFToken', csrftoken)
             requestHeaders.set('Content-Type', 'application/json')
+
             let url = "http://127.0.0.1:8000/api/" + kind + "/"
-            if (['patch', 'delete'].includes(method)) { url += key + "/" }
+            if (['patch', 'delete'].includes(method) || (method==="get" && str_id !== "")) {
+                url += id + "/"
+            }
+
             fetch(url, {
-                //mode: 'same-origin',
+                mode: 'cors',
                 method: method,
                 body: JSON.stringify(body),
-                headers: requestHeaders})
-                .then(res => res.json())
-                .then(json => {
-                    //optimistic update box size+name
-                    if (kind==='Box' && box !== undefined) {
-                        setBox({...json, id: "box_"+json.id, vials: box.vials})
-                    }
+                headers: requestHeaders
+            }).then(res => {
+                if (method !== 'delete') { // no return on delete
+                    return res.json()
+                }
+            }).then(json => {
+                if (method !== 'get') {
                     setStale(c => !c)
-                }).catch(error => console.log(error))
+                }
+                if (method !== 'delete') { // no return on delete
+                    return json
+                }
+            }).catch(error => console.log(error))
         }
+        return {}
     }
 
     return (

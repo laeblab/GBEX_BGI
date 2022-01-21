@@ -4,34 +4,36 @@ import TreeNode from "primereact/treenode";
 import {InputText} from 'primereact/inputtext';
 import {Button} from 'primereact/button';
 import {Dropdown} from 'primereact/dropdown';
-import {confirmDialog} from 'primereact/confirmdialog';
+import { confirmDialog } from 'primereact/confirmdialog';
 import { climb_tree, Vial } from "./App"
 
 
-export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNode[]>>, nodes: TreeNode[], setBox: (box_id: string) => void, apiCall: (key: string, body: {}, method?:string, kind?: string ) => void}) {
+export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNode[]>>, nodes: TreeNode[], setBox: (box_id: string) => void, apiCall: (id: string|number, kind: "Location"|"Box"|"Vial", method: "get"|"post"|"patch"|"delete", body: object) => object}) {
 	const [treeKey, setTreeKey] = useState("")
 	const [editing, setEditing] = useState("")
 	const [nameinput, setNameInput] = useState<string|undefined>('')
 	const [newBoxSize, setNewBoxSize] = useState([1,1]) // rows, columns
 	const [newChild, setNewChild] = useState(false)
-	const [selectedNewType, setSelectedNewType] = useState({ name: 'Box', code: 'box' })
+	const [selectedNewType, setSelectedNewType] = useState<"Box"|"Location">("Box")
 
-	const newChildTypes = [
-		{ name: 'Box', code: 'box' },
-		{ name: 'Location', code: 'loc' },
-	];
+	const treeKey2kindNid = () : [string, "Box"|"Location"] => {
+		let [kind, id] = treeKey.split('_')  // tree keys are "Box_id" or "Loc_id"
+		const actual_kind = kind === 'box' ? "Box" : "Location"
+		return [id, actual_kind]
+	}
 
 	const doNewLocBox = () => {
 		setNewChild(false)
 		if (nameinput) {
-			let body = {name: nameinput, parent: treeKey.split('_').splice(1).join('_'), rows: 10, columns: 10}
-			props.apiCall(selectedNewType.code, body, "post")
+			const body = {name: nameinput, parent: treeKey.split('_').splice(1).join('_'), rows: 10, columns: 10}
+			props.apiCall("", selectedNewType, "post", body)
 		}
 	}
 
 	const doNameChange = () => {
 		setEditing("")
-		if (nameinput) { props.apiCall(treeKey, {name: nameinput})}
+		const [id, kind] = treeKey2kindNid()
+		if (nameinput) { props.apiCall(id, kind, "patch", {name: nameinput})}
 	}
 
 	const doBoxResize = () => {
@@ -43,6 +45,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 					return Number((v as Vial).box_column) >= newBoxSize[1] || Number((v as Vial).box_row) >= newBoxSize[0]
 			})
 		}
+		const [id, kind] = treeKey2kindNid()
 		if (lost_vials.length !== 0) {
 			confirmDialog({
 				message: (
@@ -53,11 +56,12 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 				header: 'Execute order 66?',
 				icon: 'pi pi-exclamation-triangle',
 				position: 'left',
-				accept: () => props.apiCall(treeKey, {rows: newBoxSize[0], columns: newBoxSize[1]}),
+				accept: () => props.apiCall(id, "Box", "patch", {rows: newBoxSize[0], columns: newBoxSize[1]}),
 			});
 		} else {
-			props.apiCall(treeKey, {rows: newBoxSize[0], columns: newBoxSize[1]})
+			props.apiCall(id, "Box", "patch", {rows: newBoxSize[0], columns: newBoxSize[1]})
 		}
+
 		setEditing("")
 	}
 
@@ -72,26 +76,34 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 	const order66 = (e: TreeNode) => {
 		let hit_list = [e, ...gather_the_children(e)]
 
+		const [id, kind] = treeKey2kindNid()
 		confirmDialog({
-			message: (<span>{"You are about to delete " + hit_list.length + " item"+(hit_list.length !== 1?"s":"")+":"}<br />{hit_list.map(c => c.label).join(", ")}<br />{"Are you sure you want to proceed?"}</span>),
+			message: <span>You are about to delete {hit_list.length} item{hit_list.length !== 1?"s":""}:<br />{hit_list.map(c => c.label).join(", ")}<br />Are you sure you want to proceed?</span>,
 			header: 'Execute order 66?',
 			icon: 'pi pi-exclamation-triangle',
 			position: 'left',
-			accept: () => {props.setBox(""); props.apiCall(treeKey, {}, 'delete')},
+			accept: () => {props.setBox(""); props.apiCall(id, kind, "delete", {})},
 		});
 	}
 
 	const doParentChange = (e: TreeDragDropParams) => {
-		if (e.dropNode || String(e.dragNode.key).startsWith("loc_")) { // check if we have a parent and if we DONT then only allow locations to be dropped there
+		console.log("do parent change")
+		let [kind, id] = String(e.dragNode.key).split('_')  // tree keys are "Box_id" or "Loc_id"
+		const actual_kind = kind === 'box' ? "Box" : "Location"
+		if (e.dropNode || kind === 'loc') { // check if we have a parent and if we DONT then only allow locations to be dropped there
 			props.setNodes(e.value) // optimistic update of gui
 			let body = {parent: ""}
 			if (e.dropNode) { body = {parent: String(e.dropNode.key).split('_').splice(1).join('_')}}
+			let edropnodelabel = "the root"
+			if (e.dropNode !== null) {
+				edropnodelabel = String(e.dropNode.label)
+			}
 			confirmDialog({
-				message: 'You are about to move ' + e.dragNode.label + ' into ' + e.dropNode.label + '. Are you sure you want to proceed?',
+				message: 'You are about to move ' + e.dragNode.label + ' into ' + edropnodelabel + '. Are you sure you want to proceed?',
 				header: 'Change location?',
 				icon: 'pi pi-exclamation-triangle',
 				position: 'left',
-				accept: () => props.apiCall(String(e.dragNode.key), body),
+				accept: () => props.apiCall(id, actual_kind, "patch", body),
 			});
 		}
 	}
@@ -127,12 +139,12 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 				return (
 					<div className="p-formgroup-inline">
 						<div className="p-field">
-							<Dropdown value={selectedNewType} options={newChildTypes} optionLabel="name" onChange={e => setSelectedNewType(e.value)} />
+							<Dropdown value={{name: selectedNewType, code: selectedNewType}} options={[{name: "Box", code: "Box"}, {name: "Location", code: "Location"}]} optionLabel="name" onChange={e => setSelectedNewType(e.value.name)} />
 						</div>
 						<div className="p-field">
 							<div className="p-inputgroup">
 								<InputText value={nameinput} placeholder="Name it!" onInput={e => setNameInput(e.currentTarget.value)} />
-								<Button onClick={e => doNewLocBox()} icon="pi pi-check" className="p-button-success"/>
+								<Button onClick={doNewLocBox} icon="pi pi-check" className="p-button-success"/>
 								<Button onClick={e => setNewChild(false)} icon="pi pi-times" className="p-button-danger"/>
 							</div>
 						</div>
