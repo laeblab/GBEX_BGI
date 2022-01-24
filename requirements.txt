@@ -13,7 +13,7 @@ uwsgi>=2.0.20,<3.0.0
 
 # django reversions
 django-reversion>=4.0.1,<5.0.0
-# drc needs to pull my pull-request to be django 4.0.0 compatible
+# drc needs to push new release to pip with my already merged pull-request to be django 4.0.0 compatible
 #django-reversion-compare>=0.14.1,<2.0.0
 git+https://github.com/jedie/django-reversion-compare
 
@@ -24,8 +24,8 @@ django-widgets-improved>=1.5.0,<2.0.0
 
 # API access
 # waiting for drf to release django 4.0.0 compatible code
-#djangorestframework>=3.13.1,<4.0.0
-git+https://github.com/encode/django-rest-framework.git
+djangorestframework>=3.13.1,<4.0.0
+#git+https://github.com/encode/django-rest-framework.git
 markdown>=3.3.6,<4.0.0
 django-filter==21.1
 drf-yasg2>=1.19.4,<2.0.0    # this is a fork of drf-yasg which appears abandoned

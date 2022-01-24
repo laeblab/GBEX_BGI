@@ -18,9 +18,6 @@ ATT:
 
 # Todo Next
 [ ] herefter er det tid til vial assign
-  - drag select
-    - https://github.com/valerybugakov/react-selectable-fast
-    - https://github.com/Simonwep/selection
   - Vial <-> gbex link
   - Tillad også at Vials uden link som bare er "description" 
 

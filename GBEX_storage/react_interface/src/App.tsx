@@ -45,13 +45,17 @@ export default function App() {
     const [selected_wells, setSelectedWells] = useState<Set<string>>(() => new Set())
     const [nodes, setNodes] = useState<TreeNode[]>([])
     const [stale, setStale] = useState(true)
+    const [link_models, setLinkModels] = useState<string[]>([])
 
     // Primary data get. All other data should be directly derived from this to ensure components update correctly
     useEffect(() => {
         console.log("refreshing locsNboxs")
         fetch("http://127.0.0.1:8000/storage/locsNboxs", {credentials: 'include'})
             .then(res => res.json())
-            .then(json => setNodes(json.tree))
+            .then(json => {
+                setNodes(json.tree)
+                setLinkModels(json.vial_models)
+            })
             .catch(error => console.log(error))
         setTimeout(() => setStale(!stale), 5000)
     }, [stale]);
@@ -70,7 +74,7 @@ export default function App() {
         }
     }
 
-    const doApiCall = (id: string|number, kind: "Location"|"Box"|"Vial", method: "get"|"post"|"patch"|"delete", body: object) : object => {
+    const doApiCall = (id: string|number, kind: string, method: "get"|"post"|"patch"|"delete", body: object) : Promise<object> => {
         /* doApiCall
             id: id of target object, if there is no target, then just pass an empty string
             kind: one of Location, Box or Vial
@@ -90,10 +94,10 @@ export default function App() {
                 url += id + "/"
             }
 
-            fetch(url, {
+            return fetch(url, {
                 mode: 'cors',
                 method: method,
-                body: JSON.stringify(body),
+                body: Object.keys(body).length === 0 ? null: JSON.stringify(body),
                 headers: requestHeaders
             }).then(res => {
                 if (method !== 'delete') { // no return on delete
@@ -108,7 +112,7 @@ export default function App() {
                 }
             }).catch(error => console.log(error))
         }
-        return {}
+        return new Promise(() => {})
     }
 
     return (
@@ -122,7 +126,7 @@ export default function App() {
                     {box===undefined ? null:<TheBox selected_wells={selected_wells} setSelectedWells={setSelectedWells} box_info={box} height={height} width={width}/>}
                 </div>
                 <div id="storage_right">
-                    {(selected_wells.size===0 || box===undefined) ? <ul><li>No vial selected</li></ul>: <TheEditor selected_wells={selected_wells} vials={box.vials} apiCall={doApiCall}/>}
+                    {(selected_wells.size===0 || box===undefined) ? <ul><li>No vial selected</li></ul>: <TheEditor selected_wells={selected_wells} vials={box.vials} apiCall={doApiCall} link_models={link_models}/>}
                 </div>
             </div>
         </div>

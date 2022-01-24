@@ -32,4 +32,4 @@ def create_location_tree(parent_loc=None):
 
 
 def get_locs_and_boxes(request):
-	return JsonResponse({'tree': create_location_tree()})
+	return JsonResponse({'tree': create_location_tree(), 'vial_models': [a.__name__ for a in Vial.linkable_models]})

@@ -17,17 +17,13 @@ class BoxSerializer(serializers.ModelSerializer):
 
 class VialSerializer(serializers.ModelSerializer):
 	content_object = GenericRelatedField({
-			#mo: vi.serializer_class() for mo, vi in GBEX_API_ViewSets.items()
 			model: type(f"{model.__name__}Serializer", (serializers.HyperlinkedModelSerializer,), {
 				"responsible": serializers.SlugRelatedField(slug_field='username', read_only=True),
 				**{
-					key: #serializers.SlugRelatedField(slug_field='name', read_only=True)
-					type(
-					f"{model.Parent.field.related_model.__name__}Serializer",
-						(serializers.ModelSerializer,),
-						{"Meta": type(f"{model.Parent.field.related_model.__name__}Serializer.Meta", (), {"model": model.Parent.field.related_model, "fields": "__all__"})}
-					)(read_only=True)
-						for key in ['Parent'] if (hasattr(model, 'Parent') and model.model_kind == 'GBEX_Batch')
+					key: type(f"{model.Parent.field.related_model.__name__}Serializer", (serializers.ModelSerializer,),
+							  {"Meta": type(f"{model.Parent.field.related_model.__name__}Serializer.Meta", (), {
+								  "model": model.Parent.field.related_model, "fields": "__all__"})}
+					)(read_only=True) for key in ['Parent'] if (hasattr(model, 'Parent') and model.model_kind == 'GBEX_Batch')
 				},
 				"Meta": type(f"{model.__name__}Serializer.Meta", (), {"model": model, "fields": "__all__"})})() for model in Vial.linkable_models
 	})# if x[0] in linkable_models})
