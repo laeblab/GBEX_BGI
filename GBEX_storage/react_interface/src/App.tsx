@@ -5,6 +5,8 @@ import TheEditor from './TheEditor'
 import useDimensions from "react-cool-dimensions"
 import TreeNode from "primereact/treenode";
 import {getCookie} from "./index";
+import PrimeReact from 'primereact/api';
+PrimeReact.ripple = true;
 
 export interface Vial {
     name: string,

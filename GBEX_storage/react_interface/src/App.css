@@ -75,3 +75,7 @@ body {
 .selected {
     background-color: orangered;
 }
+
+.vial_editors {
+    width: 100%;
+}

@@ -37,8 +37,7 @@ export default function TheBox(props: {selected_wells: Set<string>, setSelectedW
 		});
 	};
 
-	return (
-			<SelectionArea className="container" onStart={onStart} onMove={onMove} selectables=".selectable">
+	return <SelectionArea className="container" onStart={onStart} onMove={onMove} selectables=".selectable">
 				{[...Array(box_info.rows)].map((e, row) => {
 					return (
 						<div style={{display: "flex", flexGrow: 1}} key={row}>
@@ -63,5 +62,4 @@ export default function TheBox(props: {selected_wells: Set<string>, setSelectedW
 						</div>)
 				})}
 			</SelectionArea>
-	);
 }

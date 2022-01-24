@@ -4,6 +4,9 @@ import { Button } from "primereact/button";
 import { confirmDialog } from "primereact/confirmdialog";
 import { Dropdown } from 'primereact/dropdown';
 import {AutoComplete, AutoCompleteCompleteMethodParams} from 'primereact/autocomplete';
+import { InputText } from 'primereact/inputtext';
+import {Card} from "primereact/card";
+
 
 function object2ul(obj: object, no_no_words: string[]) {
 	return Object.entries(obj).map((([i,s]) => {
@@ -20,21 +23,26 @@ interface ModelInstance  {
 	name: string
 }
 export default function MyEditor(props: {selected_wells: Set<string>, vials: Vials, apiCall: (id: string|number, kind: string, method: "get"|"post"|"patch"|"delete", body: object) => Promise<object>, link_models: string[]}) {
+	const {selected_wells, vials, apiCall, link_models} = props
 	const [vial_content, setVialContent] = useState<{content_object: {[key: string]: string | object | undefined}, name: string, description: string}>()
 	const [mode, setMode] = useState<"view"|"edit">("view")
 
+	// edit mode states
+	const [descriptionText, setDescriptionText] = useState('')
 	const [editModel, setEditModel] = useState<string>()
-	const [editModelInstance, setEditModelInstance] = useState<string>()
+	const [editModelInstance, setEditModelInstance] = useState<ModelInstance>()
 	const [editModelInstances, setEditModelInstances] = useState<ModelInstance[]>()
 	const [filteredModelInstances, setFilteredModelInstances] = useState<ModelInstance[]>()
 
-	const plural = props.selected_wells.size !== 1 ? "s": ""
-	let vial_ids: Set<number|undefined> = new Set(Array.from(props.selected_wells).map(pos => props.vials[pos]?.id))
+	const plural = selected_wells.size !== 1 ? "s": ""
+
+	let vial_ids: Set<number|undefined> = new Set(Array.from(selected_wells).map(pos => vials[pos]?.id))
 	vial_ids.delete(undefined)
 	let show_id = -1 // if theres just 1 selected vial and its not undefined, then show it
 	if (vial_ids.size === 1) {
 		show_id = vial_ids.values().next().value
 	}
+
 	useEffect(() => {
 		if (show_id !== -1) {
 			fetch("http://127.0.0.1:8000/api/Vial/"+show_id+"/")
@@ -46,32 +54,41 @@ export default function MyEditor(props: {selected_wells: Set<string>, vials: Via
 
 	useEffect(() => {
 		if (editModel !== undefined) {
-			props.apiCall("", editModel, "get", {}).then(r => {setEditModelInstances(r as ModelInstance[]); console.log(r)})
+			apiCall("", editModel, "get", {}).then(r => {setEditModelInstances(r as ModelInstance[]); console.log(r)})
 		}
-	}, [editModel])
-	// generate right pane output
+	}, [editModel, apiCall])
+
 	const delete_vials = () => {
 		confirmDialog({
-			message: (<span>You are about to delete {vial_ids.size} vial{plural}<br />Are you sure you want to proceed?</span>),
+			message: <span>You are about to delete {vial_ids.size} vial{plural}<br />Are you sure you want to proceed?</span>,
 			header: 'Delete vials?',
 			icon: 'pi pi-exclamation-triangle',
 			position: 'left',
-			accept: () => {
-				Array.from(vial_ids).map((e) => {
-					props.apiCall(String(e), "Vial", "delete", {})
-				})
-			},
+			accept: () => { Array.from(vial_ids).map((e) =>	apiCall(String(e), "Vial", "delete", {}))},
 		});
 	}
+
+	const assign_vials = () => {
+		confirmDialog({
+			message: <span>You are about to assign {editModel}-{">"}{editModelInstance?.name} to {selected_wells.size} position{plural}, {vial_ids.size !== 0 ? vial_ids.size + " of which have EXISTING content!":null}<br />Are you sure you want to proceed?</span>,
+			header: 'Assign vials?',
+			icon: 'pi pi-exclamation-triangle',
+			position: 'left',
+			accept: () => {
+				// delete the existing vials
+				//Array.from(vial_ids).map((e) =>	apiCall(String(e), "Vial", "delete", {}))
+				// create new vials for all positions
+				//...
+			},
+		})
+	}
+
 	const search_model_instance = (event: AutoCompleteCompleteMethodParams) => {
 		let _filteredIds: ModelInstance[];
 		if (editModelInstances !== undefined) {
 			_filteredIds = editModelInstances.filter((i) => i.name.toLowerCase().includes(event.query.toLowerCase()))
-		} else {
-			_filteredIds = []
+			setFilteredModelInstances(_filteredIds);
 		}
-
-		setFilteredModelInstances(_filteredIds);
 	}
 
 	if (mode === 'view') {
@@ -82,23 +99,44 @@ export default function MyEditor(props: {selected_wells: Set<string>, vials: Via
 				{ vial_content.content_object ? object2ul(vial_content.content_object, nono_names) : null}
 			</ul>
 		}
-
 		return <ul>
-			<li>Selected {props.selected_wells.size} position{plural}.</li>
+			<li>Selected {selected_wells.size} position{plural}.</li>
 			{vial_html ? <li>{vial_html}</li>: <li>To see vial content, select only 1 vial.</li>}
 			<Button onClick={() => setMode("edit")}>Set content of vial{plural}</Button>
 			<Button onClick={delete_vials}>Delete selected vial{plural}</Button>
 		</ul>
 	} else if (mode === 'edit') {
-		return <>
-			<Dropdown value={editModel} onChange={e=>setEditModel(e.value)} options={props.link_models.map((v) => {return {name: v, value: v}})} optionLabel="name" placeholder="Select an Item type" />
-			{editModel !== undefined ?
-				<AutoComplete dropdown forceSelection value={editModelInstance} suggestions={filteredModelInstances} completeMethod={search_model_instance} field="name" onChange={(e) => setEditModelInstance(e.value)} />
-				:null}
-			<Button>Apply</Button><Button onClick={() => setMode("view")}>Cancel</Button>
-		</>
+		return <Card>
+			<div className="field">
+				Selected {selected_wells.size} position{plural}.
+			</div>
+			<div className="field">
+				<span className="p-float-label">
+					<InputText className={"vial_editors"} id="description_text" value={descriptionText} onChange={(e) => setDescriptionText(e.target.value)} />
+					<label htmlFor="description_text">Description</label>
+				</span>
+			</div>
+			<div className="field">
+				<span className="p-float-label">
+					<Dropdown className={"vial_editors"} id="pickmodel" value={editModel} onChange={e=>setEditModel(e.value)} options={link_models.map((v) => {return {name: v, value: v}})} optionLabel="name" />
+					<label htmlFor="pickmodel">Type of item</label>
+				</span>
+			</div>
+			<div className="field">
+				<span className="p-float-label">
+					<AutoComplete className={"vial_editors"} id="specific_item" dropdown forceSelection value={editModelInstance}
+								  suggestions={filteredModelInstances} completeMethod={search_model_instance}
+								  field="name" disabled={editModel === undefined}
+								  onChange={(e) => setEditModelInstance(e.value)} />
+					<label htmlFor="specific_item">Specific item</label>
+				</span>
+			</div>
+			<div className="field">
+				<Button disabled={editModel===undefined || editModelInstance===undefined} onClick={assign_vials}>Apply</Button>
+				<Button onClick={() => setMode("view")}>Cancel</Button>
+			</div>
+		</Card>
 	} else {
 		return <>What?</>
 	}
-
 }

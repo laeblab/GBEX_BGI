@@ -9,6 +9,7 @@ import { climb_tree, Vial } from "./App"
 
 
 export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNode[]>>, nodes: TreeNode[], setBox: (box_id: string) => void, apiCall: (id: string|number, kind: "Location"|"Box"|"Vial", method: "get"|"post"|"patch"|"delete", body: object) => object}) {
+	const {setNodes, nodes, setBox, apiCall } = props
 	const [treeKey, setTreeKey] = useState("")
 	const [editing, setEditing] = useState("")
 	const [nameinput, setNameInput] = useState<string|undefined>('')
@@ -26,19 +27,19 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 		setNewChild(false)
 		if (nameinput) {
 			const body = {name: nameinput, parent: treeKey.split('_').splice(1).join('_'), rows: 10, columns: 10}
-			props.apiCall("", selectedNewType, "post", body)
+			apiCall("", selectedNewType, "post", body)
 		}
 	}
 
 	const doNameChange = () => {
 		setEditing("")
 		const [id, kind] = treeKey2kindNid()
-		if (nameinput) { props.apiCall(id, kind, "patch", {name: nameinput})}
+		if (nameinput) { apiCall(id, kind, "patch", {name: nameinput})}
 	}
 
 	const doBoxResize = () => {
 		// check if this will delete any vials
-		let vials = climb_tree(props.nodes, treeKey)
+		let vials = climb_tree(nodes, treeKey)
 		let lost_vials: Vial[] = []
 		if (vials && vials.hasOwnProperty("data") && vials.data.hasOwnProperty("vials")) {
 			lost_vials = Object.values(vials.data.vials).filter((v ): v is Vial => {
@@ -56,10 +57,10 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 				header: 'Execute order 66?',
 				icon: 'pi pi-exclamation-triangle',
 				position: 'left',
-				accept: () => props.apiCall(id, "Box", "patch", {rows: newBoxSize[0], columns: newBoxSize[1]}),
+				accept: () => apiCall(id, "Box", "patch", {rows: newBoxSize[0], columns: newBoxSize[1]}),
 			});
 		} else {
-			props.apiCall(id, "Box", "patch", {rows: newBoxSize[0], columns: newBoxSize[1]})
+			apiCall(id, "Box", "patch", {rows: newBoxSize[0], columns: newBoxSize[1]})
 		}
 
 		setEditing("")
@@ -82,7 +83,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 			header: 'Execute order 66?',
 			icon: 'pi pi-exclamation-triangle',
 			position: 'left',
-			accept: () => {props.setBox(""); props.apiCall(id, kind, "delete", {})},
+			accept: () => {setBox(""); apiCall(id, kind, "delete", {})},
 		});
 	}
 
@@ -91,7 +92,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 		let [kind, id] = String(e.dragNode.key).split('_')  // tree keys are "Box_id" or "Loc_id"
 		const actual_kind = kind === 'box' ? "Box" : "Location"
 		if (e.dropNode || kind === 'loc') { // check if we have a parent and if we DONT then only allow locations to be dropped there
-			props.setNodes(e.value) // optimistic update of gui
+			setNodes(e.value) // optimistic update of gui
 			let body = {parent: ""}
 			if (e.dropNode) { body = {parent: String(e.dropNode.key).split('_').splice(1).join('_')}}
 			let edropnodelabel = "the root"
@@ -103,7 +104,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 				header: 'Change location?',
 				icon: 'pi pi-exclamation-triangle',
 				position: 'left',
-				accept: () => props.apiCall(id, actual_kind, "patch", body),
+				accept: () => apiCall(id, actual_kind, "patch", body),
 			});
 		}
 	}
@@ -166,10 +167,10 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 		} else {return (<span className={options.className}><b>{node.label}</b></span>)}
     }
 
-	return (<Tree
+	return <Tree
 				dragdropScope="treedrop"
 				selectionMode="single"
-				value={props.nodes}
+				value={nodes}
 				nodeTemplate={nodeTemplate}
 				filter={true}
 				filterPlaceholder="Search for box or location"
@@ -180,9 +181,8 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 						setNewChild(false);
 					}
 					setTreeKey(String(e.value))
-					if (String(e.value).startsWith('box')) {props.setBox(String(e.value));console.log("set box", e.value)}
+					if (String(e.value).startsWith('box')) {setBox(String(e.value));console.log("set box", e.value)}
 				}}
 				onDragDrop={e => {doParentChange(e)}}
 			/>
-	);
 }
