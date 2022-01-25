@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Vials } from './App'
+import React, {useEffect, useMemo, useState} from 'react'
+import {Box, Vial} from './App'
 import { Button } from "primereact/button";
 import { confirmDialog } from "primereact/confirmdialog";
 import { Dropdown } from 'primereact/dropdown';
@@ -22,8 +22,8 @@ interface ModelInstance  {
 	id: number,
 	name: string
 }
-export default function MyEditor(props: {selected_wells: Set<string>, vials: Vials, apiCall: (id: string|number, kind: string, method: "get"|"post"|"patch"|"delete", body: object) => Promise<object>, link_models: string[]}) {
-	const {selected_wells, vials, apiCall, link_models} = props
+export default function MyEditor(props: {selected_wells: Set<string>, box: Box, apiCall: (id: string|number, kind: string, method: "get"|"post"|"patch"|"delete", body: object) => Promise<object>, link_models: string[]}) {
+	const {selected_wells, box, apiCall, link_models} = props
 	const [vial_content, setVialContent] = useState<{content_object: {[key: string]: string | object | undefined}, name: string, description: string}>()
 	const [mode, setMode] = useState<"view"|"edit">("view")
 
@@ -36,11 +36,11 @@ export default function MyEditor(props: {selected_wells: Set<string>, vials: Via
 
 	const plural = selected_wells.size !== 1 ? "s": ""
 
-	let vial_ids: Set<number|undefined> = new Set(Array.from(selected_wells).map(pos => vials[pos]?.id))
-	vial_ids.delete(undefined)
+	const vial_ids = useMemo(() => box.vials.filter(v => selected_wells.has(v.box_row+"+"+v.box_column)), [box, selected_wells])
+
 	let show_id = -1 // if theres just 1 selected vial and its not undefined, then show it
-	if (vial_ids.size === 1) {
-		show_id = vial_ids.values().next().value
+	if (vial_ids.length === 1) {
+		show_id = vial_ids[0].id
 	}
 
 	useEffect(() => {
@@ -60,23 +60,23 @@ export default function MyEditor(props: {selected_wells: Set<string>, vials: Via
 
 	const delete_vials = () => {
 		confirmDialog({
-			message: <span>You are about to delete {vial_ids.size} vial{plural}<br />Are you sure you want to proceed?</span>,
+			message: <span>You are about to delete {vial_ids.length} vial{plural}<br />Are you sure you want to proceed?</span>,
 			header: 'Delete vials?',
 			icon: 'pi pi-exclamation-triangle',
 			position: 'left',
-			accept: () => { Array.from(vial_ids).map((e) =>	apiCall(String(e), "Vial", "delete", {}))},
+			accept: () => { vial_ids.map(e => apiCall(String(e.id), "Vial", "delete", {}))},
 		});
 	}
 
 	const assign_vials = () => {
 		confirmDialog({
-			message: <span>You are about to assign {editModel}-{">"}{editModelInstance?.name} to {selected_wells.size} position{plural}, {vial_ids.size !== 0 ? vial_ids.size + " of which have EXISTING content!":null}<br />Are you sure you want to proceed?</span>,
+			message: <span>You are about to assign {editModel}-{">"}{editModelInstance?.name} to {selected_wells.size} position{plural}{vial_ids.length !== 0 ? ", " + vial_ids.length + " of which "+ (vial_ids.length === 1 ? "has":"have") +" EXISTING content and will be DELETED!":null}.<br />Are you sure you want to proceed?</span>,
 			header: 'Assign vials?',
 			icon: 'pi pi-exclamation-triangle',
 			position: 'left',
 			accept: () => {
 				// delete the existing vials
-				//Array.from(vial_ids).map((e) =>	apiCall(String(e), "Vial", "delete", {}))
+				vial_ids.map(e => apiCall(String(e.id), "Vial", "delete", {}))
 				// create new vials for all positions
 				//...
 			},
@@ -132,7 +132,7 @@ export default function MyEditor(props: {selected_wells: Set<string>, vials: Via
 				</span>
 			</div>
 			<div className="field">
-				<Button disabled={editModel===undefined || editModelInstance===undefined} onClick={assign_vials}>Apply</Button>
+				<Button onClick={assign_vials}>Apply</Button>
 				<Button onClick={() => setMode("view")}>Cancel</Button>
 			</div>
 		</Card>

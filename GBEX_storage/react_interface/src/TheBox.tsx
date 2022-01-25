@@ -1,21 +1,22 @@
-import React, { Dispatch, SetStateAction } from 'react';
-import {Box} from "./App"
+import React, {Dispatch, SetStateAction, useMemo} from 'react';
+import {Box, Vial} from "./App"
 import SelectionArea, {SelectionEvent} from '@viselect/react';
 
 
-export default function TheBox(props: {selected_wells: Set<string>, setSelectedWells: Dispatch<SetStateAction<Set<string>>>, box_info: Box, height: number, width: number}) {
-	const {box_info, height, width} = props
-	const limw = width/box_info.columns
-	const limh = height/box_info.rows
+export default function TheBox(props: {selected_wells: Set<string>, setSelectedWells: Dispatch<SetStateAction<Set<string>>>, box: Box, height: number, width: number}) {
+	const {box, height, width} = props
+	const limw = width/box.columns
+	const limh = height/box.rows
+	const memoizedVialPos = useMemo<{[key: string]:Vial}>(() => box.vials.reduce((a, v) => ({...a, [String(v.box_row)+"+"+String(v.box_column)]: v}), {}), [box])
 
 	let square_size = {
-		height: width / box_info.columns,
-		width: width / box_info.columns
+		height: width / box.columns,
+		width: width / box.columns
 	}
 	if (limh < limw) {
 		square_size = {
-			height: height / box_info.rows,
-			width: height / box_info.rows
+			height: height / box.rows,
+			width: height / box.rows
 		}
 	}
 
@@ -38,15 +39,16 @@ export default function TheBox(props: {selected_wells: Set<string>, setSelectedW
 	};
 
 	return <SelectionArea className="container" onStart={onStart} onMove={onMove} selectables=".selectable">
-				{[...Array(box_info.rows)].map((e, row) => {
+				{[...Array(box.rows)].map((e, row) => {
 					return (
 						<div style={{display: "flex", flexGrow: 1}} key={row}>
-							{[...Array(box_info.columns)].map((ee, column) => {
+							{[...Array(box.columns)].map((ee, column) => {
 								const coord = String.fromCharCode('A'.charCodeAt(0)+row)+(column+1)
+								const coord_pos_string = row+"+"+column
 								let a = {id:-1, name:coord}
-								let classy = props.selected_wells.has(coord) ? 'selected selectable' : 'selectable'
-								if (box_info.vials.hasOwnProperty(coord)) {
-									a = box_info.vials[coord]
+								let classy = props.selected_wells.has(coord_pos_string) ? 'selected selectable' : 'selectable'
+								if (memoizedVialPos.hasOwnProperty(coord_pos_string)) {
+									a = memoizedVialPos[coord_pos_string]
 								} else {
 									classy += " empty_position"
 								}
@@ -54,8 +56,8 @@ export default function TheBox(props: {selected_wells: Set<string>, setSelectedW
 								return <div
 									className={classy}
 									style={square_size}
-									data-key={coord}
-									key={coord}>
+									data-key={coord_pos_string}
+									key={coord_pos_string}>
 									{a.name}
 								</div>})
 							}

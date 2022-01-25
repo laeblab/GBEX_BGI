@@ -5,8 +5,6 @@ import TheEditor from './TheEditor'
 import useDimensions from "react-cool-dimensions"
 import TreeNode from "primereact/treenode";
 import {getCookie} from "./index";
-import PrimeReact from 'primereact/api';
-PrimeReact.ripple = true;
 
 export interface Vial {
     name: string,
@@ -16,13 +14,9 @@ export interface Vial {
     description?: string
 }
 
-export interface Vials {
-    [key: string]: Vial
-}
-
 export interface Box {
     id: string,
-    vials: Vials,
+    vials: Vial[],
     rows: number,
     columns: number
 }
@@ -72,7 +66,7 @@ export default function App() {
     const setBoxFromId = (box_id: string) => {
         if (box===undefined || box_id !== box.id) {
             setBox(climb_tree(nodes, box_id)?.data)
-            setSelectedWells(() => new Set())
+            setSelectedWells(() => new Set()) // reset selected wells on new box
         }
     }
 
@@ -125,10 +119,10 @@ export default function App() {
                     <TheTree nodes={nodes} setNodes={setNodes} setBox={setBoxFromId} apiCall={doApiCall} />
                 </div>
                 <div id="storage_middle" ref={observe}>
-                    {box===undefined ? null:<TheBox selected_wells={selected_wells} setSelectedWells={setSelectedWells} box_info={box} height={height} width={width}/>}
+                    {box===undefined ? null:<TheBox selected_wells={selected_wells} setSelectedWells={setSelectedWells} box={box} height={height} width={width}/>}
                 </div>
                 <div id="storage_right">
-                    {(selected_wells.size===0 || box===undefined) ? <ul><li>No vial selected</li></ul>: <TheEditor selected_wells={selected_wells} vials={box.vials} apiCall={doApiCall} link_models={link_models}/>}
+                    {(selected_wells.size===0 || box===undefined) ? <ul><li>No vial selected</li></ul>: <TheEditor selected_wells={selected_wells} box={box} apiCall={doApiCall} link_models={link_models}/>}
                 </div>
             </div>
         </div>

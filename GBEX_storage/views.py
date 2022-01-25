@@ -11,15 +11,15 @@ def create_location_tree(parent_loc=None):
 		# take a moment here to unlink vials that no longer fit in the box after a box resize
 		Vial.objects.filter(parent=box, box_column__gte=box.columns).delete()
 		Vial.objects.filter(parent=box, box_row__gte=box.rows).delete()
-		box_info[box.id] = {
-			pos_to_coord(x['box_row'], x['box_column']): {
+		box_info[box.id] = [
+			{
 				'name': x["name"],
 				'id': x["id"],
 				'description': x['description'],
 				'box_row': x['box_row'],
 				'box_column': x['box_column']
 			} for x in box.vial_set.all().values("id", "name", "box_row", "box_column", "description")
-		}
+		]
 
 	tree = []
 	for loc in Location.objects.filter(parent=parent_loc):
