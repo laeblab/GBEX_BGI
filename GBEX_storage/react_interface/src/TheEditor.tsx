@@ -78,7 +78,13 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 				// delete the existing vials
 				vial_ids.map(e => apiCall(String(e.id), "Vial", "delete", {}))
 				// create new vials for all positions
-				//...
+				Array.from(selected_wells).map(e => apiCall("", "Vial", "post", {
+					parent: box.id,
+					box_row: e.split("+")[0],
+					box_column: e.split("+")[1],
+					description: descriptionText,
+					content_object: null // link object to vials
+				}))
 			},
 		})
 	}

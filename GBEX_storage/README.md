@@ -41,7 +41,7 @@ ATT:
 # rememberings
 Tree-modules
   MIU doesnt support drag/drop YET, so I dropped it.
-  Now testing PrimeReact
+  PrimeReact is ok so far. 
   * Alternatives:
     * Ant Design (ant.design)
     * frontend-collective (https://github.com/frontend-collective/react-sortable-tree)
