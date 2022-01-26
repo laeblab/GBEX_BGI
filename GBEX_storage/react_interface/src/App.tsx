@@ -7,11 +7,12 @@ import TreeNode from "primereact/treenode";
 import {getCookie} from "./index";
 
 export interface Vial {
-    name: string,
-    id: number,
-    box_row?: number,
-    box_column?: number,
-    description?: string
+    id: number;
+    label: string;
+    description: string;
+    box_row: number;
+    box_column: number;
+    [propName: string]: string|number;
 }
 
 export interface Box {
@@ -19,6 +20,11 @@ export interface Box {
     vials: Vial[],
     rows: number,
     columns: number
+}
+
+export interface vial_model {
+    'model': string,
+    'field': string
 }
 
 
@@ -41,7 +47,7 @@ export default function App() {
     const [selected_wells, setSelectedWells] = useState<Set<string>>(() => new Set())
     const [nodes, setNodes] = useState<TreeNode[]>([])
     const [stale, setStale] = useState(true)
-    const [link_models, setLinkModels] = useState<string[]>([])
+    const [link_models, setLinkModels] = useState<vial_model[]>([])
 
     // Primary data get. All other data should be directly derived from this to ensure components update correctly
     useEffect(() => {

@@ -37,6 +37,3 @@ django-crispy-forms>=1.13.0,<2.0.0
 
 # login
 django-auth-ldap>=4.0.0,<5.0.0
-
-# GBEX storage
-rest-framework-generic-relations >=2.1.0,<3.0.0

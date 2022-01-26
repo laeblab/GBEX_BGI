@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react'
-import {Box, Vial} from './App'
+import {Box, Vial, vial_model} from './App'
 import { Button } from "primereact/button";
 import { confirmDialog } from "primereact/confirmdialog";
 import { Dropdown } from 'primereact/dropdown';
@@ -22,13 +22,14 @@ interface ModelInstance  {
 	id: number,
 	name: string
 }
-export default function MyEditor(props: {selected_wells: Set<string>, box: Box, apiCall: (id: string|number, kind: string, method: "get"|"post"|"patch"|"delete", body: object) => Promise<object>, link_models: string[]}) {
+export default function MyEditor(props: {selected_wells: Set<string>, box: Box, apiCall: (id: string|number, kind: string, method: "get"|"post"|"patch"|"delete", body: object) => Promise<object>, link_models: vial_model[]}) {
 	const {selected_wells, box, apiCall, link_models} = props
-	const [vial_content, setVialContent] = useState<{content_object: {[key: string]: string | object | undefined}, name: string, description: string}>()
+	const [vial_content, setVialContent] = useState<Vial>()
 	const [mode, setMode] = useState<"view"|"edit">("view")
 
 	// edit mode states
 	const [descriptionText, setDescriptionText] = useState('')
+	const [labelText, setLabelText] = useState('')
 	const [editModel, setEditModel] = useState<string>()
 	const [editModelInstance, setEditModelInstance] = useState<ModelInstance>()
 	const [editModelInstances, setEditModelInstances] = useState<ModelInstance[]>()
@@ -101,8 +102,10 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 		const nono_names = ["id", "url","created","edited","archived"]
 		let vial_html = null
 		if (vial_content !== undefined) {
-			vial_html = <ul><li>name:{vial_content.name}</li><li>description:{vial_content.description}</li>
-				{ vial_content.content_object ? object2ul(vial_content.content_object, nono_names) : null}
+			vial_html = <ul><li>Label:{vial_content.label}</li><li>description:{vial_content.description}</li>
+				{ link_models.map(e => {
+					object2ul(vial_content[e.field], nono_names)
+				}) }
 			</ul>
 		}
 		return <ul>
@@ -118,13 +121,19 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 			</div>
 			<div className="field">
 				<span className="p-float-label">
+					<InputText className={"vial_editors"} id="label_text" value={labelText} onChange={(e) => setLabelText(e.target.value)} />
+					<label htmlFor="label_text">Label</label>
+				</span>
+			</div>
+			<div className="field">
+				<span className="p-float-label">
 					<InputText className={"vial_editors"} id="description_text" value={descriptionText} onChange={(e) => setDescriptionText(e.target.value)} />
 					<label htmlFor="description_text">Description</label>
 				</span>
 			</div>
 			<div className="field">
 				<span className="p-float-label">
-					<Dropdown className={"vial_editors"} id="pickmodel" value={editModel} onChange={e=>setEditModel(e.value)} options={link_models.map((v) => {return {name: v, value: v}})} optionLabel="name" />
+					<Dropdown className={"vial_editors"} id="pickmodel" value={editModel} onChange={e=>setEditModel(e.value)} options={link_models.map((v) => {return {name: v.model, value: v.model}})} optionLabel="name" />
 					<label htmlFor="pickmodel">Type of item</label>
 				</span>
 			</div>

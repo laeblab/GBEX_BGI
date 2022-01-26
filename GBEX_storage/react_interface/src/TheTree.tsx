@@ -52,7 +52,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 				message: (
 					<span>
 						{"This resize will delete " + lost_vials.length + " vial"+(lost_vials.length !== 1?"s":"")+":"}<br />
-						{lost_vials.map(c => String.fromCharCode('A'.charCodeAt(0)+Number((c as Vial).box_row))+(Number((c as Vial).box_column)+1)+":"+(c as Vial).name).join(", ")}<br />
+						{lost_vials.map(c => String.fromCharCode('A'.charCodeAt(0)+Number((c as Vial).box_row))+(Number((c as Vial).box_column)+1)+":"+(c as Vial).label).join(", ")}<br />
 						{"Are you sure you want to proceed?"}</span>),
 				header: 'Execute order 66?',
 				icon: 'pi pi-exclamation-triangle',

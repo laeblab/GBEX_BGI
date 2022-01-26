@@ -45,7 +45,7 @@ export default function TheBox(props: {selected_wells: Set<string>, setSelectedW
 							{[...Array(box.columns)].map((ee, column) => {
 								const coord = String.fromCharCode('A'.charCodeAt(0)+row)+(column+1)
 								const coord_pos_string = row+"+"+column
-								let a = {id:-1, name:coord}
+								let a = {label:coord}
 								let classy = props.selected_wells.has(coord_pos_string) ? 'selected selectable' : 'selectable'
 								if (memoizedVialPos.hasOwnProperty(coord_pos_string)) {
 									a = memoizedVialPos[coord_pos_string]
@@ -58,7 +58,7 @@ export default function TheBox(props: {selected_wells: Set<string>, setSelectedW
 									style={square_size}
 									data-key={coord_pos_string}
 									key={coord_pos_string}>
-									{a.name}
+									{a.label}
 								</div>})
 							}
 						</div>)

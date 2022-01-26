@@ -219,12 +219,9 @@ export default class GBEXtable extends PureComponent<Props, State> {
     myheaders.append("Accept", "application/json, */*")
     myheaders.append("Content-Type", "application/json")
     fetch(`/api/Profile/${window.settings_id}/`, {
-      method: 'put', credentials: 'include', headers: myheaders,
-      body: JSON.stringify(
-        {
-          "user": window.user_id,
-          "table_settings": JSON.stringify(window.table_settings)
-        })}).catch(error => console.log(error))
+      method: 'patch', credentials: 'include', headers: myheaders,
+      body: JSON.stringify({ "table_settings": JSON.stringify(window.table_settings) })
+    }).catch(error => console.log(error))
   }
 
   _clearSearch = () => {

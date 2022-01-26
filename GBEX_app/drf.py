@@ -4,7 +4,7 @@ from django.apps import apps
 from django.contrib.postgres.fields import JSONField
 from django.contrib.auth.models import User
 
-from rest_framework import serializers, viewsets, permissions
+from rest_framework import serializers, viewsets
 
 from GBEX_bigfiles.drf import ResumableDRFFileField
 from GBEX_bigfiles.fields import ResumableFileField
@@ -23,7 +23,7 @@ for model in apps.get_app_config('GBEX_app').get_models():
 	#if "name" in [x.name for x in model._meta.fields]:
 		name_dict["name"] = serializers.CharField(default=partial(get_free_id, model))
 
-	serial = type(f"{model.__name__}Serializer", (serializers.ModelSerializer, ), {
+	serial = type(f"{model.__name__}Serializer", (serializers.HyperlinkedModelSerializer, ), {
 		**{x: ResumableDRFFileField(required=False, allow_empty_file=True, allow_null=True) for x in file_fields},
 		**name_dict,
 		"Meta": type(f"{model.__name__}Serializer.Meta", (), {"model": model, "fields": "__all__"})
@@ -31,7 +31,6 @@ for model in apps.get_app_config('GBEX_app').get_models():
 	viewset = type(f"{model.__name__}ViewSet", (viewsets.ModelViewSet,), {
 		"queryset": model.objects.all(),
 		"serializer_class": serial,
-		#"permission_classes": [permissions.IsAuthenticated],
 		"filter_fields": '__all__',
 		#"filterset_fields": [x.name for x in model._meta.fields if not (isinstance(x, ResumableFileField) or isinstance(x, JSONField))]  # by default filters dont work with resumablefilefield nor JSONfields
 	})
@@ -45,7 +44,6 @@ serial = type(f"{model.__name__}Serializer", (serializers.ModelSerializer, ), {
 viewset = type(f"{model.__name__}ViewSet", (viewsets.ModelViewSet,), {
 	"queryset": model.objects.all(),
 	"serializer_class": serial,
-	#"permission_classes": [permissions.IsAuthenticated],
 	"filter_fields": '__all__',
 })
 GBEX_API_ViewSets[model] = viewset

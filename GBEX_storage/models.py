@@ -1,9 +1,4 @@
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.db import models
-from GBEX_app.models.Inventory import AntiGenBodyBatch, CellLineBatch, CultureMediaBatch, PlasmidBatch, StrainBatch, gRNA, Primers, Toxins
-from functools import reduce
-from operator import or_
 
 
 class Location(models.Model):
@@ -31,28 +26,15 @@ class Box(models.Model):
 
 
 class Vial(models.Model):
-	name = models.CharField(max_length=255)  # copy the name from content_object
+	label = models.CharField(max_length=255)
+	description = models.TextField(blank=True)
+
 	parent = models.ForeignKey(Box, on_delete=models.CASCADE)
 	box_row = models.PositiveIntegerField()
 	box_column = models.PositiveIntegerField()
 
-	description = models.TextField(blank=True, null=True)
-
-	# linkable models is required for easy DRF integration
-	linkable_models = [AntiGenBodyBatch, CellLineBatch, CultureMediaBatch, PlasmidBatch, StrainBatch, gRNA, Primers, Toxins]
-	limit = reduce(or_, [models.Q(model=m) for m in linkable_models])
-	content_type = models.ForeignKey(ContentType, on_delete=models.PROTECT, null=True,  blank=True, limit_choices_to=limit)
-	object_id = models.PositiveIntegerField(null=True, blank=True)
-	content_object = GenericForeignKey('content_type', 'object_id')
-
 	def __str__(self):
-		return self.name
-
-	# try to save some db lookups
-	def save(self, *args, **kwargs):
-		if self.content_object:
-			self.name = self.content_object.name
-		super().save(*args, **kwargs)
+		return self.label
 
 	class Meta:
 		ordering = ('id', )
