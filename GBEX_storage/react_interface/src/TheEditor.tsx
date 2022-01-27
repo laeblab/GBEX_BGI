@@ -28,7 +28,7 @@ interface ModelInstance  {
 export default function MyEditor(props: {selected_wells: Set<string>, box: Box, link_models: vial_model[]}) {
 	const {selected_wells, box, link_models} = props
 	const [vial_content, setVialContent] = useState<Vial>()
-	const [vial_links, setVialLinks] = useState<{'name': any, 'jsx': any}[]>()
+	const [vial_links, setVialLinks] = useState<{[key:string]:any}[]>([])
 	const [mode, setMode] = useState<"view"|"edit">("view")
 
 	// edit mode states
@@ -55,16 +55,14 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 	}}, [vial_ids, vial_content])
 
 	useEffect(() => {
-		const nono_names = ["id", "url","created","edited","archived"]
-		console.log(vial_content)
 		if (vial_content !== undefined) {
 			// OK NEW PLAN. SO WE ITERATE THE link_models, and doApiCall, and update the setVialLinks on the "then" function
-			
-			setVialLinks(link_models.map(e => { return {
-				name: e.field,
-				jsx: // @ts-ignore because I cant figure out how to make a type definition for an object that has fixed and dynamic keys
-					<li key={e.field}>{vial_content[e.field].map(url => doApiCall(url, "", "get", {}).then(api_return => object2ul(api_return, nono_names)))}</li>
-			}}))
+			for (const model of link_models) {
+				// @ts-ignore
+				for (const url of vial_content[model.field]) {
+					doApiCall(url, "", "get", {}).then(api_return => setVialLinks(c => [...c, api_return]))
+				}
+			}
 		}
 	}, [vial_content, link_models])
 
@@ -115,11 +113,16 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 
 	if (mode === 'view') {
 		let vial_html = null
+		const nono_names = ["id", "url","created","edited","archived","Location"]
+
 		if (vial_content !== undefined) {
 			vial_html = <ul>
 				<li>Label:{vial_content.label}</li>
 				<li>description:{vial_content.description}</li>
-				{vial_links !== undefined?vial_links.map(vl => <ul>{vl.jsx}</ul>):null}
+				<li>Vial content:</li>
+				<ul>
+					{ vial_links.map(vl => object2ul(vl, nono_names))}
+				</ul>
 			</ul>
 		}
 		return <ul>
