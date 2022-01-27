@@ -1,11 +1,12 @@
-import React, {useEffect, useMemo, useState} from 'react'
-import {Box, Vial, vial_model} from './App'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Button } from "primereact/button";
 import { confirmDialog } from "primereact/confirmdialog";
 import { Dropdown } from 'primereact/dropdown';
-import {AutoComplete, AutoCompleteCompleteMethodParams} from 'primereact/autocomplete';
+import { AutoComplete, AutoCompleteCompleteMethodParams } from 'primereact/autocomplete';
 import { InputText } from 'primereact/inputtext';
-import {Card} from "primereact/card";
+import { Card } from "primereact/card";
+import { Box, Vial, vial_model } from './App'
+import { doApiCall, deepEqual } from "./helpers";
 
 
 function object2ul(obj: object, no_no_words: string[]) {
@@ -22,9 +23,12 @@ interface ModelInstance  {
 	id: number,
 	name: string
 }
-export default function MyEditor(props: {selected_wells: Set<string>, box: Box, apiCall: (id: string|number, kind: string, method: "get"|"post"|"patch"|"delete", body: object) => Promise<object>, link_models: vial_model[]}) {
-	const {selected_wells, box, apiCall, link_models} = props
+
+
+export default function MyEditor(props: {selected_wells: Set<string>, box: Box, link_models: vial_model[]}) {
+	const {selected_wells, box, link_models} = props
 	const [vial_content, setVialContent] = useState<Vial>()
+	const [vial_links, setVialLinks] = useState<{'name': any, 'jsx': any}[]>()
 	const [mode, setMode] = useState<"view"|"edit">("view")
 
 	// edit mode states
@@ -34,30 +38,41 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 	const [editModelInstance, setEditModelInstance] = useState<ModelInstance>()
 	const [editModelInstances, setEditModelInstances] = useState<ModelInstance[]>()
 	const [filteredModelInstances, setFilteredModelInstances] = useState<ModelInstance[]>()
-
 	const plural = selected_wells.size !== 1 ? "s": ""
-
 	const vial_ids = useMemo(() => box.vials.filter(v => selected_wells.has(v.box_row+"+"+v.box_column)), [box, selected_wells])
 
-	let show_id = -1 // if theres just 1 selected vial and its not undefined, then show it
-	if (vial_ids.length === 1) {
-		show_id = vial_ids[0].id
-	}
-
 	useEffect(() => {
-		if (show_id !== -1) {
-			fetch("http://127.0.0.1:8000/api/Vial/"+show_id+"/")
-				.then(res => res.json())
-				.then(json => setVialContent(json))
+		if (vial_ids.length === 1) {
+			const show_id = vial_ids[0].id
+			doApiCall(show_id, "Vial", "get", {})
+				.then(json => {
+					if (vial_content === undefined || !deepEqual(json, vial_content)) {
+						setVialContent(json as Vial)
+					}
+				})
 		} else {
 			setVialContent(undefined)
-		}}, [show_id])
+	}}, [vial_ids, vial_content])
+
+	useEffect(() => {
+		const nono_names = ["id", "url","created","edited","archived"]
+		console.log(vial_content)
+		if (vial_content !== undefined) {
+			// OK NEW PLAN. SO WE ITERATE THE link_models, and doApiCall, and update the setVialLinks on the "then" function
+			
+			setVialLinks(link_models.map(e => { return {
+				name: e.field,
+				jsx: // @ts-ignore because I cant figure out how to make a type definition for an object that has fixed and dynamic keys
+					<li key={e.field}>{vial_content[e.field].map(url => doApiCall(url, "", "get", {}).then(api_return => object2ul(api_return, nono_names)))}</li>
+			}}))
+		}
+	}, [vial_content, link_models])
 
 	useEffect(() => {
 		if (editModel !== undefined) {
-			apiCall("", editModel, "get", {}).then(r => {setEditModelInstances(r as ModelInstance[]); console.log(r)})
+			doApiCall("", editModel, "get", {}).then(r => setEditModelInstances(r as ModelInstance[]))
 		}
-	}, [editModel, apiCall])
+	}, [editModel])
 
 	const delete_vials = () => {
 		confirmDialog({
@@ -65,7 +80,7 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 			header: 'Delete vials?',
 			icon: 'pi pi-exclamation-triangle',
 			position: 'left',
-			accept: () => { vial_ids.map(e => apiCall(String(e.id), "Vial", "delete", {}))},
+			accept: () => { vial_ids.map(e => doApiCall(String(e.id), "Vial", "delete", {}).then(e => console.log("import setstale")))},
 		});
 	}
 
@@ -77,9 +92,9 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 			position: 'left',
 			accept: () => {
 				// delete the existing vials
-				vial_ids.map(e => apiCall(String(e.id), "Vial", "delete", {}))
+				vial_ids.map(e => doApiCall(String(e.id), "Vial", "delete", {}))
 				// create new vials for all positions
-				Array.from(selected_wells).map(e => apiCall("", "Vial", "post", {
+				Array.from(selected_wells).map(e => doApiCall("", "Vial", "post", {
 					parent: box.id,
 					box_row: e.split("+")[0],
 					box_column: e.split("+")[1],
@@ -99,13 +114,12 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 	}
 
 	if (mode === 'view') {
-		const nono_names = ["id", "url","created","edited","archived"]
 		let vial_html = null
 		if (vial_content !== undefined) {
-			vial_html = <ul><li>Label:{vial_content.label}</li><li>description:{vial_content.description}</li>
-				{ link_models.map(e => {
-					object2ul(vial_content[e.field], nono_names)
-				}) }
+			vial_html = <ul>
+				<li>Label:{vial_content.label}</li>
+				<li>description:{vial_content.description}</li>
+				{vial_links !== undefined?vial_links.map(vl => <ul>{vl.jsx}</ul>):null}
 			</ul>
 		}
 		return <ul>

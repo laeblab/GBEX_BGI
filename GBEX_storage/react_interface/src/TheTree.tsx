@@ -1,15 +1,16 @@
-import React, {Dispatch, SetStateAction, useState } from 'react';
-import {Tree, TreeDragDropParams, TreeNodeTemplateOptions} from 'primereact/tree';
+import React, { Dispatch, SetStateAction, useState } from 'react';
+import { Tree, TreeDragDropParams, TreeNodeTemplateOptions } from 'primereact/tree';
 import TreeNode from "primereact/treenode";
-import {InputText} from 'primereact/inputtext';
-import {Button} from 'primereact/button';
-import {Dropdown} from 'primereact/dropdown';
+import { InputText } from 'primereact/inputtext';
+import { Button } from 'primereact/button';
+import { Dropdown } from 'primereact/dropdown';
 import { confirmDialog } from 'primereact/confirmdialog';
-import { climb_tree, Vial } from "./App"
+import { Vial } from "./App"
+import { climb_tree, doApiCall } from "./helpers"
 
 
-export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNode[]>>, nodes: TreeNode[], setBox: (box_id: string) => void, apiCall: (id: string|number, kind: "Location"|"Box"|"Vial", method: "get"|"post"|"patch"|"delete", body: object) => object}) {
-	const {setNodes, nodes, setBox, apiCall } = props
+export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: string) => void, setStale: Dispatch<SetStateAction<boolean>>}) {
+	const { nodes, setBox, setStale } = props
 	const [treeKey, setTreeKey] = useState("")
 	const [editing, setEditing] = useState("")
 	const [nameinput, setNameInput] = useState<string|undefined>('')
@@ -27,14 +28,14 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 		setNewChild(false)
 		if (nameinput) {
 			const body = {name: nameinput, parent: treeKey.split('_').splice(1).join('_'), rows: 10, columns: 10}
-			apiCall("", selectedNewType, "post", body)
+			doApiCall("", selectedNewType, "post", body).then(e => setStale(c => !c))
 		}
 	}
 
 	const doNameChange = () => {
 		setEditing("")
 		const [id, kind] = treeKey2kindNid()
-		if (nameinput) { apiCall(id, kind, "patch", {name: nameinput})}
+		if (nameinput) { doApiCall(id, kind, "patch", {name: nameinput}).then(e => setStale(c => !c))}
 	}
 
 	const doBoxResize = () => {
@@ -57,10 +58,10 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 				header: 'Execute order 66?',
 				icon: 'pi pi-exclamation-triangle',
 				position: 'left',
-				accept: () => apiCall(id, "Box", "patch", {rows: newBoxSize[0], columns: newBoxSize[1]}),
+				accept: () => doApiCall(id, "Box", "patch", {rows: newBoxSize[0], columns: newBoxSize[1]}).then(e => setStale(c => !c)),
 			});
 		} else {
-			apiCall(id, "Box", "patch", {rows: newBoxSize[0], columns: newBoxSize[1]})
+			doApiCall(id, "Box", "patch", {rows: newBoxSize[0], columns: newBoxSize[1]}).then(e => setStale(c => !c))
 		}
 
 		setEditing("")
@@ -83,7 +84,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 			header: 'Execute order 66?',
 			icon: 'pi pi-exclamation-triangle',
 			position: 'left',
-			accept: () => {setBox(""); apiCall(id, kind, "delete", {})},
+			accept: () => {setBox(""); doApiCall(id, kind, "delete", {}).then(e => setStale(c => !c))},
 		});
 	}
 
@@ -92,7 +93,6 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 		let [kind, id] = String(e.dragNode.key).split('_')  // tree keys are "Box_id" or "Loc_id"
 		const actual_kind = kind === 'box' ? "Box" : "Location"
 		if (e.dropNode || kind === 'loc') { // check if we have a parent and if we DONT then only allow locations to be dropped there
-			setNodes(e.value) // optimistic update of gui
 			let body = {parent: ""}
 			if (e.dropNode) { body = {parent: String(e.dropNode.key).split('_').splice(1).join('_')}}
 			let edropnodelabel = "the root"
@@ -104,7 +104,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 				header: 'Change location?',
 				icon: 'pi pi-exclamation-triangle',
 				position: 'left',
-				accept: () => apiCall(id, actual_kind, "patch", body),
+				accept: () => doApiCall(id, actual_kind, "patch", body).then(e => setStale(c => !c)),
 			});
 		}
 	}
@@ -181,7 +181,7 @@ export default function TheTree(props:{setNodes: Dispatch<SetStateAction<TreeNod
 						setNewChild(false);
 					}
 					setTreeKey(String(e.value))
-					if (String(e.value).startsWith('box')) {setBox(String(e.value));console.log("set box", e.value)}
+					if (String(e.value).startsWith('box')) setBox(String(e.value))
 				}}
 				onDragDrop={e => {doParentChange(e)}}
 			/>

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 from django.urls import path, include, re_path
 
-from rest_framework import routers, permissions
+from rest_framework import routers
 from drf_yasg2.views import get_schema_view
 from drf_yasg2 import openapi
 
@@ -22,7 +22,6 @@ schema_view = get_schema_view(
 		default_version="v1"
 	),
 	public=False,
-	#permission_classes=(permissions.IsAuthenticated,),
 )
 
 # generally views that are used to log the user in or has its own authentication machinery needs to be here

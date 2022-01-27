@@ -1,6 +1,6 @@
-import React, {Dispatch, SetStateAction, useMemo} from 'react';
-import {Box, Vial} from "./App"
-import SelectionArea, {SelectionEvent} from '@viselect/react';
+import React, { Dispatch, SetStateAction, useMemo } from 'react';
+import SelectionArea, { SelectionEvent } from '@viselect/react';
+import { Box, Vial } from "./App"
 
 
 export default function TheBox(props: {selected_wells: Set<string>, setSelectedWells: Dispatch<SetStateAction<Set<string>>>, box: Box, height: number, width: number}) {

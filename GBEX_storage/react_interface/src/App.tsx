@@ -4,7 +4,8 @@ import TheBox from './TheBox'
 import TheEditor from './TheEditor'
 import useDimensions from "react-cool-dimensions"
 import TreeNode from "primereact/treenode";
-import {getCookie} from "./index";
+import { getCookie, climb_tree, doApiCall, deepEqual } from "./helpers";
+
 
 export interface Vial {
     id: number;
@@ -12,7 +13,6 @@ export interface Vial {
     description: string;
     box_row: number;
     box_column: number;
-    [propName: string]: string|number;
 }
 
 export interface Box {
@@ -27,20 +27,6 @@ export interface vial_model {
     'field': string
 }
 
-
-export function climb_tree(qq: TreeNode[], key: string) : TreeNode|undefined {
-    for (const e of qq) {
-        if (e.key === key) {
-            return e
-        } else if (e.hasOwnProperty("children") && e.children !== undefined) {
-            const deep: TreeNode|undefined = climb_tree(e.children, key)
-            if (deep) {
-                return deep
-            }
-        }
-    }
-}
-
 export default function App() {
     const { observe, width, height } = useDimensions()
     const [box, setBox] = useState<Box>()
@@ -51,23 +37,26 @@ export default function App() {
 
     // Primary data get. All other data should be directly derived from this to ensure components update correctly
     useEffect(() => {
-        console.log("refreshing locsNboxs")
-        fetch("http://127.0.0.1:8000/storage/locsNboxs", {credentials: 'include'})
-            .then(res => res.json())
+        doApiCall("http://127.0.0.1:8000/storage/locsNboxs", "", "get", {})
             .then(json => {
-                setNodes(json.tree)
-                setLinkModels(json.vial_models)
+                if (!deepEqual(nodes, json.tree)) {
+                    console.log("new nodes!")
+                    setNodes(json.tree)
+                }
+                if (!deepEqual(link_models, json.vial_models)) {
+                    console.log("new link models!")
+                    setLinkModels(json.vial_models)
+                }
+                setTimeout(() => setStale(!stale), 5000)
             })
-            .catch(error => console.log(error))
-        setTimeout(() => setStale(!stale), 5000)
-    }, [stale]);
+    }, [stale, nodes, link_models]);
 
     // if nodes have changed, just update the box as well
     useEffect(() => {
         if (box !== undefined) {
             setBox(climb_tree(nodes, box.id)?.data)
         }
-    }, [nodes])
+    }, [nodes, box])
 
     const setBoxFromId = (box_id: string) => {
         if (box===undefined || box_id !== box.id) {
@@ -76,59 +65,23 @@ export default function App() {
         }
     }
 
-    const doApiCall = (id: string|number, kind: string, method: "get"|"post"|"patch"|"delete", body: object) : Promise<object> => {
-        /* doApiCall
-            id: id of target object, if there is no target, then just pass an empty string
-            kind: one of Location, Box or Vial
-            method: HTML get, post, patch or delete
-            body: patch and post requires a body
-         */
-        const requestHeaders: HeadersInit = new Headers();
-        const csrftoken = "DEVELOPMENT" //getCookie('csrftoken')
-        const str_id = String(id)
-
-        if (typeof csrftoken === 'string') {
-            requestHeaders.set('X-CSRFToken', csrftoken)
-            requestHeaders.set('Content-Type', 'application/json')
-
-            let url = "http://127.0.0.1:8000/api/" + kind + "/"
-            if (['patch', 'delete'].includes(method) || (method==="get" && str_id !== "")) {
-                url += id + "/"
-            }
-
-            return fetch(url, {
-                mode: 'cors',
-                method: method,
-                body: Object.keys(body).length === 0 ? null: JSON.stringify(body),
-                headers: requestHeaders
-            }).then(res => {
-                if (method !== 'delete') { // no return on delete
-                    return res.json()
-                }
-            }).then(json => {
-                if (method !== 'get') {
-                    setStale(c => !c)
-                }
-                if (method !== 'delete') { // no return on delete
-                    return json
-                }
-            }).catch(error => console.log(error))
-        }
-        return new Promise(() => {})
-    }
-
     return (
         <div id="storage_root">
             <div id="storage_top">header</div>
             <div id="storage_bottom">
                 <div id="storage_left">
-                    <TheTree nodes={nodes} setNodes={setNodes} setBox={setBoxFromId} apiCall={doApiCall} />
+                    <TheTree nodes={nodes} setBox={setBoxFromId} setStale={setStale}/>
                 </div>
                 <div id="storage_middle" ref={observe}>
-                    {box===undefined ? null:<TheBox selected_wells={selected_wells} setSelectedWells={setSelectedWells} box={box} height={height} width={width}/>}
+                    {box===undefined ?
+                        null :
+                        <TheBox selected_wells={selected_wells} setSelectedWells={setSelectedWells} box={box} height={height} width={width}/>}
                 </div>
                 <div id="storage_right">
-                    {(selected_wells.size===0 || box===undefined) ? <ul><li>No vial selected</li></ul>: <TheEditor selected_wells={selected_wells} box={box} apiCall={doApiCall} link_models={link_models}/>}
+                    {(selected_wells.size===0 || box===undefined) ?
+                        <ul><li>No vial selected</li></ul> :
+                        <TheEditor selected_wells={selected_wells} box={box} link_models={link_models}/>
+                    }
                 </div>
             </div>
         </div>
