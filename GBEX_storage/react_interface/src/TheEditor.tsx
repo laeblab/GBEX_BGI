@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, {Dispatch, SetStateAction, useEffect, useMemo, useState} from 'react'
 import { Button } from "primereact/button";
 import { confirmDialog } from "primereact/confirmdialog";
 import { Dropdown } from 'primereact/dropdown';
@@ -6,15 +6,15 @@ import { AutoComplete, AutoCompleteCompleteMethodParams } from 'primereact/autoc
 import { InputText } from 'primereact/inputtext';
 import { Card } from "primereact/card";
 import { Box, Vial, vial_model } from './App'
-import { doApiCall, deepEqual } from "./helpers";
+import { doApiCall, deepEqual, isValidHttpUrl } from "./helpers";
 
 
 function object2ul(obj: object, no_no_words: string[]) {
-	return Object.entries(obj).map((([i,s]) => {
+	return Object.entries(obj).map((([i,s], n) => {
 		if (no_no_words.includes(i)) {
 			return null
 		} else if (typeof s === 'object' && s !== null) {
-			return <li key={i}>{i}:<ul>{object2ul(s, no_no_words)}</ul></li>
+			return <li key={i+n}>{i}:<ul>{object2ul(s, no_no_words)}</ul></li>
 		} else { return <li key={i}>{i}:{s}</li>}
 	}))
 }
@@ -25,8 +25,8 @@ interface ModelInstance  {
 }
 
 
-export default function MyEditor(props: {selected_wells: Set<string>, box: Box, link_models: vial_model[]}) {
-	const {selected_wells, box, link_models} = props
+export default function MyEditor(props: {selected_wells: Set<string>, box: Box, link_models: vial_model[], setStale: Dispatch<SetStateAction<boolean>>}) {
+	const {selected_wells, box, link_models, setStale} = props
 	const [vial_content, setVialContent] = useState<Vial>()
 	const [vial_links, setVialLinks] = useState<{[key:string]:any}[]>([])
 	const [mode, setMode] = useState<"view"|"edit">("view")
@@ -54,13 +54,30 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 			setVialContent(undefined)
 	}}, [vial_ids, vial_content])
 
+	// obtain deep linked vial info
 	useEffect(() => {
 		if (vial_content !== undefined) {
 			// OK NEW PLAN. SO WE ITERATE THE link_models, and doApiCall, and update the setVialLinks on the "then" function
 			for (const model of link_models) {
-				// @ts-ignore
+				// @ts-ignore because I can't figure out how to typescript an object with fixed AND dynamic keys
 				for (const url of vial_content[model.field]) {
-					doApiCall(url, "", "get", {}).then(api_return => setVialLinks(c => [...c, api_return]))
+					doApiCall(url, "", "get", {}).then(api_return => {
+						const urled_entries = Object.entries(api_return).filter(([key, value]) => isValidHttpUrl(value))
+						Promise.all(urled_entries.map(([key, url]) => doApiCall(url, "", "get", {}))).then(res => {
+							if (api_return.hasOwnProperty("Parent") && isValidHttpUrl(api_return.Parent)) {
+								// If there is a parent, we want to show it in its entirety, but with urls replaced with "name"
+								// find the Parent position in the returned array
+								const parent_index = urled_entries.findIndex(([key, url]) => key === "Parent")
+								const urled_parent_entries = Object.entries(res[parent_index]).filter(([key, value]) => isValidHttpUrl(value))
+								Promise.all(urled_parent_entries.map(([key, url]) => doApiCall(url, "", "get", {}))).then(parent_res => {
+									const parent_object = {...res[parent_index], ...Object.fromEntries(parent_res.map((e, i) => [urled_parent_entries[i][0],e.name]))}
+									setVialLinks([{...api_return, ...Object.fromEntries(res.map((e, i) => {return [urled_entries[i][0],e.name]})), Parent: parent_object}])
+								})
+							} else {
+								setVialLinks([{...api_return, ...Object.fromEntries(res.map((e, i) => [urled_entries[i][0],e.name]))}])
+							}
+						})
+					})
 				}
 			}
 		}
@@ -78,7 +95,7 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 			header: 'Delete vials?',
 			icon: 'pi pi-exclamation-triangle',
 			position: 'left',
-			accept: () => { vial_ids.map(e => doApiCall(String(e.id), "Vial", "delete", {}).then(e => console.log("import setstale")))},
+			accept: () => { vial_ids.map(e => doApiCall(String(e.id), "Vial", "delete", {}).then(e => setStale(c => !c)))},
 		});
 	}
 
@@ -125,12 +142,19 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 				</ul>
 			</ul>
 		}
-		return <ul>
-			<li>Selected {selected_wells.size} position{plural}.</li>
+		return <><ul><li>Selected {selected_wells.size} position{plural}.</li></ul>
 			{vial_html ? <li>{vial_html}</li>: <li>To see vial content, select only 1 vial.</li>}
-			<Button onClick={() => setMode("edit")}>Set content of vial{plural}</Button>
+			<Button onClick={() => {
+				if (vial_content !== undefined) {
+					setLabelText(vial_content.label)
+					setDescriptionText(vial_content.description)
+					console.log("figure out linked model and set that")
+					console.log("and model instance")
+				}
+				setMode("edit")
+			}}>Set content of vial{plural}</Button>
 			<Button onClick={delete_vials}>Delete selected vial{plural}</Button>
-		</ul>
+		</>
 	} else if (mode === 'edit') {
 		return <Card>
 			<div className="field">

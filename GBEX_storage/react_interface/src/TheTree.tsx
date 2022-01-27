@@ -89,7 +89,6 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 	}
 
 	const doParentChange = (e: TreeDragDropParams) => {
-		console.log("do parent change")
 		let [kind, id] = String(e.dragNode.key).split('_')  // tree keys are "Box_id" or "Loc_id"
 		const actual_kind = kind === 'box' ? "Box" : "Location"
 		if (e.dropNode || kind === 'loc') { // check if we have a parent and if we DONT then only allow locations to be dropped there

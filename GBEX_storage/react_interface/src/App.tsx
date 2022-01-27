@@ -40,11 +40,9 @@ export default function App() {
         doApiCall("http://127.0.0.1:8000/storage/locsNboxs", "", "get", {})
             .then(json => {
                 if (!deepEqual(nodes, json.tree)) {
-                    console.log("new nodes!")
                     setNodes(json.tree)
                 }
                 if (!deepEqual(link_models, json.vial_models)) {
-                    console.log("new link models!")
                     setLinkModels(json.vial_models)
                 }
                 setTimeout(() => setStale(!stale), 5000)
@@ -80,7 +78,7 @@ export default function App() {
                 <div id="storage_right">
                     {(selected_wells.size===0 || box===undefined) ?
                         <ul><li>No vial selected</li></ul> :
-                        <TheEditor selected_wells={selected_wells} box={box} link_models={link_models}/>
+                        <TheEditor selected_wells={selected_wells} box={box} link_models={link_models} setStale={setStale}/>
                     }
                 </div>
             </div>
