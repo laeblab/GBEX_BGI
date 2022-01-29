@@ -40,7 +40,7 @@ class Plasmid(InventoryItem):
 	symbol = "PL"
 	col_display_func_dict = {
 		'Batches': lambda item: f"<a href='{reverse('list_PlasmidBatch', kwargs=dict(parent_pk=item.pk))}'>{item.plasmidbatch_set.filter(archived=False).count()} batches</a>",
-		'Genbank_file': lambda item: f"<a href='/downloads/{item.Genbank_file}'>{str(item.Genbank_file).split('/')[-1]}</a>",
+		'Genbank_file': lambda item: f"<a href='/downloads/{item.Genbank_file}'>{str(item.Genbank_file).split('/')[-1]}</a>" if item.Genbank_file else "",
 		'Antibiotic': lambda item: ", ".join(ab.name for ab in item.Antibiotic.all()) if item.Antibiotic.all() else "",
 	}
 
@@ -66,7 +66,7 @@ class PlasmidBatch(AbstractBatch):
 	col_html_string = ['Location']
 	col_display_func_dict = {
 		'Location': lambda item: ", ".join(
-			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_columns)}" for ab in
+			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_column)}" for ab in
 			item.Location.all()) if item.Location.all() else "",
 	}
 
@@ -83,7 +83,7 @@ class Primers(InventoryItem):
 	col_html_string = ['Location']
 	col_display_func_dict = {
 		'Location': lambda item: ", ".join(
-			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_columns)}" for ab in
+			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_column)}" for ab in
 			item.Location.all()) if item.Location.all() else "",
 	}
 
@@ -143,7 +143,7 @@ class StrainBatch(AbstractBatch):
 	col_html_string = ['Location']
 	col_display_func_dict = {
 		'Location': lambda item: ", ".join(
-			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_columns)}" for ab in
+			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_column)}" for ab in
 			item.Location.all()) if item.Location.all() else "",
 	}
 	col_read_only = [*default_readonly, 'Parent', 'Location']
@@ -194,7 +194,7 @@ class CellLineBatch(AbstractBatch):
 		"Mycoplasma": DateInput(attrs={'data-isdate': "yes"})
 	}
 	col_display_func_dict = {
-		'Location': lambda item: ", ".join(f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_columns)}" for ab in item.Location.all()) if item.Location.all() else "",
+		'Location': lambda item: ", ".join(f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_column)}" for ab in item.Location.all()) if item.Location.all() else "",
 	}
 
 
@@ -229,7 +229,7 @@ class CultureMediaBatch(AbstractBatch):
 	col_read_only = [*default_readonly, 'Parent', 'Location']
 	col_html_string = ['Location']
 	col_display_func_dict = {
-		'Location': lambda item: ", ".join(f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_columns)}" for ab in item.Location.all()) if item.Location.all() else "",
+		'Location': lambda item: ", ".join(f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_column)}" for ab in item.Location.all()) if item.Location.all() else "",
 	}
 
 
@@ -254,7 +254,7 @@ class gRNA(InventoryItem):
 	col_html_string = ['Location']
 	col_display_func_dict = {
 		'Location': lambda item: ", ".join(
-			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_columns)}" for ab in
+			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_column)}" for ab in
 			item.Location.all()) if item.Location.all() else "",
 	}
 	widgets = {
@@ -342,6 +342,6 @@ class AntiGenBodyBatch(AbstractBatch):
 	col_html_string = ['Location']
 	col_display_func_dict = {
 		'Location': lambda item: ", ".join(
-			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_columns)}" for ab in
+			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_column)}" for ab in
 			item.Location.all()) if item.Location.all() else "",
 	}

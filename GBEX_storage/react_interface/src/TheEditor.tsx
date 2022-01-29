@@ -6,15 +6,13 @@ import { AutoComplete, AutoCompleteCompleteMethodParams } from 'primereact/autoc
 import { InputText } from 'primereact/inputtext';
 import { Card } from "primereact/card";
 import { Box, Vial, vial_model } from './App'
-import { doApiCall, deepEqual, isValidHttpUrl } from "./helpers";
+import { doApiCall, deepEqual } from "./helpers";
 
 
-function object2ul(obj: object, no_no_words: string[]) {
+function object2ul(obj: object) {
 	return Object.entries(obj).map((([i,s], n) => {
-		if (no_no_words.includes(i)) {
-			return null
-		} else if (typeof s === 'object' && s !== null) {
-			return <li key={i+n}>{i}:<ul>{object2ul(s, no_no_words)}</ul></li>
+		if (typeof s === 'object' && s !== null) {
+			return <li key={i+n}>{i}:<ul>{object2ul(s)}</ul></li>
 		} else { return <li key={i}>{i}:{s}</li>}
 	}))
 }
@@ -28,7 +26,6 @@ interface ModelInstance  {
 export default function MyEditor(props: {selected_wells: Set<string>, box: Box, link_models: vial_model[], setStale: Dispatch<SetStateAction<boolean>>}) {
 	const {selected_wells, box, link_models, setStale} = props
 	const [vial_content, setVialContent] = useState<Vial>()
-	const [vial_links, setVialLinks] = useState<{[key:string]:any}[]>([])
 	const [mode, setMode] = useState<"view"|"edit">("view")
 
 	// edit mode states
@@ -44,7 +41,7 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 	useEffect(() => {
 		if (vial_ids.length === 1) {
 			const show_id = vial_ids[0].id
-			doApiCall(show_id, "Vial", "get", {})
+			doApiCall("http://127.0.0.1:8000/storage/displayVial/"+show_id, "", "get", {})
 				.then(json => {
 					if (vial_content === undefined || !deepEqual(json, vial_content)) {
 						setVialContent(json as Vial)
@@ -53,35 +50,6 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 		} else {
 			setVialContent(undefined)
 	}}, [vial_ids, vial_content])
-
-	// obtain deep linked vial info
-	useEffect(() => {
-		if (vial_content !== undefined) {
-			// OK NEW PLAN. SO WE ITERATE THE link_models, and doApiCall, and update the setVialLinks on the "then" function
-			for (const model of link_models) {
-				// @ts-ignore because I can't figure out how to typescript an object with fixed AND dynamic keys
-				for (const url of vial_content[model.field]) {
-					doApiCall(url, "", "get", {}).then(api_return => {
-						const urled_entries = Object.entries(api_return).filter(([key, value]) => isValidHttpUrl(value))
-						Promise.all(urled_entries.map(([key, url]) => doApiCall(url, "", "get", {}))).then(res => {
-							if (api_return.hasOwnProperty("Parent") && isValidHttpUrl(api_return.Parent)) {
-								// If there is a parent, we want to show it in its entirety, but with urls replaced with "name"
-								// find the Parent position in the returned array
-								const parent_index = urled_entries.findIndex(([key, url]) => key === "Parent")
-								const urled_parent_entries = Object.entries(res[parent_index]).filter(([key, value]) => isValidHttpUrl(value))
-								Promise.all(urled_parent_entries.map(([key, url]) => doApiCall(url, "", "get", {}))).then(parent_res => {
-									const parent_object = {...res[parent_index], ...Object.fromEntries(parent_res.map((e, i) => [urled_parent_entries[i][0],e.name]))}
-									setVialLinks([{...api_return, ...Object.fromEntries(res.map((e, i) => {return [urled_entries[i][0],e.name]})), Parent: parent_object}])
-								})
-							} else {
-								setVialLinks([{...api_return, ...Object.fromEntries(res.map((e, i) => [urled_entries[i][0],e.name]))}])
-							}
-						})
-					})
-				}
-			}
-		}
-	}, [vial_content, link_models])
 
 	useEffect(() => {
 		if (editModel !== undefined) {
@@ -130,17 +98,9 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 
 	if (mode === 'view') {
 		let vial_html = null
-		const nono_names = ["id", "url","created","edited","archived","Location"]
 
 		if (vial_content !== undefined) {
-			vial_html = <ul>
-				<li>Label:{vial_content.label}</li>
-				<li>description:{vial_content.description}</li>
-				<li>Vial content:</li>
-				<ul>
-					{ vial_links.map(vl => object2ul(vl, nono_names))}
-				</ul>
-			</ul>
+			vial_html = <ul>{object2ul(vial_content)}</ul>
 		}
 		return <><ul><li>Selected {selected_wells.size} position{plural}.</li></ul>
 			{vial_html ? <li>{vial_html}</li>: <li>To see vial content, select only 1 vial.</li>}

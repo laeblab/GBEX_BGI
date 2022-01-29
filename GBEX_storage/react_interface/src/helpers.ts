@@ -56,9 +56,10 @@ function isPrimitive(obj: any)
     return (obj !== Object(obj));
 }
 
-export function isValidHttpUrl(string: string) {
+export function isValidHttpUrl(maybe_url: string) {
+    if (typeof maybe_url !== "string") return false
     let url;
-    try { url = new URL(string); } catch (_) { return false; }
+    try { url = new URL(maybe_url); } catch (_) { return false; }
     return url.protocol === "http:" || url.protocol === "https:";
 }
 
