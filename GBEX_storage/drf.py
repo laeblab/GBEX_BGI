@@ -37,6 +37,9 @@ class VialSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = Vial
 		fields = ['url', 'label', 'description', 'parent', 'box_row', 'box_column'] + [x.get_accessor_name() for x in Vial._meta.get_fields() if x.many_to_many]
+		extra_kwargs = {
+			x.get_accessor_name(): {'required': False} for x in Vial._meta.get_fields() if x.many_to_many
+		}
 
 
 class LocationViewSet(viewsets.ModelViewSet):

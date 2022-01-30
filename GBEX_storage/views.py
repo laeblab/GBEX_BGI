@@ -26,7 +26,7 @@ def get_vial_and_maybe_parent(request, id):
 	content_list = {x.get_accessor_name(): getattr(vial_obj, x.get_accessor_name()).all() for x in vial_obj._meta.get_fields() if x.many_to_many}
 	# 3
 	content_object = {}
-	nono_names = ["name", "id", "url", "created", "edited", "archived", "Location"]  # dont want to display these
+	nono_names = ["name", "id", "created", "edited", "archived", "Location"]  # don't want to display these
 	for content_type, content_set in content_list.items():
 		if content_set:
 			for content_item in content_set:

@@ -5,7 +5,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { AutoComplete, AutoCompleteCompleteMethodParams } from 'primereact/autocomplete';
 import { InputText } from 'primereact/inputtext';
 import { Card } from "primereact/card";
-import { Box, Vial, vial_model } from './App'
+import { Box, vial_model } from './App'
 import { doApiCall, deepEqual } from "./helpers";
 
 
@@ -23,14 +23,16 @@ function object2ul(obj: object) {
 
 
 interface ModelInstance  {
-	id: number,
+	url: number,
 	name: string
 }
+
+interface VialDisplay {'Vial label': string, 'Vial description': string, 'Vial content': object}
 
 
 export default function MyEditor(props: {selected_wells: Set<string>, box: Box, link_models: vial_model[], setStale: Dispatch<SetStateAction<boolean>>}) {
 	const {selected_wells, box, link_models, setStale} = props
-	const [vial_content, setVialContent] = useState<Vial>()
+	const [vial_content, setVialContent] = useState<VialDisplay>()
 	const [mode, setMode] = useState<"view"|"edit">("view")
 
 	// edit mode states
@@ -49,7 +51,7 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 			doApiCall("http://127.0.0.1:8000/storage/displayVial/"+show_id, "", "get", {})
 				.then(json => {
 					if (vial_content === undefined || !deepEqual(json, vial_content)) {
-						setVialContent(json as Vial)
+						setVialContent(json as VialDisplay)
 					}
 				})
 		} else {
@@ -58,9 +60,15 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 
 	useEffect(() => {
 		if (editModel !== undefined) {
-			doApiCall("", editModel, "get", {}).then(r => setEditModelInstances(r as ModelInstance[]))
+			doApiCall("", editModel, "get", {}).then(r => {
+				setEditModelInstances(r as ModelInstance[])
+				if (vial_content !== undefined) {
+					const model_instance = Object.keys(vial_content['Vial content'])[0].split(" - ")[1]
+					setEditModelInstance(r.filter((v:ModelInstance) => v.name === model_instance)[0])
+				}
+			})
 		}
-	}, [editModel])
+	}, [editModel, vial_content])
 
 	const delete_vials = () => {
 		confirmDialog({
@@ -80,15 +88,19 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 			position: 'left',
 			accept: () => {
 				// delete the existing vials
-				vial_ids.map(e => doApiCall(String(e.id), "Vial", "delete", {}))
-				// create new vials for all positions
-				Array.from(selected_wells).map(e => doApiCall("", "Vial", "post", {
-					parent: box.id,
-					box_row: e.split("+")[0],
-					box_column: e.split("+")[1],
-					description: descriptionText,
-					content_object: null // link object to vials
-				}))
+				Promise.all(vial_ids.map(e => doApiCall(String(e.id), "Vial", "delete", {}))).then(e => {
+					// create new vials for all positions
+					console.log("then", e)
+					const content_field = link_models.filter(v => v.model === editModel)[0].field
+					Promise.all(Array.from(selected_wells).map(e => doApiCall("", "Vial", "post", {
+						label: labelText,
+						description: descriptionText,
+						parent: "http://127.0.0.1:8000/api/Box/" + box.id.split("_").at(-1) + "/",
+						box_row: e.split("+")[0],
+						box_column: e.split("+")[1],
+						[content_field]: [editModelInstance ? editModelInstance.url : null]
+					}))).then(e => setStale(c => !c))
+				})
 			},
 		})
 	}
@@ -101,23 +113,27 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 		}
 	}
 
+	const setEditMode = () => {
+		if (vial_content !== undefined) {
+			setLabelText(vial_content['Vial label'])
+			setDescriptionText(vial_content['Vial description'])
+			const model_kind = Object.keys(vial_content['Vial content'])[0].split(" - ")[0]
+			setEditModel(model_kind)
+		}
+		setMode("edit")
+	}
+
 	if (mode === 'view') {
 		let vial_html = null
-
 		if (vial_content !== undefined) {
-			vial_html = <ul>{object2ul(vial_content)}</ul>
+			vial_html = object2ul(vial_content)
 		}
-		return <><ul><li>Selected {selected_wells.size} position{plural}.</li></ul>
-			{vial_html ? <li>{vial_html}</li>: <li>To see vial content, select only 1 vial.</li>}
-			<Button onClick={() => {
-				if (vial_content !== undefined) {
-					setLabelText(vial_content.label)
-					setDescriptionText(vial_content.description)
-					console.log("figure out linked model and set that")
-					console.log("and model instance")
-				}
-				setMode("edit")
-			}}>Set content of vial{plural}</Button>
+		return <>
+			<ul>
+				<li>Selected {selected_wells.size} position{plural}.</li>
+				{vial_html ? <>{vial_html}</>: <li>To see vial content, select only 1 vial with content.</li>}
+			</ul>
+			<Button onClick={setEditMode}>Set content of vial{plural}</Button>
 			<Button onClick={delete_vials}>Delete selected vial{plural}</Button>
 		</>
 	} else if (mode === 'edit') {
