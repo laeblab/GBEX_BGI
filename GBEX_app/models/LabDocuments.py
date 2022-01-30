@@ -17,7 +17,7 @@ class SOPTag(BaseOption):
 class SOP(GBEXModelBase):
 	Summary = models.TextField(blank=True, null=True)
 	Tags = models.ManyToManyField(SOPTag, blank=True)
-	SOP_file = ResumableFileField(blank=True, null=True, upload_to=get_upload_path, max_length=500)
+	SOP_file = ResumableFileField(upload_to=get_upload_path, max_length=500)
 
 	menu_label = menu_label
 	order = [*default_order, 'Summary', 'Tags', 'SOP_file']

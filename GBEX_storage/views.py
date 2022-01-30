@@ -26,33 +26,33 @@ def get_vial_and_maybe_parent(request, id):
 	content_list = {x.get_accessor_name(): getattr(vial_obj, x.get_accessor_name()).all() for x in vial_obj._meta.get_fields() if x.many_to_many}
 	# 3
 	content_object = {}
-	nono_names = ["id", "url", "created", "edited", "archived", "Location"]  # dont want to display these
+	nono_names = ["name", "id", "url", "created", "edited", "archived", "Location"]  # dont want to display these
 	for content_type, content_set in content_list.items():
 		if content_set:
-			content_object[content_type] = []
 			for content_item in content_set:
 				# 3
 				con = {}
+				parent_con = {}
 				for field in content_item._meta.get_fields():
 					if not hasattr(field, "get_accessor_name"):
 						if field.name not in nono_names:
 							if field.name == "Parent":
-								parent_con = {}
 								for parent_field in content_item.Parent._meta.get_fields():
-									if not hasattr(parent_field, "get_accessor_name"):
+									if not hasattr(parent_field, "get_accessor_name"):  # This will (should) remove reverse access fields. I.e. when another models links to THIS model. I don't want to show those. That would e.g. be the batch model for a parent model
 										if parent_field.name not in nono_names:
 											value = field_to_string(content_item.Parent, parent_field.name)
 											if value:
 												parent_con[parent_field.name] = value
-								con[field.name] = parent_con
 							else:
 								value = field_to_string(content_item, field.name)
 								if value:
 									con[field.name] = value
-				content_object[content_type].append(con)
+				if parent_con:  # add Parent last, so that it gets listed last on the front-end. I believe this order isnt technically guaranteed without ordereddict but currently it works =)
+					con[f"{content_item.Parent._meta.model.__name__} - {content_item.Parent.name}"] = parent_con
+				content_object[f"{content_item._meta.model.__name__} - {content_item.name}"] = con
 
 	return JsonResponse({
-		"label": vial_obj.label,
-		"description": vial_obj.description,
-		"content": content_object
+		"Vial label": vial_obj.label,
+		"Vial description": vial_obj.description,
+		"Vial content": content_object
 	})

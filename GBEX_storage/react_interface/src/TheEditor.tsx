@@ -1,4 +1,4 @@
-import React, {Dispatch, SetStateAction, useEffect, useMemo, useState} from 'react'
+import React, {Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { Button } from "primereact/button";
 import { confirmDialog } from "primereact/confirmdialog";
 import { Dropdown } from 'primereact/dropdown';
@@ -13,9 +13,14 @@ function object2ul(obj: object) {
 	return Object.entries(obj).map((([i,s], n) => {
 		if (typeof s === 'object' && s !== null) {
 			return <li key={i+n}>{i}:<ul>{object2ul(s)}</ul></li>
-		} else { return <li key={i}>{i}:{s}</li>}
+		} else {
+			if (/<\/?[a-z][\s\S]*>/i.test(s)) { // check if s looks like html
+				return <li key={i}>{i}: <div style={{display: "inline"}} dangerouslySetInnerHTML={{ __html: s }} /></li>
+			} else { return <li key={i}>{i}: {s}</li> }
+		}
 	}))
 }
+
 
 interface ModelInstance  {
 	id: number,
