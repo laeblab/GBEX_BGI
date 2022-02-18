@@ -90,7 +90,6 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 				// delete the existing vials
 				Promise.all(vial_ids.map(e => doApiCall(String(e.id), "Vial", "delete", {}))).then(e => {
 					// create new vials for all positions
-					console.log("then", e)
 					const content_field = link_models.filter(v => v.model === editModel)[0].field
 					Promise.all(Array.from(selected_wells).map(e => doApiCall("", "Vial", "post", {
 						label: labelText,
@@ -99,7 +98,10 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 						box_row: e.split("+")[0],
 						box_column: e.split("+")[1],
 						[content_field]: [editModelInstance ? editModelInstance.url : null]
-					}))).then(e => setStale(c => !c))
+					}))).then(e => {
+						setMode("view")
+						setStale(c => !c)
+					})
 				})
 			},
 		})

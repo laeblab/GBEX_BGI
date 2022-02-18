@@ -17,8 +17,11 @@ Add a many2many field to Vial on the objects you want to be able to store
 
 
 # Todo
-  - Vial <-> gbex link
-  - Tillad også at Vials uden link som bare er "description" 
+ - vial edit tjekker ikke om felter er required...
+ - Tillad også at Vials uden link som bare er "description"
+ - fjern header
+ - lav det pænt
+ - Vial <-> gbex link
 * GBEX_app interaktion
   * I list view, via Location column/field, skal man kunne tilgå GBEX_storage. Evt. links til storage der åbner box og selecter well
   * En måde at finde ledige positions?
