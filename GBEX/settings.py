@@ -72,8 +72,6 @@ INSTALLED_APPS = [
 	'rest_framework.authtoken',
 	'drf_yasg2',
 	'django_filters',
-	'generic_relations',
-
 	'GBEX_app.apps.GbexAppConfig',
 	'GBEX_bigfiles.apps.GbexBigfilesConfig',
 	'GBEX_storage.apps.GbexStorageConfig',

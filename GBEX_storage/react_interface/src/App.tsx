@@ -5,7 +5,8 @@ import TheEditor from './TheEditor'
 import useDimensions from "react-cool-dimensions"
 import TreeNode from "primereact/treenode";
 import { getCookie, climb_tree, doApiCall, deepEqual } from "./helpers";
-
+import { Splitter, SplitterPanel } from 'primereact/splitter';
+import { Card } from 'primereact/card'
 
 export interface Vial {
     id: number;
@@ -64,24 +65,23 @@ export default function App() {
     }
 
     return (
-        <div id="storage_root">
-            <div id="storage_top">header</div>
-            <div id="storage_bottom">
-                <div id="storage_left">
-                    <TheTree nodes={nodes} setBox={setBoxFromId} setStale={setStale}/>
-                </div>
-                <div id="storage_middle" ref={observe}>
-                    {box===undefined ?
-                        null :
-                        <TheBox selected_wells={selected_wells} setSelectedWells={setSelectedWells} box={box} height={height} width={width}/>}
-                </div>
-                <div id="storage_right">
-                    {(selected_wells.size===0 || box===undefined) ?
-                        <ul><li>No vial selected</li></ul> :
-                        <TheEditor selected_wells={selected_wells} box={box} link_models={link_models} setStale={setStale}/>
-                    }
-                </div>
-            </div>
-        </div>
+        <Splitter id="storage_root" gutterSize={10}>
+            <SplitterPanel>
+                <TheTree nodes={nodes} setBox={setBoxFromId} setStale={setStale}/>
+            </SplitterPanel>
+            <SplitterPanel style={{overflowX: "hidden", overflowY: "auto"}}>
+                {box===undefined ? <Card style={{margin:"25%", textAlign: "center"}}>No box selected</Card> :
+                    <div id="box_observer_root" ref={observe}>
+                        <TheBox selected_wells={selected_wells} setSelectedWells={setSelectedWells} box={box} height={height} width={width}/>
+                    </div>
+                }
+            </SplitterPanel>
+            <SplitterPanel>
+                {(selected_wells.size===0 || box===undefined) ?
+                    <Card style={{margin:"25%", textAlign: "center"}}>No vial selected</Card> :
+                    <TheEditor selected_wells={selected_wells} box={box} link_models={link_models} setStale={setStale}/>
+                }
+            </SplitterPanel>
+        </Splitter>
     )
 }

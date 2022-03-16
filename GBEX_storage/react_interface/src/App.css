@@ -2,51 +2,12 @@ html {
     height: 100%;
 }
 body {
-    min-height: 100%;
+    /*min-height: 100%;*/
+    height: 97%;
+}
+
+#root, #storage_root, #box_observer_root{
     height: 100%;
-    display: flex;
-    flex-flow: column;
-}
-
-#root {
-    height: 100%;
-}
-
-#storage_root {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-
-#storage_top {
-    height: 100px;
-    background-color: red;
-}
-
-#storage_bottom {
-    display: flex;
-    flex-grow: 1;
-    max-height: 100%;
-}
-
-#storage_left {
-    width: 25%;
-    background-color: green;
-    overflow: auto;
-    resize: horizontal;
-}
-
-#storage_middle {
-    width: 50%;
-    background-color: blue;
-    overflow: auto;
-    resize: horizontal;
-}
-
-#storage_right {
-    flex-grow: 1;
-    background-color: salmon;
-    overflow: auto;
 }
 
 /* Used by Simonwep/selection */

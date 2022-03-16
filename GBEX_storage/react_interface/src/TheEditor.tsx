@@ -82,7 +82,7 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 
 	const assign_vials = () => {
 		confirmDialog({
-			message: <span>You are about to assign {editModel}-{">"}{editModelInstance?.name} to {selected_wells.size} position{plural}{vial_ids.length !== 0 ? ", " + vial_ids.length + " of which "+ (vial_ids.length === 1 ? "has":"have") +" EXISTING content and will be DELETED!":null}.<br />Are you sure you want to proceed?</span>,
+			message: <span>You are about to assign {editModel}-{">"}{editModelInstance?.name} to {selected_wells.size} position{plural}{vial_ids.length !== 0 ? ", " + vial_ids.length + " of which "+ (vial_ids.length === 1 ? "has":"have") +" EXISTING content which will be DELETED!":null}.<br />Are you sure you want to proceed?</span>,
 			header: 'Assign vials?',
 			icon: 'pi pi-exclamation-triangle',
 			position: 'left',

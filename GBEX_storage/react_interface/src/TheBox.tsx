@@ -63,5 +63,5 @@ export default function TheBox(props: {selected_wells: Set<string>, setSelectedW
 							}
 						</div>)
 				})}
-			</SelectionArea>
+	</SelectionArea>
 }

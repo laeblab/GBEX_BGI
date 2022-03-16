@@ -1,5 +1,5 @@
 # basic django and backend
-django>=4.0.1,<5.0.0
+django>=4.0.3,<5.0.0
 django-decorator-include>=3.0,<4.0.0
 pymemcache>=3.5.0,<4.0.0
 psycopg2-binary>=2.9.3,<3.0.0
@@ -12,14 +12,12 @@ openpyxl>=3.0.9,<4.0.0
 uwsgi>=2.0.20,<3.0.0
 
 # django reversions
-django-reversion>=4.0.1,<5.0.0
-# drc needs to push new release to pip with my already merged pull-request to be django 4.0.0 compatible
-#django-reversion-compare>=0.14.1,<2.0.0
-git+https://github.com/jedie/django-reversion-compare
+django-reversion>=5.0.0,<6.0.0
+django-reversion-compare>=0.15.0,<2.0.0
 
 # frontend
 # waiting for dal to be updated to 4.0.0 for django 4.0.0 compatability
-django-autocomplete-light>=3.9.0rc5
+django-autocomplete-light>=3.9.4,<5.0.0
 django-widgets-improved>=1.5.0,<2.0.0
 
 # API access
