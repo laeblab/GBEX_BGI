@@ -90,7 +90,8 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 				// delete the existing vials
 				Promise.all(vial_ids.map(e => doApiCall(String(e.id), "Vial", "delete", {}))).then(e => {
 					// create new vials for all positions
-					const content_field = link_models.filter(v => v.model === editModel)[0].field
+					// step 1: determine if a model is being linked or if this is a custom vial
+					const content_field = link_models.filter(v => v.model === editModel)[0]?.field
 					Promise.all(Array.from(selected_wells).map(e => doApiCall("", "Vial", "post", {
 						label: labelText,
 						description: descriptionText,
@@ -119,7 +120,7 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 		if (vial_content !== undefined) {
 			setLabelText(vial_content['Vial label'])
 			setDescriptionText(vial_content['Vial description'])
-			const model_kind = Object.keys(vial_content['Vial content'])[0].split(" - ")[0]
+			const model_kind = Object.keys(vial_content['Vial content'])[0]?.split(" - ")[0]
 			setEditModel(model_kind)
 		}
 		setMode("edit")
