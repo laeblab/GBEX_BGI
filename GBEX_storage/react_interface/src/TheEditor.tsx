@@ -7,6 +7,9 @@ import { InputText } from 'primereact/inputtext';
 import { Card } from "primereact/card";
 import { Box, vial_model } from './App'
 import { doApiCall, deepEqual } from "./helpers";
+import { useForm, Controller } from 'react-hook-form';
+import { classNames } from 'primereact/utils';
+
 
 
 function object2ul(obj: object) {
@@ -44,6 +47,24 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 	const [filteredModelInstances, setFilteredModelInstances] = useState<ModelInstance[]>()
 	const plural = selected_wells.size !== 1 ? "s": ""
 	const vial_ids = useMemo(() => box.vials.filter(v => selected_wells.has(v.box_row+"+"+v.box_column)), [box, selected_wells])
+
+	const defaultValues = {
+		label: '',
+		description: '',
+		model: '',
+		instance: '',
+	}
+	const { control, formState: { errors }, handleSubmit, reset } = useForm({ defaultValues });
+
+	const [formData, setFormData] = useState({});
+	const [showMessage, setShowMessage] = useState(false);
+
+	const onSubmit = (data: string) => {
+		setFormData(data);
+		setShowMessage(true);
+
+		reset();
+	};
 
 	useEffect(() => {
 		if (vial_ids.length === 1) {
@@ -146,8 +167,10 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 			</div>
 			<div className="field">
 				<span className="p-float-label">
-					<InputText className={"vial_editors"} id="label_text" value={labelText} onChange={(e) => setLabelText(e.target.value)} />
-					<label htmlFor="label_text">Label</label>
+					<Controller name="label" control={control} rules={{}} render={({ field, fieldState }) => (
+						<InputText id={field.name} {...field} autoFocus className={classNames({ 'p-invalid': fieldState.invalid })} />
+					)}/>
+					<label htmlFor="label">Label</label>
 				</span>
 			</div>
 			<div className="field">
