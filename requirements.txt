@@ -1,7 +1,7 @@
 # basic django and backend
-django>=4.0.3,<5.0.0
+django>=4.0.4,<5.0.0
 django-decorator-include>=3.0,<4.0.0
-pymemcache>=3.5.0,<4.0.0
+pymemcache>=3.5.2,<4.0.0
 psycopg2-binary>=2.9.3,<3.0.0
 git+https://github.com/cfblaeb/django-sendfile.git
 
