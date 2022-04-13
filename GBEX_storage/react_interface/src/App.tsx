@@ -3,9 +3,9 @@ import TheTree from './TheTree'
 import TheBox from './TheBox'
 import TheEditor from './TheEditor'
 import useDimensions from "react-cool-dimensions"
-import TreeNode from "primereact/treenode";
-import { getCookie, climb_tree, doApiCall, deepEqual } from "./helpers";
-import { Splitter, SplitterPanel } from 'primereact/splitter';
+import TreeNode from "primereact/treenode"
+import { getCookie, climb_tree, doApiCall, deepEqual } from "./helpers"
+import { Splitter, SplitterPanel } from 'primereact/splitter'
 import { Card } from 'primereact/card'
 
 export interface Vial {
