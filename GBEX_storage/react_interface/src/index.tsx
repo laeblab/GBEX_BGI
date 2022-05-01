@@ -8,6 +8,7 @@ import 'primeflex/primeflex.css';
 import './App.css'
 import App from './App';
 import PrimeReact from 'primereact/api';
+import {FormTest} from "./formtest";
 PrimeReact.ripple = true;
 
 const root = ReactDOM.createRoot(
@@ -15,6 +16,7 @@ const root = ReactDOM.createRoot(
 );
 root.render(
     <React.StrictMode>
-        <App />
+        {/*<App />*/}
+        <FormTest />
     </React.StrictMode>
 );
