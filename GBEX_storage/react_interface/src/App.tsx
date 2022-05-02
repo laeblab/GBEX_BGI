@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import TheTree from './TheTree'
 import TheBox from './TheBox'
-import TheEditor from './TheEditor'
+import TheEditor from './right_panel/TheEditor'
 import useDimensions from "react-cool-dimensions"
 import TreeNode from "primereact/treenode"
 import { getCookie, climb_tree, doApiCall, deepEqual } from "./helpers"
