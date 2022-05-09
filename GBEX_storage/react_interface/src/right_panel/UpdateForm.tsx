@@ -16,40 +16,29 @@ interface ModelInstance  {
 }
 
 type Inputs = {
-	label: string,
-	description_text: string,
+	label: string|undefined,
+	description_text: string|undefined,
 	pick_model: string|undefined,
-	specific_item: string
+	specific_item: string|undefined
 }
 
 export default function UpdateForm(props: {selected_wells: Set<string>, link_models: vial_model[], vial_content: VialDisplay|undefined, setMode: Dispatch<SetStateAction<"view"|"edit">>}) {
 	const {selected_wells, link_models, vial_content, setMode} = props
 	const plural = selected_wells.size !== 1 ? "s": ""
-	// name of selected model
-	const [editModel, setEditModel] = useState<string>()
 	// all the instances of the selected model
-	const [editModelInstances, setEditModelInstances] = useState<ModelInstance[]>()
-	// a specific instance of the selected model
-	const [editModelInstance, setEditModelInstance] = useState<ModelInstance>()
+	const [editModelInstances, setEditModelInstances] = useState<ModelInstance[]>([])
 	// When searching the model autocomplete widget this stores the model instances
 	const [filteredModelInstances, setFilteredModelInstances] = useState<ModelInstance[]>()
 
-	let labelText = ""
-	let descriptionText = ""
-	if (vial_content !== undefined) {
-		labelText = vial_content['Vial label']
-		descriptionText = vial_content['Vial description']
-		const model_kind = Object.keys(vial_content['Vial content'])[0]?.split(" - ")[0]
-		//setEditModel(model_kind)
-	}
-
 	const defaultValues = {
-		label: labelText,
-		description_text: descriptionText,
+		label: undefined,
+		description_text: undefined,
 		pick_model: undefined,
-		specific_item: ""
+		specific_item: undefined
 	}
 
+	const {setValue, control, handleSubmit, formState: {errors}} = useForm<Inputs>({defaultValues})
+	const onSubmit: SubmitHandler<Inputs> = data => console.log(data)
 	const search_model_instance = (event: AutoCompleteCompleteMethodParams) => {
 		let _filteredIds: ModelInstance[];
 		if (editModelInstances !== undefined) {
@@ -58,21 +47,32 @@ export default function UpdateForm(props: {selected_wells: Set<string>, link_mod
 		}
 	}
 
-	const {control, handleSubmit, formState: {errors}} = useForm<Inputs>({defaultValues})
-	const onSubmit: SubmitHandler<Inputs> = data => console.log(data)
-
-	//
-	useEffect(() => {
-		if (editModel !== undefined) {
-			doApiCall("", editModel, "get", {}).then(r => {
+	// if a model is selected then fetch model instances
+	const fetch_model_instances = (e: string, initial: boolean=false) => {
+			doApiCall("", e, "get", {}).then(r => {
 				setEditModelInstances(r as ModelInstance[])
-				if (vial_content !== undefined) {
-					const model_instance = Object.keys(vial_content['Vial content'])[0].split(" - ")[1]
-					setEditModelInstance(r.filter((v:ModelInstance) => v.name === model_instance)[0])
+				if (initial && vial_content!==undefined) {
+					setValue("specific_item", Object.keys(vial_content['Vial content'])[0]?.split(" - ")[1])
+				} else {
+					if (r.length === 0) {
+						setValue("specific_item", "Couldn't find any " + e + " items")
+					} else {
+						setValue("specific_item", undefined)
+					}
 				}
 			})
+	}
+
+	// set defaults
+	useEffect(() => {
+		if (vial_content!==undefined) {
+			setValue("label", vial_content['Vial label'])
+			setValue("description_text", vial_content['Vial description'])
+			const model = Object.keys(vial_content['Vial content'])[0]?.split(" - ")[0]
+			setValue("pick_model", model)
+			fetch_model_instances(model, true)
 		}
-	}, [editModel, vial_content])
+	}, [vial_content, setValue])
 
 	const assign_vials = () => {/*
 		confirmDialog({
@@ -127,7 +127,7 @@ export default function UpdateForm(props: {selected_wells: Set<string>, link_mod
 				<div className="field">
 					<span className="p-float-label">
 						<Controller name="pick_model" control={control} render={({field}) => (
-							<Dropdown id={field.name} value={field.value} onChange={(e) => {console.log(e); /*setmodel*/ field.onChange(e.value)}} options={link_models} optionLabel="model" />
+							<Dropdown id={field.name} value={field.value} onChange={(e) => {fetch_model_instances(e.value); field.onChange(e.value)}} options={link_models.map(lm => lm.model)} />
 						)}/>
 						<label htmlFor="pick_model">Type of item</label>
 					</span>
@@ -135,13 +135,9 @@ export default function UpdateForm(props: {selected_wells: Set<string>, link_mod
 				<div className="field">
 					<span className="p-float-label">
 						<Controller name="specific_item" control={control} render={({field}) => (
-							<AutoComplete id={field.name} dropdown forceSelection field="name"
-										  suggestions={filteredModelInstances} onChange={(e) => {
-											  console.log(e);
-											  field.onChange(e.value);
-											  setEditModelInstance(e.value)
-							}}
-										  disabled={editModel === undefined} completeMethod={search_model_instance}
+							<AutoComplete id={field.name} value={field.value} dropdown forceSelection field="name"
+										  suggestions={filteredModelInstances} onChange={(e) => {field.onChange(e.value);}}
+										  disabled={editModelInstances.length === 0} completeMethod={search_model_instance}
 							/>
 						)}/>
 						<label htmlFor="specific_item">Specific item</label>
