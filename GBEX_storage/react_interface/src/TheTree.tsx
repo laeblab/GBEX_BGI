@@ -4,7 +4,7 @@ import TreeNode from "primereact/treenode";
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
-import { confirmDialog } from 'primereact/confirmdialog';
+import {ConfirmDialog, confirmDialog} from 'primereact/confirmdialog';
 import { Vial } from "./App"
 import { climb_tree, doApiCall } from "./helpers"
 

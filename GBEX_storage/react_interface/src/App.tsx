@@ -7,6 +7,7 @@ import TreeNode from "primereact/treenode"
 import { getCookie, climb_tree, doApiCall, deepEqual } from "./helpers"
 import { Splitter, SplitterPanel } from 'primereact/splitter'
 import { Card } from 'primereact/card'
+import {ConfirmDialog} from "primereact/confirmdialog";
 
 export interface Vial {
     id: number;
@@ -64,7 +65,8 @@ export default function App() {
         }
     }
 
-    return (
+    return <>
+        <ConfirmDialog />
         <Splitter id="storage_root" gutterSize={10}>
             <SplitterPanel>
                 <TheTree nodes={nodes} setBox={setBoxFromId} setStale={setStale}/>
@@ -83,5 +85,5 @@ export default function App() {
                 }
             </SplitterPanel>
         </Splitter>
-    )
+    </>
 }

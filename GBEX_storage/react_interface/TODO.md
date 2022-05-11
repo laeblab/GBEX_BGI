@@ -1,4 +1,3 @@
-* editModelInstances need to also have a blank option in case you DONT want a model to be linked to a vial
-  * That should happen in UpdateForm.tsx:fetch_model_instances
-* UpdateForm.tsv:assign_vials and :onSubmit are ready to be activated
-  * onSubmit should have all necessary variables
+* UpdateForm:onSubmit fix popup afhængig af om der er en model instance eller ej
+* TheEditor vial_content må gerne også fungere hvis der er mange vials valgt med samme content
+* y-scroll på tree (og x scroll?)

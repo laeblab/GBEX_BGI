@@ -24,7 +24,7 @@ django-widgets-improved>=1.5.0,<2.0.0
 # waiting for drf to release django 4.0.0 compatible code
 djangorestframework>=3.13.1,<4.0.0
 #git+https://github.com/encode/django-rest-framework.git
-markdown>=3.3.6,<4.0.0
+markdown>=3.3.7,<4.0.0
 django-filter==21.1
 drf-yasg2>=1.19.4,<2.0.0    # this is a fork of drf-yasg which appears abandoned
 packaging>=21.3,<22.0  # required by drf-yasg2
@@ -34,4 +34,4 @@ git+https://github.com/Naartti/django-url-filter.git@patch-1
 django-crispy-forms>=1.13.0,<2.0.0
 
 # login
-django-auth-ldap>=4.0.0,<5.0.0
+django-auth-ldap>=4.1.0,<5.0.0

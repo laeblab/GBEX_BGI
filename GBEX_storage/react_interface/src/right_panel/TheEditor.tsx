@@ -1,6 +1,6 @@
 import React, {Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import { Button } from "primereact/button";
-import { confirmDialog, ConfirmDialog } from "primereact/confirmdialog";
+import { confirmDialog } from "primereact/confirmdialog";
 import { Box, vial_model } from '../App'
 import { doApiCall, deepEqual } from "../helpers";
 import UpdateForm from "./UpdateForm";
@@ -66,12 +66,11 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 				<li>Selected {selected_wells.size} position{plural}. {vial_ids.length} already ha{vial_ids.length===1 ? "s":"ve"} content.</li>
 				{vial_html ? <>{vial_html}</>: <li>To see vial content, select only 1 vial with content.</li>}
 			</ul>
-			<ConfirmDialog />
 			<Button onClick={() => setMode("edit")}>Set content of vial{plural}</Button>
 			<Button onClick={delete_vials} disabled={vial_ids.length===0}>Delete selected vial{plural}</Button>
 		</>
 	} else if (mode === 'edit') {
-		return <UpdateForm selected_wells={selected_wells} link_models={link_models} vial_content={vial_content} setMode={setMode}/>
+		return <UpdateForm selected_wells={selected_wells} link_models={link_models} vial_content={vial_content} vial_ids={vial_ids} box={box} setStale={setStale} setMode={setMode}/>
 	} else {
 		return <>An unimplemented third option?</>
 	}
