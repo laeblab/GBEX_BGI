@@ -22,6 +22,14 @@ code {
     height: 100%;
 }
 
+.p-tree {
+    height: 100%;
+}
+
+.p-tree-container {
+    max-height: 90%;
+}
+
 /* Used by Simonwep/selection */
 .selection-area {
     background: rgba(46, 115, 252, 0.11);

@@ -38,7 +38,9 @@ export default function UpdateForm(props: {selected_wells: Set<string>, link_mod
 		specific_item: undefined
 	}
 
-	const {setValue, control, handleSubmit, formState: {errors}} = useForm<Inputs>({defaultValues})
+	const {setValue, control, watch, handleSubmit, formState: {errors}} = useForm<Inputs>({defaultValues})
+	const picked_model = watch("pick_model")
+
 	const search_model_instance = (event: AutoCompleteCompleteMethodParams) => {
 		let _filteredIds: ModelInstance[];
 		if (editModelInstances !== undefined) {
@@ -49,7 +51,7 @@ export default function UpdateForm(props: {selected_wells: Set<string>, link_mod
 
 	// if a model is selected then fetch model instances
 	const fetch_model_instances = (e: string, initial: boolean=false) => {
-		if (e === "No model") {
+		if (e === "No model" || e === undefined) {
 			setEditModelInstances([])
 			setValue("specific_item", undefined)
 		} else {
@@ -59,11 +61,9 @@ export default function UpdateForm(props: {selected_wells: Set<string>, link_mod
 					if (initial && vial_content!==undefined) {
 						const name = Object.keys(vial_content['Vial content'])[0]?.split(" - ")[1]
 						setValue("specific_item", (r as ModelInstance[]).find(obj => obj.name === name))
-					} else {
-						if (r.length === 0) {
+					} else if (r.length === 0) {
 							setValue("specific_item", {name:"Couldn't find any " + e + " items", url:""})
-						} else { setValue("specific_item", undefined) }
-					}
+					} else { setValue("specific_item", undefined) }
 				})
 		}
 	}
@@ -80,13 +80,20 @@ export default function UpdateForm(props: {selected_wells: Set<string>, link_mod
 	}, [vial_content, setValue])
 
 	const onSubmit: SubmitHandler<Inputs> = data => {
-		console.log(data)
-		let submit_message = <span>You are about to assign {data.pick_model}-{">"}{data.specific_item?.name} to {selected_wells.size} position{plural}{vial_ids.length !== 0 ? ", " + vial_ids.length + " of which "+ (vial_ids.length === 1 ? "has":"have") +" EXISTING content which will be DELETED!":null}.<br />Are you sure you want to proceed?</span>
+		let submit_message = <span>You are about to assign just a label ({data.label}) {data.description_text === undefined || data.description_text === "" ? "":"and a description"} (no model) to {selected_wells.size} position{plural}{vial_ids.length !== 0 ? ", " + vial_ids.length + " of which "+ (vial_ids.length === 1 ? "has":"have") +" EXISTING content which will be DELETED!":null}.<br />Are you sure you want to proceed?</span>
+		if (data.pick_model !== undefined && data.pick_model !== "No model") {
+			submit_message = <span>You are about to assign {data.pick_model}-{">"}{data.specific_item?.name} to {selected_wells.size} position{plural}{vial_ids.length !== 0 ? ", " + vial_ids.length + " of which "+ (vial_ids.length === 1 ? "has":"have") +" EXISTING content which will be DELETED!":null}.<br />Are you sure you want to proceed?</span>
+		}
+		let the_label = data.label
+		if (data.specific_item !== undefined) {
+			the_label = data.specific_item.name
+		}
+
 		confirmDialog({
 			message: submit_message,
 			header: 'Assign vials?',
 			icon: 'pi pi-exclamation-triangle',
-			position: 'left',
+			position: 'right',
 			accept: () => {
 				// delete the existing vials
 				Promise.all(vial_ids.map(e => doApiCall(String(e.id), "Vial", "delete", {}))).then(e => {
@@ -94,7 +101,7 @@ export default function UpdateForm(props: {selected_wells: Set<string>, link_mod
 					// step 1: determine if a model is being linked or if this is a custom vial
 					const content_field = link_models.filter(v => v.model === data.pick_model)[0]?.field
 					Promise.all(Array.from(selected_wells).map(e => doApiCall("", "Vial", "post", {
-						label: data.label,
+						label: the_label,
 						description: data.description_text,
 						parent: "http://127.0.0.1:8000/api/Box/" + box.id.split("_").at(-1) + "/",
 						box_row: e.split("+")[0],
@@ -115,13 +122,37 @@ export default function UpdateForm(props: {selected_wells: Set<string>, link_mod
 			<form onSubmit={handleSubmit(onSubmit)} className="p-fluid">
 				<div className="field">
 					<span className="p-float-label">
-						<Controller name="label" rules={{required: 'This is required.'}} control={control} render={({ field , fieldState}) => (
-							<InputText id={field.name} {...field} className={classNames({'p-invalid': fieldState.error})} />
+						<Controller name="pick_model" rules={{required: 'This is required.'}} control={control} render={({field}) => (
+							<Dropdown id={field.name} value={field.value} onChange={(e) => {fetch_model_instances(e.value); field.onChange(e.value)}} options={["No model", ...link_models.map(lm => lm.model)]} />
 						)}/>
-						<label htmlFor="label">Label</label>
+						<label htmlFor="pick_model">Pick an item type</label>
 					</span>
-					{errors.label && <small className="p-error">{errors.label.message}</small>}
+					{errors.pick_model && <small className="p-error">{errors.pick_model.message}</small>}
 				</div>
+				{picked_model !== "No model" &&
+				<div className="field">
+					<span className="p-float-label">
+						<Controller name="specific_item" rules={{required: 'This is required.'}} control={control} render={({field}) => (
+							<AutoComplete id={field.name} value={field.value} dropdown forceSelection field="name"
+										  suggestions={filteredModelInstances} onChange={(e) => {field.onChange(e.value);}}
+										  disabled={editModelInstances.length === 0} completeMethod={search_model_instance}
+							/>
+						)}/>
+						<label htmlFor="specific_item">Pick a specific item</label>
+					</span>
+					{errors.specific_item && <small className="p-error">This is required.</small>}
+				</div>}
+				{picked_model === "No model" &&
+					<div className="field">
+						<span className="p-float-label">
+							<Controller name="label" rules={{required: 'This is required.'}} control={control} render={({ field , fieldState}) => (
+								<InputText id={field.name} {...field} className={classNames({'p-invalid': fieldState.error})} />
+							)}/>
+							<label htmlFor="label">Label</label>
+						</span>
+						{errors.label && <small className="p-error">{errors.label.message}</small>}
+					</div>
+				}
 				<div className="field">
 					<span className="p-float-label">
 						<Controller name="description_text" control={control} render={({field, fieldState}) => (
@@ -130,25 +161,6 @@ export default function UpdateForm(props: {selected_wells: Set<string>, link_mod
 						<label htmlFor="description_text" className={classNames({'p-error': errors.description_text})}>Description</label>
 					</span>
 					{errors.description_text && <small className="p-error">{errors.description_text.message}</small>}
-				</div>
-				<div className="field">
-					<span className="p-float-label">
-						<Controller name="pick_model" control={control} render={({field}) => (
-							<Dropdown id={field.name} value={field.value} onChange={(e) => {fetch_model_instances(e.value); field.onChange(e.value)}} options={["No model", ...link_models.map(lm => lm.model)]} />
-						)}/>
-						<label htmlFor="pick_model">Type of item</label>
-					</span>
-				</div>
-				<div className="field">
-					<span className="p-float-label">
-						<Controller name="specific_item" control={control} render={({field}) => (
-							<AutoComplete id={field.name} value={field.value} dropdown forceSelection field="name"
-										  suggestions={filteredModelInstances} onChange={(e) => {field.onChange(e.value);}}
-										  disabled={editModelInstances.length === 0} completeMethod={search_model_instance}
-							/>
-						)}/>
-						<label htmlFor="specific_item">Specific item</label>
-					</span>
 				</div>
 				<div className="flex">
 					<Button className="m-1 shadow-7 p-button-success" type="submit" label="Apply"/>
