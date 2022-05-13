@@ -51,7 +51,7 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 			message: <span>You are about to delete {vial_ids.length} vial{plural}<br />Are you sure you want to proceed?</span>,
 			header: 'Delete vials?',
 			icon: 'pi pi-exclamation-triangle',
-			position: 'left',
+			position: 'right',
 			accept: () => { vial_ids.map(e => doApiCall(String(e.id), "Vial", "delete", {}).then(e => setStale(c => !c)))},
 		});
 	}

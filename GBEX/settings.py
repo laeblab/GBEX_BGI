@@ -65,6 +65,8 @@ INSTALLED_APPS = [
 	'django.contrib.sessions',
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
+	'crispy_forms',
+	'drf_spectacular',
 	'reversion',
 	'reversion_compare',
 	'widget_tweaks',
@@ -160,7 +162,7 @@ REST_FRAMEWORK = {
 		#'rest_framework.permissions.IsAuthenticated',
 		'rest_framework.permissions.AllowAny',
 	),
-	'DEFAULT_FILTER_BACKENDS': ['url_filter.integrations.drf.DjangoFilterBackend',] #'django_filters.rest_framework.DjangoFilterBackend']
+	'DEFAULT_FILTER_BACKENDS': ['url_filter.integrations.drf.DjangoFilterBackend',], #'django_filters.rest_framework.DjangoFilterBackend']
 }
 
 # logging setup

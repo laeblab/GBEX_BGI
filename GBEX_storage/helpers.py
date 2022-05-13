@@ -19,7 +19,7 @@ def create_location_tree(parent_loc=None):
 				'id': x["id"],
 				'description': x['description'],
 				'box_row': x['box_row'],
-				'box_column': x['box_column']
+				'box_column': x['box_column'],
 			} for x in box.vial_set.all().values("id", "label", "box_row", "box_column", "description")
 		]
 

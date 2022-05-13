@@ -5,7 +5,6 @@ from django.urls import path, include, re_path
 from rest_framework import routers
 from drf_yasg2.views import get_schema_view
 from drf_yasg2 import openapi
-
 from decorator_include import decorator_include
 
 from GBEX_app.drf import GBEX_API_ViewSets

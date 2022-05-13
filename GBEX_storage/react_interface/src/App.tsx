@@ -15,6 +15,7 @@ export interface Vial {
     description: string;
     box_row: number;
     box_column: number;
+    parent: number;
 }
 
 export interface Box {
@@ -51,7 +52,7 @@ export default function App() {
             })
     }, [stale, nodes, link_models]);
 
-    // if nodes have changed, just update the box as well
+    // if nodes have changed, then update the box
     useEffect(() => {
         if (box !== undefined) {
             setBox(climb_tree(nodes, box.id)?.data)
@@ -62,6 +63,7 @@ export default function App() {
         if (box===undefined || box_id !== box.id) {
             setBox(climb_tree(nodes, box_id)?.data)
             setSelectedWells(() => new Set()) // reset selected wells on new box
+            console.log(box)
         }
     }
 
