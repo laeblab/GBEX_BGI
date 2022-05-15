@@ -9,7 +9,7 @@ import {classNames} from "primereact/utils";
 import {doApiCall} from "../helpers";
 import {VialDisplay} from "./TheEditor"
 import {Box, Vial, vial_model} from "../App";
-import {ConfirmDialog, confirmDialog} from "primereact/confirmdialog";
+import { confirmDialog } from "primereact/confirmdialog";
 
 interface ModelInstance  {
 	url: string,
@@ -55,7 +55,7 @@ export default function UpdateForm(props: {selected_wells: Set<string>, link_mod
 			setEditModelInstances([])
 			setValue("specific_item", undefined)
 		} else {
-			doApiCall("", e, "get", {})
+			doApiCall("/api/"+e, null, "get", {})
 				.then(r => {
 					setEditModelInstances(r as ModelInstance[])
 					if (initial && vial_content!==undefined) {
@@ -96,14 +96,14 @@ export default function UpdateForm(props: {selected_wells: Set<string>, link_mod
 			position: 'right',
 			accept: () => {
 				// delete the existing vials
-				Promise.all(vial_ids.map(e => doApiCall(String(e.id), "Vial", "delete", {}))).then(e => {
+				Promise.all(vial_ids.map(e => {console.log(e.id);return doApiCall(String(e.id), "Vial", "delete", {})})).then(e => {
 					// create new vials for all positions
 					// step 1: determine if a model is being linked or if this is a custom vial
 					const content_field = link_models.filter(v => v.model === data.pick_model)[0]?.field
 					Promise.all(Array.from(selected_wells).map(e => doApiCall("", "Vial", "post", {
 						label: the_label,
 						description: data.description_text,
-						parent: "http://127.0.0.1:8000/api/Box/" + box.id.split("_").at(-1) + "/",
+						parent: window.location.href.split("/").slice(0,-2).join("/") + "/api/Box/" + box.id.split("_").at(-1) + "/",
 						box_row: e.split("+")[0],
 						box_column: e.split("+")[1],
 						[content_field]: [data.specific_item ? data.specific_item.url : null]

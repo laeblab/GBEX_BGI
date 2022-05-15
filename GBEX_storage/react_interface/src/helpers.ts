@@ -56,21 +56,14 @@ function isPrimitive(obj: any)
     return (obj !== Object(obj));
 }
 
-export function isValidHttpUrl(maybe_url: string) {
-    if (typeof maybe_url !== "string") return false
-    let url;
-    try { url = new URL(maybe_url); } catch (_) { return false; }
-    return url.protocol === "http:" || url.protocol === "https:";
-}
-
-export function doApiCall(target: string|number, kind: string, method: "get"|"post"|"put"|"patch"|"delete", body: object): Promise<{[key: string]: any}> {
+export function doApiCall(target: string|number, kind: string|null, method: "get"|"post"|"put"|"patch"|"delete", body: object): Promise<{[key: string]: any}> {
     /* doApiCall
-        target: Either id or url of target object, if there is no target (e.g. when you want to list Vials), then just pass an empty string and
-        kind: If target is an id then you must also supply a model name
+        target: Either id or url of target object, if there is no target (e.g. when you want to list Vials), then just pass an empty string and specify kind. If target is URL then you must pass "null" to kind
+        kind: If target is an id then you must supply a model name here, if target is url (full or relative , then kind must be null
         method: HTML get, post, patch or delete
         body: put, patch and post requires a body
      */
-    const csrftoken = "DEVELOPMENT" //getCookie('csrftoken')
+    const csrftoken = getCookie('csrftoken')
 
     if (typeof csrftoken === 'string') {
         const requestHeaders: HeadersInit = new Headers();
@@ -78,15 +71,16 @@ export function doApiCall(target: string|number, kind: string, method: "get"|"po
         requestHeaders.set('Content-Type', 'application/json')
 
         let url = String(target)
-        if (!isValidHttpUrl(url)) { // if the url is not a valid url, we naively assume its id+kind
-            url = "http://127.0.0.1:8000/api/" + kind + "/"
+
+        if (kind !== null) { // if "kind" is null, then assume its id+kind style call
+            url = "/api/" + kind + "/"
             if (['patch', 'put', 'delete'].includes(method) || (method==="get" && String(target) !== "")) {
                 url += target + "/"
             }
         }
 
         return fetch(url, {
-            mode: 'cors',
+            //mode: 'cors',
             method: method,
             body: Object.keys(body).length === 0 ? null: JSON.stringify(body),
             headers: requestHeaders

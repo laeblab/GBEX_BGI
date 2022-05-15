@@ -32,7 +32,7 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 	useEffect(() => {
 		if (vial_ids.length === 1) {
 			const show_id = vial_ids[0].id
-			doApiCall("http://127.0.0.1:8000/storage/displayVial/"+show_id, "", "get", {})
+			doApiCall("displayVial/"+show_id, null, "get", {})
 				.then(json => {
 					if (vial_content === undefined || !deepEqual(json, vial_content)) {
 						setVialContent(json as VialDisplay)

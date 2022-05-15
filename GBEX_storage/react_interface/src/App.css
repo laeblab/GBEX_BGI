@@ -3,7 +3,7 @@ html {
 }
 body {
     /*min-height: 100%;*/
-    height: 97%;
+    height: 100%;
     background-color: antiquewhite;
     margin: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -18,7 +18,23 @@ code {
     monospace;
 }
 
-#root, #storage_root, #box_observer_root{
+/*escape bootstrap css*/
+
+#storage_root .container {
+    margin: unset;
+    padding: unset;
+}
+#storage_root input {
+    padding: unset;
+    border: unset;
+    font-size:unset;
+}
+
+#root {
+    height: 90%;
+}
+
+#storage_root, #box_observer_root{
     height: 100%;
 }
 

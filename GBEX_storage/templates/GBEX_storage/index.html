@@ -1,14 +1,23 @@
-{% extends 'GBEX_app/app_base.html' %}
+{% extends 'base.html' %}
 {% load static %}
+{% load laeb_tags %}
 
 {% block app_css_block %}
-    <link href="{% static 'css/main.cbb71a96.css' %}" rel="stylesheet">
+    <link href="{% static 'css/main.193f630b.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block site_header_js_block %}
-    <script defer="defer" src="{% static 'js/main.8a92527f.js' %}"></script>
+    <script defer="defer" src="{% static 'js/main.d16290dd.js' %}"></script>
 {% endblock %}
 
 {% block content %}
     <div id="root"></div>
+{% endblock %}
+
+{% block app_index_button %}
+    <a class="navbar-brand" href="{% url 'GBEXindex' %}">GBEX</a>
+{% endblock %}
+
+{% block nav_li_buttons %}
+    {% links "" %}
 {% endblock %}

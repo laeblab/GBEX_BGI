@@ -56,7 +56,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 INSTALLED_APPS = [
-"corsheaders",  # delete. Just here for react development
+	#"corsheaders",  # delete. Just here for react development
 	'dal',
 	'dal_select2',
 	'django.contrib.admin',
@@ -79,14 +79,15 @@ INSTALLED_APPS = [
 	'GBEX_storage.apps.GbexStorageConfig',
 
 ]
-CORS_ALLOW_ALL_ORIGINS = True  # delete. Just here for react development
-CORS_ALLOW_CREDENTIALS = True  # delete. Just here for react development
+
+#CORS_ALLOW_ALL_ORIGINS = True  # delete. Just here for react development
+#CORS_ALLOW_CREDENTIALS = True  # delete. Just here for react development
 
 
 MIDDLEWARE = [
 	'django.middleware.security.SecurityMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
-	"corsheaders.middleware.CorsMiddleware",  # delete
+	#"corsheaders.middleware.CorsMiddleware",  # delete
 	'django.middleware.common.CommonMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
 	'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -155,12 +156,12 @@ CACHES = {
 
 REST_FRAMEWORK = {
 	'DEFAULT_AUTHENTICATION_CLASSES': (
-	#	'rest_framework.authentication.TokenAuthentication',
-	#	'rest_framework.authentication.SessionAuthentication',
+		'rest_framework.authentication.TokenAuthentication',
+		'rest_framework.authentication.SessionAuthentication',
 	),
 	'DEFAULT_PERMISSION_CLASSES': (
-		#'rest_framework.permissions.IsAuthenticated',
-		'rest_framework.permissions.AllowAny',
+		'rest_framework.permissions.IsAuthenticated',
+		#'rest_framework.permissions.AllowAny',
 	),
 	'DEFAULT_FILTER_BACKENDS': ['url_filter.integrations.drf.DjangoFilterBackend',], #'django_filters.rest_framework.DjangoFilterBackend']
 }
