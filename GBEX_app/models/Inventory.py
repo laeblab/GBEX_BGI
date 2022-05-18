@@ -7,7 +7,7 @@ from dal import autocomplete
 from GBEX_bigfiles.fields import ResumableFileField
 from GBEX_app.helpers import get_upload_path
 
-from GBEX_storage.helpers import pos_to_coord
+from GBEX_storage.helpers import pos_to_coord, location_labeling
 from GBEX_storage.models import Vial
 
 from .models import BaseOption, GBEXModelBase, AbstractBatch, default_order, default_widgets, default_readonly
@@ -64,11 +64,7 @@ class PlasmidBatch(AbstractBatch):
 
 	col_read_only = [*default_readonly, 'Parent', 'Location']
 	col_html_string = ['Location']
-	col_display_func_dict = {
-		'Location': lambda item: ", ".join(
-			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_column)}" for ab in
-			item.Location.all()) if item.Location.all() else "",
-	}
+	col_display_func_dict = {'Location': location_labeling,}
 
 
 class Primers(InventoryItem):
@@ -81,11 +77,7 @@ class Primers(InventoryItem):
 	symbol = "PR"
 	col_read_only = [*default_readonly, 'Location']
 	col_html_string = ['Location']
-	col_display_func_dict = {
-		'Location': lambda item: ", ".join(
-			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_column)}" for ab in
-			item.Location.all()) if item.Location.all() else "",
-	}
+	col_display_func_dict = {'Location': location_labeling, }
 
 
 class SpeciesOption(BaseOption):
@@ -141,11 +133,7 @@ class StrainBatch(AbstractBatch):
 	order = [*default_order, 'TubesLeft', 'Barcode', 'Location', 'Parent']
 	symbol = "ST_Batch"
 	col_html_string = ['Location']
-	col_display_func_dict = {
-		'Location': lambda item: ", ".join(
-			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_column)}" for ab in
-			item.Location.all()) if item.Location.all() else "",
-	}
+	col_display_func_dict = {'Location': location_labeling, }
 	col_read_only = [*default_readonly, 'Parent', 'Location']
 
 
@@ -193,9 +181,7 @@ class CellLineBatch(AbstractBatch):
 		**default_widgets,
 		"Mycoplasma": DateInput(attrs={'data-isdate': "yes"})
 	}
-	col_display_func_dict = {
-		'Location': lambda item: ", ".join(f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_column)}" for ab in item.Location.all()) if item.Location.all() else "",
-	}
+	col_display_func_dict = {'Location': location_labeling, }
 
 
 class CultureMedia(InventoryItem):
@@ -228,9 +214,7 @@ class CultureMediaBatch(AbstractBatch):
 
 	col_read_only = [*default_readonly, 'Parent', 'Location']
 	col_html_string = ['Location']
-	col_display_func_dict = {
-		'Location': lambda item: ", ".join(f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_column)}" for ab in item.Location.all()) if item.Location.all() else "",
-	}
+	col_display_func_dict = {'Location': location_labeling, }
 
 
 class CRISPRoption(BaseOption):
@@ -252,11 +236,7 @@ class gRNA(InventoryItem):
 	symbol = "gRNA"
 	col_read_only = [*default_readonly, 'Parent', 'Location']
 	col_html_string = ['Location']
-	col_display_func_dict = {
-		'Location': lambda item: ", ".join(
-			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_column)}" for ab in
-			item.Location.all()) if item.Location.all() else "",
-	}
+	col_display_func_dict = {'Location': location_labeling, }
 	widgets = {
 		**default_widgets,
 		'CRISPR_enzyme': autocomplete.ModelSelect2(url=reverse_lazy('CRISPRoption-autocomplete')),
@@ -340,8 +320,4 @@ class AntiGenBodyBatch(AbstractBatch):
 
 	col_read_only = [*default_readonly, 'Parent', 'Location']
 	col_html_string = ['Location']
-	col_display_func_dict = {
-		'Location': lambda item: ", ".join(
-			f"{ab.parent.parent}:{ab.parent}:{pos_to_coord(ab.box_row, ab.box_column)}" for ab in
-			item.Location.all()) if item.Location.all() else "",
-	}
+	col_display_func_dict = {'Location': location_labeling, }

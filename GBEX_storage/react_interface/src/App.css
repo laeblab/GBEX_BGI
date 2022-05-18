@@ -18,18 +18,6 @@ code {
     monospace;
 }
 
-/*escape bootstrap css*/
-
-#storage_root .container {
-    margin: unset;
-    padding: unset;
-}
-#storage_root input {
-    padding: unset;
-    border: unset;
-    font-size:unset;
-}
-
 #root {
     height: 90%;
 }

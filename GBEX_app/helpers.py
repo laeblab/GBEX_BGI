@@ -20,7 +20,7 @@ def get_free_id(model) -> str:
 	# Filter out any names that do not adhere to the naming scheme and save the number part of any that do adhere
 	numbers = [int(x[prefix_len:]) for x in slist if x[:prefix_len] == prefix and x[prefix_len:].isdecimal()]
 	if numbers:
-		# return a name thats 1 higher than the largets number
+		# return a name that's 1 higher than the largest number
 		return f"{prefix}{max(numbers) + 1}"
 	else:  # if no name currently adheres to the naming scheme then we start from 1
 		return f"{prefix}1"

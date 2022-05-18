@@ -1,2 +1,1 @@
 Show number of free/total positions in each box
-fix css

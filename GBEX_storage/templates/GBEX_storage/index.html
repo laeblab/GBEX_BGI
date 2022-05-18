@@ -1,23 +1,26 @@
-{% extends 'base.html' %}
-{% load static %}
+{% extends 'GBEX_app/app_base.html' %}
 {% load laeb_tags %}
+{% load static %}
 
+{% block base_css %}
+    <link href="{% static 'navbar.css' %}" rel="stylesheet">
+{% endblock %}
 {% block app_css_block %}
-    <link href="{% static 'css/main.193f630b.css' %}" rel="stylesheet">
+    <link href="{% static 'css/main.a94f1c08.css' %}" rel="stylesheet">
+    <style>
+    #navbar {
+        font-family: "Roboto","Helvetica Neue",Helvetica,Arial,sans-serif;
+        font-size: 13px;
+        margin-left: -15px;
+    }
+    </style>
 {% endblock %}
-
-{% block site_header_js_block %}
-    <script defer="defer" src="{% static 'js/main.d16290dd.js' %}"></script>
-{% endblock %}
-
 {% block content %}
     <div id="root"></div>
 {% endblock %}
-
-{% block app_index_button %}
-    <a class="navbar-brand" href="{% url 'GBEXindex' %}">GBEX</a>
+{% block page_js_block %}
+    <script defer="defer" src="{% static 'js/main.d16290dd.js' %}"></script>
 {% endblock %}
-
 {% block nav_li_buttons %}
-    {% links "" %}
+    {% links "Storage" "/" "GBEX" %}
 {% endblock %}

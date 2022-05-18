@@ -1,9 +1,11 @@
 # GBEX - Goodbye Excel: A MetaDataStore and more
 
 # TODO
-* [ ] Check up on requirements.txt in regards to Django 4 compatability of several components
+* [ ] Improve location_labeller function. A1, A2, A3 could be A1-3
+* [ ] Finish Todo in GBEX storage
+* [ ] Check CSS of storage navbar middle title thingy. Its slightly higher than on non storage pages
+* [ ] Consider making location labels into links...
 * [ ] Recreate Django app to get latest default settings.py
-* [ ] Reactivate security after development finishes.
 * [ ] Create tests
 
 # Long todo

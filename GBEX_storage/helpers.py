@@ -32,3 +32,19 @@ def create_location_tree(parent_loc=None):
 		]
 		tree.append({"key": f"loc_{loc.id}", "label": str(loc.name), "icon": "pi pi-building", "children": children})
 	return tree
+
+
+def location_labeling(item):
+	location_dict = {}
+	for vial in item.Location.all():
+		loc = vial.parent.parent
+		box = vial.parent
+		coord = (vial.box_row, vial.box_column)
+		if str(loc) in location_dict:
+			if str(box) in location_dict[str(loc)]:
+				location_dict[str(loc)][str(box)].append(coord)
+			else:
+				location_dict[str(loc)] = {str(box): [coord]}
+		else:
+			location_dict[str(loc)] = {str(box): [coord]}
+	return ", ".join([f"{loc}: {box}: {', '.join([pos_to_coord(*pos) for pos in poss])}" for loc, boxes in location_dict.items() for box, poss in boxes.items()])
