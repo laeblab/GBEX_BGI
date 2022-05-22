@@ -10,6 +10,7 @@ class Location(models.Model):
 
 	class Meta:
 		ordering = ('id', )
+		constraints = [models.UniqueConstraint(fields=['name', 'parent'], name='unique_loc_name_in_loc'), ]
 
 
 class Box(models.Model):
@@ -23,6 +24,7 @@ class Box(models.Model):
 
 	class Meta:
 		ordering = ('id', )
+		constraints = [models.UniqueConstraint(fields=['name', 'parent'], name='unique_box_name_in_loc'), ]
 
 
 class Vial(models.Model):

@@ -13,7 +13,7 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 	const { nodes, setBox, setStale } = props
 	const [treeKey, setTreeKey] = useState("")
 	const [editing, setEditing] = useState("")
-	const [nameinput, setNameInput] = useState<string|undefined>('')
+	const [nameInput, setNameInput] = useState<string|undefined>('')
 	const [newBoxSize, setNewBoxSize] = useState([1,1]) // rows, columns
 	const [newChild, setNewChild] = useState(false)
 	const [selectedNewType, setSelectedNewType] = useState<"Box"|"Location">("Box")
@@ -26,16 +26,16 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 
 	const doNewLocBox = () => {
 		setNewChild(false)
-		if (nameinput) {
-			const body = {name: nameinput, parent: treeKey.split('_').splice(1).join('_'), rows: 10, columns: 10}
-			doApiCall("", selectedNewType, "post", body).then(e => setStale(c => !c))
+		if (nameInput) {
+			const body = {name: nameInput, parent: treeKey.split('_').splice(1).join('_'), rows: 10, columns: 10}
+			doApiCall("", selectedNewType, "post", body).then(() => setStale(c => !c))
 		}
 	}
 
 	const doNameChange = () => {
 		setEditing("")
 		const [id, kind] = treeKey2kindNid()
-		if (nameinput) { doApiCall(id, kind, "patch", {name: nameinput}).then(e => setStale(c => !c))}
+		if (nameInput) { doApiCall(id, kind, "patch", {name: nameInput}).then(() => setStale(c => !c))}
 	}
 
 	const doBoxResize = () => {
@@ -58,10 +58,10 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 				header: 'Execute order 66?',
 				icon: 'pi pi-exclamation-triangle',
 				position: 'left',
-				accept: () => doApiCall(id, "Box", "patch", {rows: newBoxSize[0], columns: newBoxSize[1]}).then(e => setStale(c => !c)),
+				accept: () => doApiCall(id, "Box", "patch", {rows: newBoxSize[0], columns: newBoxSize[1]}).then(() => setStale(c => !c)),
 			});
 		} else {
-			doApiCall(id, "Box", "patch", {rows: newBoxSize[0], columns: newBoxSize[1]}).then(e => setStale(c => !c))
+			doApiCall(id, "Box", "patch", {rows: newBoxSize[0], columns: newBoxSize[1]}).then(() => setStale(c => !c))
 		}
 
 		setEditing("")
@@ -84,7 +84,7 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 			header: 'Execute order 66?',
 			icon: 'pi pi-exclamation-triangle',
 			position: 'left',
-			accept: () => {setBox(""); doApiCall(id, kind, "delete", {}).then(e => setStale(c => !c))},
+			accept: () => {setBox(""); doApiCall(id, kind, "delete", {}).then(() => setStale(c => !c))},
 		});
 	}
 
@@ -103,7 +103,7 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 				header: 'Change location?',
 				icon: 'pi pi-exclamation-triangle',
 				position: 'left',
-				accept: () => doApiCall(id, actual_kind, "patch", body).then(e => setStale(c => !c)),
+				accept: () => doApiCall(id, actual_kind, "patch", body).then(() => setStale(c => !c)),
 			});
 		}
 	}
@@ -113,7 +113,7 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 			if (editing === "edit_name") {
 				return (
 					<div className="p-inputgroup">
-						<InputText value={nameinput} onInput={e => setNameInput(e.currentTarget.value)} />
+						<InputText value={nameInput} onInput={e => setNameInput(e.currentTarget.value)} />
 						<Button onClick={() => doNameChange()} icon="pi pi-check" className="p-button-success"/>
 						<Button onClick={() => setEditing("")} icon="pi pi-times" className="p-button-danger"/>
 					</div>)
@@ -131,7 +131,7 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 						<div className="p-field">
 							<div className="p-inputgroup">
 								<Button onClick={doBoxResize} icon="pi pi-check" className="p-button-success"/>
-								<Button onClick={e => setEditing("")} icon="pi pi-times" className="p-button-danger"/>
+								<Button onClick={() => setEditing("")} icon="pi pi-times" className="p-button-danger"/>
 							</div>
 						</div>
 					</div>)
@@ -143,27 +143,27 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 						</div>
 						<div className="p-field">
 							<div className="p-inputgroup">
-								<InputText value={nameinput} placeholder="Name it!" onInput={e => setNameInput(e.currentTarget.value)} />
+								<InputText value={nameInput} placeholder="Name it!" onInput={e => setNameInput(e.currentTarget.value)} />
 								<Button onClick={doNewLocBox} icon="pi pi-check" className="p-button-success"/>
-								<Button onClick={e => setNewChild(false)} icon="pi pi-times" className="p-button-danger"/>
+								<Button onClick={() => setNewChild(false)} icon="pi pi-times" className="p-button-danger"/>
 							</div>
 						</div>
 					</div>)
 			} else {
 				return (
 					<div style={{display: "flex", alignItems: 'center', justifyContent: "space-between", width: "100%"}}>
-						<span className={options.className} style={{flexGrow: 2}}><b>{node.label}</b></span>
+						<span className={options.className} style={{flexGrow: 2}}><b>{node.label} {node?.data.usage}</b></span>
 						<div style={{flexGrow: 2, display: "flex", justifyContent: "space-evenly"}}>
-							<Button tooltip="Edit name" tooltipOptions={{position: 'top'}} onClick={e => {setNameInput(node.label); setEditing("edit_name")}} icon={"pi pi-pencil"} className={"p-button-rounded p-button-text"} />
-							<Button tooltip="Delete this...and all its children :(" tooltipOptions={{position: 'top'}} onClick={e => order66(node)} icon={"pi pi-times"} className={"p-button-rounded p-button-text"} />
+							<Button tooltip="Edit name" tooltipOptions={{position: 'top'}} onClick={() => {setNameInput(node.label); setEditing("edit_name")}} icon={"pi pi-pencil"} className={"p-button-rounded p-button-text"} />
+							<Button tooltip="Delete this...and all its children :(" tooltipOptions={{position: 'top'}} onClick={() => order66(node)} icon={"pi pi-times"} className={"p-button-rounded p-button-text"} />
 							{treeKey.startsWith("loc_") ?
-								<Button tooltip="Add new box/location" tooltipOptions={{position: 'top'}} onClick={e => setNewChild(true)} icon={"pi pi-plus"} className={"p-button-rounded p-button-text"}/>:
-								<Button tooltip="Resize box" tooltipOptions={{position: 'top'}} onClick={e => {setNewBoxSize([node.data.rows, node.data.columns]); setEditing("edit_box_size")}} icon={"pi pi-plus"} className={"p-button-rounded p-button-text"}/>
+								<Button tooltip="Add new box/location" tooltipOptions={{position: 'top'}} onClick={() => setNewChild(true)} icon={"pi pi-plus"} className={"p-button-rounded p-button-text"}/>:
+								<Button tooltip="Resize box" tooltipOptions={{position: 'top'}} onClick={() => {setNewBoxSize([node.data.rows, node.data.columns]); setEditing("edit_box_size")}} icon={"pi pi-plus"} className={"p-button-rounded p-button-text"}/>
 							}
 						</div>
 					</div>)
 			}
-		} else {return (<span className={options.className}><b>{node.label}</b></span>)}
+		} else {return (<span className={options.className}><b>{node.label} {node?.data?.usage ? node.data.usage : null}</b></span>)}
     }
 
 	return <Tree
