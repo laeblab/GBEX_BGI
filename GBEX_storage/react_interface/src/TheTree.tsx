@@ -152,7 +152,7 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 			} else {
 				return (
 					<div style={{display: "flex", alignItems: 'center', justifyContent: "space-between", width: "100%"}}>
-						<span className={options.className} style={{flexGrow: 2}}><b>{node.label} {node?.data.usage}</b></span>
+						<span className={options.className} style={{flexGrow: 2}}><b>{node.label} {node?.data?.usage ? node.data.usage : null}</b></span>
 						<div style={{flexGrow: 2, display: "flex", justifyContent: "space-evenly"}}>
 							<Button tooltip="Edit name" tooltipOptions={{position: 'top'}} onClick={() => {setNameInput(node.label); setEditing("edit_name")}} icon={"pi pi-pencil"} className={"p-button-rounded p-button-text"} />
 							<Button tooltip="Delete this...and all its children :(" tooltipOptions={{position: 'top'}} onClick={() => order66(node)} icon={"pi pi-times"} className={"p-button-rounded p-button-text"} />

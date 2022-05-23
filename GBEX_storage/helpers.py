@@ -42,17 +42,12 @@ def longest_consecutive_streak(arr):
 	i = 0
 	arr = sorted(arr)
 	while i < len(arr)-1:
-		print("i", i)
 		if (arr[i] - 1) not in arr:  # first in streak
 			streak_start = i
-			print("streak start", i)
 			while arr[i]+1 in arr:
 				i += 1
 			i += 1
-			print("streak end", i)
 			longest = max(longest, i - streak_start)
-			print("longest", longest)
-			print("i < len", i<len(arr))
 	return longest
 
 
@@ -65,9 +60,9 @@ def location_labeling(item):
 	for box, box_vials in boxes.items():
 		# find parent location lineage
 		heritage = [Box.objects.get(id=box)]
-		while heritage[-1].parent is not None:
+		while heritage[-1].parent is not None and heritage[-1].parent != heritage[-1]:
 			heritage.append(heritage[-1].parent)
-		heritage = ">".join([str(x) for x in heritage[::-1]])
+		heritage = " > ".join([str(x) for x in heritage[::-1]])
 
 		# figure out if its most optimal to group by col (A1-D1) or row (A1-4)
 		rows = {r_id: [] for r_id in set([vial[0] for vial in box_vials])}
@@ -94,14 +89,35 @@ def location_labeling(item):
 		well_labels = []
 		if lcs_row >= lcs_col:  # favor row grouping (A1-4) over col grouping (A1-D1)
 			for row_i, col_is in rows.items():
-				label = pos_to_coord(row_i, col_is[0])
-				# figure out how far this streak goes
-				well_labels.append(label)
+				for col_i in sorted(col_is):
+					if col_i-1 not in col_is:  # check if this is start of streak
+						current_streak_start = col_i
+					# determine if next number in streak is also present
+					if col_i+1 not in col_is:
+						# if not, then write this out
+						# first determined if there's 1 or more members of the streak
+						if col_i == current_streak_start:
+							# just 1
+							well_labels.append(pos_to_coord(row_i, col_i))
+						else:
+							# a streak
+							well_labels.append(f"{pos_to_coord(row_i, current_streak_start)}-{col_i+1}")
 		else:
 			for col_i, row_is in columns.items():
-				pass
-		labels.append(f"{heritage}:{', '.join(well_labels)}")
-
+				for row_i in sorted(row_is):
+					if row_i - 1 not in row_is:  # check if this is start of streak
+						current_streak_start = row_i
+					# determine if next number in streak is also present
+					if row_i + 1 not in row_is:
+						# if not, then write this out
+						# first determined if there's 1 or more members of the streak
+						if row_i == current_streak_start:
+							# just 1
+							well_labels.append(pos_to_coord(row_i, col_i))
+						else:
+							# a streak
+							well_labels.append(f"{pos_to_coord(current_streak_start, col_i)}-{pos_to_coord(row_i, col_i)}")
+		labels.append(f"{heritage} : {', '.join(well_labels)}")
 	"""
 	location_dict = {}
 	for vial in item.Location.all():

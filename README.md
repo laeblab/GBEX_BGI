@@ -1,16 +1,19 @@
 # GBEX - Goodbye Excel: A MetaDataStore and more
 
 # TODO
-* [ ] Improve location_labeller function. A1, A2, A3 could be A1-3
-* [ ] Finish Todo in GBEX storage
-* [ ] Check CSS of storage navbar middle title thingy. Its slightly higher than on non storage pages
+* [ ] Consider option for viewing locations if there are more than 3 locations (then it won't fit in the box)
+* [ ] Check CSS of storage navbar middle title thingy. It's slightly higher than on non storage pages
 * [ ] Consider making location labels into links...
-* [ ] Recreate Django app to get latest default settings.py
+* [ ] Recreate Django app to get the latest default settings.py
 * [ ] Create tests
 
 # Long todo
 * [ ] Update to Bootstrap 5 (maybe get rid of jquery or at least upgrade to latest) or consider switching to primereact
 * [ ] Consider switching to django channels
+* [ ] Move models col_display_func_dict into helpers.field_to_string for many2many fields
+* [ ] Make a custom thing to check on delete whether object is used in Many-to-many relation and if so, prevent deletion
+* [ ] Inform frontend how to sort each column (numbers/dates/strings)
+* [ ] Give frontend a "nice name" for columns
 
 # DTU BGI Instance  
 To deploy with LDAP support remember to install
@@ -71,19 +74,13 @@ There are a few base models that should to be used:
 
 
 ### Changelog
-* (next) changed API to hyperlinked models
+* (next) changed API to hyperlinked models. Added storage module.
 * (03/05/2021) Reverted bulk edit code.
 * (21/08/2020) Fixed bugs with row selection functions when too many rows were selected
 * (21/08/2020) Fixed various minor bugs in bulk edit
 * (15/07/2020) Added Batch concept
 * (14/07/2020) Archive feature: Implemented. It simply hides archived items on list pages. They can still be linked and found in link searches.
 * (14/07/2020) Added User model to the REST API
-
-### Todos
-* Move models col_display_func_dict into helpers.field_to_string for many2many fields
-* Make a custom thing to check on delete whether object is used in Many-to-many relation and if so, prevent deletion
-* Inform frontend how to sort each column (numbers/dates/strings)
-* Give frontend a "nice name" for columns
 
 ### Considerations
 * (04-05-2021) Born from a desire to upgrade to React 17 and Bootstrap 4, I took a deep dive.  
@@ -92,9 +89,6 @@ There are a few base models that should to be used:
     * It always takes some time to get back into JS development due to the complexity of the dev/build environment 
 	  with webpack, eslint, babel, etc. So I took a look a "create react app" and through that also typescript.  
 	  While its certainly easier to set things up with cra, it also came with some head scratching.  
-	  I solved it, but as far as I tell, it doesn't really offer much after I have already done the work of setting up
-	  a build system.
-	  Typescript looks nice, and I would probably choose it over flow today, but again it doesn't seem to offer any
-	  substantial reward.
-  * I will keep an eye on react-virtualized and see if they move forward in the next year. If not, I will probably
-	investigate an alternative table solution.
+	  I solved it, but as far as I tell, it doesn't really offer much after I have already done the work of setting up a build system.
+	  Typescript looks nice, and I would probably choose it over flow today, but again it doesn't seem to offer any substantial reward for switching.
+  * I will keep an eye on react-virtualized and see if they move forward. If not, I will probably investigate an alternative table solution.
