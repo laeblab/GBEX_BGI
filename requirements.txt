@@ -28,6 +28,7 @@ markdown>=3.4.1,<4.0.0
 django-filter==22.1
 drf-yasg2>=1.19.4,<2.0.0    # this is a fork of drf-yasg which appears abandoned
 packaging>=21.3,<22.0  # required by drf-yasg2
+drf-spectacular>=0.24.0, <1.0.0
 #duf needs update for django 4 compa
 #django-url-filter>=0.3.15,<2.0.0
 git+https://github.com/Naartti/django-url-filter.git@patch-1
