@@ -74,7 +74,7 @@ export function doApiCall(target: string|number, kind: string|null, method: "GET
 
         if (kind !== null) { // if "kind" is null, then assume its id+kind style call
             url = "/api/" + kind + "/"
-            if (['patch', 'put', 'delete'].includes(method) || (method==="GET" && String(target) !== "")) {
+            if (['PATCH', 'PUT', 'DELETE'].includes(method) || (method==="GET" && String(target) !== "")) {
                 url += target + "/"
             }
         }
