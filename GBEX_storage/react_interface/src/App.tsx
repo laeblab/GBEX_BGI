@@ -40,7 +40,7 @@ export default function App() {
 
 	// Primary data get. All other data should be directly derived from this to ensure components update correctly
 	useEffect(() => {
-		doApiCall("locsNboxs", null, "get", {})
+		doApiCall("locsNboxs", null, "GET", {})
 			.then(json => {
 				if (!deepEqual(nodes, json.tree)) {
 					setNodes(json.tree)

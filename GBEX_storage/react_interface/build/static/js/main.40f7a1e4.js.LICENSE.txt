@@ -1,4 +1,4 @@
-/*! @viselect/react 3.1.0 MIT | https://github.com/Simonwep/selection */
+/*! @viselect/react 3.1.1 MIT | https://github.com/Simonwep/selection */
 
 /**
  * @license React

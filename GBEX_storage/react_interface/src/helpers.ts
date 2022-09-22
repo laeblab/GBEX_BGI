@@ -56,7 +56,7 @@ function isPrimitive(obj: any)
     return (obj !== Object(obj));
 }
 
-export function doApiCall(target: string|number, kind: string|null, method: "get"|"post"|"put"|"patch"|"delete", body: object): Promise<{[key: string]: any}> {
+export function doApiCall(target: string|number, kind: string|null, method: "GET"|"POST"|"PUT"|"PATCH"|"DELETE", body: object): Promise<{[key: string]: any}> {
     /* doApiCall
         target: Either id or url of target object, if there is no target (e.g. when you want to list Vials), then just pass an empty string and specify kind. If target is URL then you must pass "null" to kind
         kind: If target is an id then you must supply a model name here, if target is url (full or relative , then kind must be null
@@ -74,7 +74,7 @@ export function doApiCall(target: string|number, kind: string|null, method: "get
 
         if (kind !== null) { // if "kind" is null, then assume its id+kind style call
             url = "/api/" + kind + "/"
-            if (['patch', 'put', 'delete'].includes(method) || (method==="get" && String(target) !== "")) {
+            if (['patch', 'put', 'delete'].includes(method) || (method==="GET" && String(target) !== "")) {
                 url += target + "/"
             }
         }
@@ -85,7 +85,7 @@ export function doApiCall(target: string|number, kind: string|null, method: "get
             body: Object.keys(body).length === 0 ? null: JSON.stringify(body),
             headers: requestHeaders
         }).then(res => {
-            if (method !== 'delete') { // no return on delete
+            if (method !== 'DELETE') { // no return on delete
                 return res.json()
             }
         }).catch(error => console.log(error))

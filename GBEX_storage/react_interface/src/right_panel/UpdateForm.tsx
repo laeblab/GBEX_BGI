@@ -55,7 +55,7 @@ export default function UpdateForm(props: {selected_wells: Set<string>, link_mod
 			setEditModelInstances([])
 			setValue("specific_item", undefined)
 		} else {
-			doApiCall("/api/"+e, null, "get", {})
+			doApiCall("/api/"+e, null, "GET", {})
 				.then(r => {
 					setEditModelInstances(r as ModelInstance[])
 					if (initial && vial_content!==undefined) {
@@ -96,11 +96,11 @@ export default function UpdateForm(props: {selected_wells: Set<string>, link_mod
 			position: 'right',
 			accept: () => {
 				// delete the existing vials
-				Promise.all(vial_ids.map(e => {console.log(e.id);return doApiCall(String(e.id), "Vial", "delete", {})})).then(e => {
+				Promise.all(vial_ids.map(e => {console.log(e.id);return doApiCall(String(e.id), "Vial", "DELETE", {})})).then(e => {
 					// create new vials for all positions
 					// step 1: determine if a model is being linked or if this is a custom vial
 					const content_field = link_models.filter(v => v.model === data.pick_model)[0]?.field
-					Promise.all(Array.from(selected_wells).map(e => doApiCall("", "Vial", "post", {
+					Promise.all(Array.from(selected_wells).map(e => doApiCall("", "Vial", "POST", {
 						label: the_label,
 						description: data.description_text,
 						parent: window.location.href.split("/").slice(0,-2).join("/") + "/api/Box/" + box.id.split("_").at(-1) + "/",

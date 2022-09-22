@@ -32,7 +32,7 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 	useEffect(() => {
 		if (vial_ids.length === 1) {
 			const show_id = vial_ids[0].id
-			doApiCall("displayVial/"+show_id, null, "get", {})
+			doApiCall("displayVial/"+show_id, null, "GET", {})
 				.then(json => {
 					if (vial_content === undefined || !deepEqual(json, vial_content)) {
 						setVialContent(json as VialDisplay)
@@ -52,7 +52,7 @@ export default function MyEditor(props: {selected_wells: Set<string>, box: Box, 
 			header: 'Delete vials?',
 			icon: 'pi pi-exclamation-triangle',
 			position: 'right',
-			accept: () => { vial_ids.map(e => doApiCall(String(e.id), "Vial", "delete", {}).then(e => setStale(c => !c)))},
+			accept: () => { vial_ids.map(e => doApiCall(String(e.id), "Vial", "DELETE", {}).then(e => setStale(c => !c)))},
 		});
 	}
 

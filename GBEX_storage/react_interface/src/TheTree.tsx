@@ -28,14 +28,14 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 		setNewChild(false)
 		if (nameInput) {
 			const body = {name: nameInput, parent: treeKey.split('_').splice(1).join('_'), rows: 10, columns: 10}
-			doApiCall("", selectedNewType, "post", body).then(() => setStale(c => !c))
+			doApiCall("", selectedNewType, "POST", body).then(() => setStale(c => !c))
 		}
 	}
 
 	const doNameChange = () => {
 		setEditing("")
 		const [id, kind] = treeKey2kindNid()
-		if (nameInput) { doApiCall(id, kind, "patch", {name: nameInput}).then(() => setStale(c => !c))}
+		if (nameInput) { doApiCall(id, kind, "PATCH", {name: nameInput}).then(() => setStale(c => !c))}
 	}
 
 	const doBoxResize = () => {
@@ -58,10 +58,10 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 				header: 'Execute order 66?',
 				icon: 'pi pi-exclamation-triangle',
 				position: 'left',
-				accept: () => doApiCall(id, "Box", "patch", {rows: newBoxSize[0], columns: newBoxSize[1]}).then(() => setStale(c => !c)),
+				accept: () => doApiCall(id, "Box", "PATCH", {rows: newBoxSize[0], columns: newBoxSize[1]}).then(() => setStale(c => !c)),
 			});
 		} else {
-			doApiCall(id, "Box", "patch", {rows: newBoxSize[0], columns: newBoxSize[1]}).then(() => setStale(c => !c))
+			doApiCall(id, "Box", "PATCH", {rows: newBoxSize[0], columns: newBoxSize[1]}).then(() => setStale(c => !c))
 		}
 
 		setEditing("")
@@ -84,7 +84,7 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 			header: 'Execute order 66?',
 			icon: 'pi pi-exclamation-triangle',
 			position: 'left',
-			accept: () => {setBox(""); doApiCall(id, kind, "delete", {}).then(() => setStale(c => !c))},
+			accept: () => {setBox(""); doApiCall(id, kind, "DELETE", {}).then(() => setStale(c => !c))},
 		});
 	}
 
@@ -103,7 +103,7 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 				header: 'Change location?',
 				icon: 'pi pi-exclamation-triangle',
 				position: 'left',
-				accept: () => doApiCall(id, actual_kind, "patch", body).then(() => setStale(c => !c)),
+				accept: () => doApiCall(id, actual_kind, "PATCH", body).then(() => setStale(c => !c)),
 			});
 		}
 	}
