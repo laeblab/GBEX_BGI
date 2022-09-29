@@ -54,7 +54,7 @@ export default class MyEditor extends PureComponent<Props, State> {
 
   handleSubmit = (event: SyntheticEvent<Form>) => {
     fetch(this.state.updatelink, {
-      method: 'post',
+      method: 'POST',
       credentials: 'include',
       body: new FormData(event.currentTarget)})
       .then(response => response.json())

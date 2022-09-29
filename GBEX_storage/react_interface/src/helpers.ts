@@ -58,8 +58,9 @@ function isPrimitive(obj: any)
 
 export function doApiCall(target: string|number, kind: string|null, method: "GET"|"POST"|"PUT"|"PATCH"|"DELETE", body: object): Promise<{[key: string]: any}> {
     /* doApiCall
-        target: Either id or url of target object, if there is no target (e.g. when you want to list Vials), then just pass an empty string and specify kind. If target is URL then you must pass "null" to kind
-        kind: If target is an id then you must supply a model name here, if target is url (full or relative , then kind must be null
+        target: Either id or url of target object, if there is no target (e.g. when you want to list Vials),
+        then just pass an empty string and specify kind. If target is URL then you must pass "null" to kind.
+        If target is an id then you must supply a model name here, if target is url (full or relative , then kind must be null
         method: HTML get, post, patch or delete
         body: put, patch and post requires a body
      */

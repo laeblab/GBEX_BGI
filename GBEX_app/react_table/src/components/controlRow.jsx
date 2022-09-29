@@ -64,7 +64,7 @@ export default class ControlRow extends PureComponent<Props, State> {
     let colname = e.currentTarget.dataset.colname
 
     fetch(window.bulkedit_url, {
-      method: 'post',
+      method: 'POST',
       credentials: 'include',
       headers: myheaders,
       body: JSON.stringify({col: colname, rids: Array.from(this.props.rowsSelected)})
@@ -79,7 +79,7 @@ export default class ControlRow extends PureComponent<Props, State> {
     let new_form = new FormData(e.currentTarget)
     new_form.append("myextradata", JSON.stringify({col: this.state.currentColName, rids: Array.from(this.props.rowsSelected)}))
     fetch(window.bulkedit_url, {
-      method: 'post',
+      method: 'POST',
       credentials: 'include',
       body: new_form})
       .then(response => {
@@ -107,7 +107,7 @@ export default class ControlRow extends PureComponent<Props, State> {
     myheaders.append("Content-Type", "application/json")
     fetch(
         window.export_excel_url, {
-          method: 'post',
+          method: 'POST',
           credentials: 'include',
           headers: myheaders,
           body: JSON.stringify({rids: ids})
@@ -132,7 +132,7 @@ export default class ControlRow extends PureComponent<Props, State> {
     myheaders.append("Content-Type", "application/json")
     fetch(
         window.archive_url, {
-          method: 'post',
+          method: 'POST',
           credentials: 'include',
           headers: myheaders,
           body: JSON.stringify({rids: ids})
