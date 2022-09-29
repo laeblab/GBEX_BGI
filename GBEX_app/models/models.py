@@ -10,6 +10,7 @@ class Profile(models.Model):
 	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	table_settings = models.JSONField()
 
+
 # some defaults for quickly making GBEXModels
 default_order = ['id', 'name', 'responsible']
 default_widgets = {'Responsible': autocomplete.ModelSelect2(url=reverse_lazy('User-autocomplete')), }
@@ -53,17 +54,3 @@ class BaseOption(models.Model):
 	class Meta:
 		abstract = True
 		ordering = ['name']
-
-
-# model for batches. A GBEXModel can have an attached Batch model.
-# Each instance of the GBEXModel can have multiple batches.
-# These are intended to model multiple real life copies of a GBEXModel.
-# E.g. multiple vials with identical content, but different attributes like e.g. experiration date, location, etc.
-
-class AbstractBatch(GBEXModelBase):
-	# instanced of this need to have a foreignkey link to a GBEXModel
-	# Parent = models.ForeignKey(x, on_delete=models.PROTECT)
-	model_kind = "GBEX_Batch"  # indicate that this is a frontend item
-
-	class Meta:
-		abstract = True

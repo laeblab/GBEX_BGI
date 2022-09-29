@@ -7,13 +7,16 @@ from dal import autocomplete
 from GBEX_bigfiles.fields import ResumableFileField
 from GBEX_app.helpers import get_upload_path
 
-from GBEX_storage.helpers import pos_to_coord, location_labeling
+from GBEX_storage.helpers import location_labeling
 from GBEX_storage.models import Vial
 
-from .models import BaseOption, GBEXModelBase, AbstractBatch, default_order, default_widgets, default_readonly
+from .models import BaseOption, GBEXModelBase, default_order, default_widgets, default_readonly
 from .LabDocuments import SOP
 
 inventory_order = [*default_order, 'Usage']
+batch_order = [*default_order, 'Parent', 'BatchComment', 'Location', 'TubesLeft']
+batch_read_only = [*default_readonly, 'Parent', 'Location', 'TubesLeft']
+batch_col_display_func_dict = {'Location': location_labeling, 'TubesLeft': lambda x: x.Location.count()}
 
 
 class InventoryItem(GBEXModelBase):
@@ -21,6 +24,25 @@ class InventoryItem(GBEXModelBase):
 	menu_label = "Inventory"
 
 	order = inventory_order
+
+	class Meta:
+		abstract = True
+
+
+class Batch(GBEXModelBase):
+	"""
+	An item can have multiple batches.
+	E.g. multiple vials with identical content, but different attributes like e.g. expiration date, location, etc.
+	instances of this need to have a foreignkey link to a GBEXModel:
+	Parent = models.ForeignKey(x, on_delete=models.PROTECT)
+	"""
+	BatchComment = models.TextField(blank=True, null=True)
+	Location = models.ManyToManyField(Vial, blank=True)
+
+	model_kind = "GBEX_Batch"  # indicate that this is a frontend item
+	order = batch_order
+	col_read_only = batch_read_only
+	col_display_func_dict = batch_col_display_func_dict
 
 	class Meta:
 		abstract = True
@@ -53,18 +75,12 @@ class Plasmid(InventoryItem):
 	}
 
 
-class PlasmidBatch(AbstractBatch):
+class PlasmidBatch(Batch):
 	Parent = models.ForeignKey(Plasmid, on_delete=models.PROTECT)
-	Barcode = models.TextField(blank=True, null=True)
-	Location = models.ManyToManyField(Vial, blank=True)
 	SequenceVerified = models.BooleanField(default=False)
 
-	order = [*default_order, 'Location', 'Barcode', 'SequenceVerified', 'Parent']
+	order = [*batch_order, 'SequenceVerified']
 	symbol = "PL_Batch"
-
-	col_read_only = [*default_readonly, 'Parent', 'Location']
-	col_html_string = ['Location']
-	col_display_func_dict = {'Location': location_labeling,}
 
 
 class Primers(InventoryItem):
@@ -73,11 +89,11 @@ class Primers(InventoryItem):
 	Conc = models.PositiveIntegerField("Conc (uM)", blank=True, null=True)
 	Location = models.ManyToManyField(Vial, blank=True)
 
-	order = [*inventory_order, "Sequence", 'Tm', 'Conc', "Location"]
+	order = [*inventory_order, "Sequence", 'Tm', 'Conc', "Location", 'TubesLeft']
 	symbol = "PR"
-	col_read_only = [*default_readonly, 'Location']
+	col_read_only = [*default_readonly, 'Location', 'TubesLeft']
 	col_html_string = ['Location']
-	col_display_func_dict = {'Location': location_labeling, }
+	col_display_func_dict = {'Location': location_labeling, 'TubesLeft': lambda x: x.Location.count()}
 
 
 class SpeciesOption(BaseOption):
@@ -124,17 +140,9 @@ class Strain(InventoryItem):
 	col_read_only = [*default_readonly, 'Batches']
 
 
-class StrainBatch(AbstractBatch):
+class StrainBatch(Batch):
 	Parent = models.ForeignKey(Strain, on_delete=models.PROTECT)
-	Location = models.ManyToManyField(Vial, blank=True)
-	Barcode = models.TextField(blank=True, null=True)
-	TubesLeft = models.PositiveIntegerField(blank=True, null=True)
-
-	order = [*default_order, 'TubesLeft', 'Barcode', 'Location', 'Parent']
 	symbol = "ST_Batch"
-	col_html_string = ['Location']
-	col_display_func_dict = {'Location': location_labeling, }
-	col_read_only = [*default_readonly, 'Parent', 'Location']
 
 
 class CellLine(InventoryItem):
@@ -164,24 +172,17 @@ class CellLine(InventoryItem):
 	col_read_only = [*default_readonly, 'Batches']
 
 
-class CellLineBatch(AbstractBatch):
+class CellLineBatch(Batch):
 	Parent = models.ForeignKey(CellLine, on_delete=models.PROTECT)
-	Location = models.ManyToManyField(Vial, blank=True)
-	Barcode = models.TextField(blank=True, null=True)
-	TubesLeft = models.PositiveIntegerField(blank=True, null=True)
 	Mycoplasma = models.DateField(blank=True, null=True)
 
-	order = [*default_order, 'Location', 'Barcode', 'TubesLeft', 'Mycoplasma', 'Parent']
+	order = [*batch_order, 'Mycoplasma']
 	symbol = "CL_Batch"
-
-	col_read_only = [*default_readonly, 'Parent', 'Location']
-	col_html_string = ['Location']
 
 	widgets = {
 		**default_widgets,
 		"Mycoplasma": DateInput(attrs={'data-isdate': "yes"})
 	}
-	col_display_func_dict = {'Location': location_labeling, }
 
 
 class CultureMedia(InventoryItem):
@@ -204,17 +205,9 @@ class CultureMedia(InventoryItem):
 	col_read_only = [*default_readonly, 'Batches']
 
 
-class CultureMediaBatch(AbstractBatch):
+class CultureMediaBatch(Batch):
 	Parent = models.ForeignKey(CultureMedia, on_delete=models.PROTECT)
-	Location = models.ManyToManyField(Vial, blank=True)
-	Barcode = models.TextField(blank=True, null=True)
-
-	order = [*default_order, 'Location', 'Barcode', 'Parent']
 	symbol = "CM_Batch"
-
-	col_read_only = [*default_readonly, 'Parent', 'Location']
-	col_html_string = ['Location']
-	col_display_func_dict = {'Location': location_labeling, }
 
 
 class CRISPRoption(BaseOption):
@@ -232,11 +225,11 @@ class gRNA(InventoryItem):
 	PCRProduct = models.TextField(blank=True, null=True)
 	Location = models.ManyToManyField(Vial, blank=True)
 
-	order = [*inventory_order, 'CRISPR_enzyme', 'TargetSpecies', 'TargetGenome', 'TargetSequence', 'FullOligoSequence', 'TargetFwdPrimer', 'TargetRevPrimer', 'PCRProduct', 'Location']
+	order = [*inventory_order, 'CRISPR_enzyme', 'TargetSpecies', 'TargetGenome', 'TargetSequence', 'FullOligoSequence', 'TargetFwdPrimer', 'TargetRevPrimer', 'PCRProduct', 'Location', 'TubesLeft']
 	symbol = "gRNA"
 	col_read_only = [*default_readonly, 'Parent', 'Location']
 	col_html_string = ['Location']
-	col_display_func_dict = {'Location': location_labeling, }
+	col_display_func_dict = {'Location': location_labeling, 'TubesLeft': lambda x: x.Location.count()}
 	widgets = {
 		**default_widgets,
 		'CRISPR_enzyme': autocomplete.ModelSelect2(url=reverse_lazy('CRISPRoption-autocomplete')),
@@ -305,19 +298,13 @@ class AntiGenBody(InventoryItem):
 	col_read_only = [*default_readonly, 'Batches']
 
 
-class AntiGenBodyBatch(AbstractBatch):
+class AntiGenBodyBatch(Batch):
 	Parent = models.ForeignKey(AntiGenBody, on_delete=models.PROTECT)
-	Location = models.ManyToManyField(Vial, blank=True)
-
 	ProductionCellLine = models.ForeignKey(CellLineBatch, blank=True, null=True, on_delete=models.PROTECT)
-	order = [*default_order, 'Location', 'ProductionCellLine', 'Parent']
+	order = [*batch_order, 'ProductionCellLine']
 	symbol = "ABAG_Batch"
 
 	widgets = {
 		**default_widgets,
 		'ProductionCellLine': autocomplete.ModelSelect2(url=reverse_lazy('CellLineBatch-autocomplete')),
 	}
-
-	col_read_only = [*default_readonly, 'Parent', 'Location']
-	col_html_string = ['Location']
-	col_display_func_dict = {'Location': location_labeling, }
