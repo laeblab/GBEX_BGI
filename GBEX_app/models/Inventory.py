@@ -92,7 +92,6 @@ class Primers(InventoryItem):
 	order = [*inventory_order, "Sequence", 'Tm', 'Conc', "Location", 'TubesLeft']
 	symbol = "PR"
 	col_read_only = [*default_readonly, 'Location', 'TubesLeft']
-	col_html_string = ['Location']
 	col_display_func_dict = {'Location': location_labeling, 'TubesLeft': lambda x: x.Location.count()}
 
 
@@ -228,7 +227,6 @@ class gRNA(InventoryItem):
 	order = [*inventory_order, 'CRISPR_enzyme', 'TargetSpecies', 'TargetGenome', 'TargetSequence', 'FullOligoSequence', 'TargetFwdPrimer', 'TargetRevPrimer', 'PCRProduct', 'Location', 'TubesLeft']
 	symbol = "gRNA"
 	col_read_only = [*default_readonly, 'Parent', 'Location']
-	col_html_string = ['Location']
 	col_display_func_dict = {'Location': location_labeling, 'TubesLeft': lambda x: x.Location.count()}
 	widgets = {
 		**default_widgets,
@@ -252,16 +250,16 @@ class Toxins(InventoryItem):
 	Vendor = models.ForeignKey(VendorOption, blank=True, null=True, on_delete=models.PROTECT)
 	Catalog_no = models.TextField("Catalog no.", blank=True, null=True)
 	Link = models.URLField(blank=True, null=True)
+	Location = models.ManyToManyField(Vial, blank=True)
 
-	order = [*inventory_order, 'Toxin', 'Abbreviation', 'Comment', 'Amount', 'Threshold', 'Conjugation', 'Source', 'Tag', 'Mw', 'Vendor', 'Catalog_no', 'Link']
+	order = [*inventory_order, 'Toxin', 'Abbreviation', 'Comment', 'Amount', 'Threshold', 'Conjugation', 'Source', 'Tag', 'Mw', 'Vendor', 'Catalog_no', 'Link', "Location", 'TubesLeft']
 	symbol = "TOX"
 
-	widgets = {
-		**default_widgets,
-		'Vendor': autocomplete.ModelSelect2(url=reverse_lazy('VendorOption-autocomplete')),
-	}
+	widgets = {**default_widgets, 'Vendor': autocomplete.ModelSelect2(url=reverse_lazy('VendorOption-autocomplete')),}
+	col_read_only = [*default_readonly, 'Location', 'TubesLeft']
 	col_display_func_dict = {
 		'Link': lambda item: f"<a href='{item.Link}' target='_blank' rel='noopener noreferrer'>{item.Link}</a>" if item.Link else "",
+		'Location': location_labeling, 'TubesLeft': lambda x: x.Location.count()
 	}
 	col_html_string = ['Link']
 
@@ -308,3 +306,16 @@ class AntiGenBodyBatch(Batch):
 		**default_widgets,
 		'ProductionCellLine': autocomplete.ModelSelect2(url=reverse_lazy('CellLineBatch-autocomplete')),
 	}
+
+
+class Phage(InventoryItem):
+	order = [*inventory_order, 'Batches']
+	col_display_func_dict = {'Batches': lambda item: f"<a href='{reverse('list_PhageBatch', kwargs=dict(parent_pk=item.pk))}'>{item.phagebatch_set.filter(archived=False).count()} batches</a>",}
+	col_html_string = ['Batches', ]
+	col_read_only = [*default_readonly, 'Batches']
+	symbol = "PH"
+
+
+class PhageBatch(Batch):
+	Parent = models.ForeignKey(Phage, on_delete=models.PROTECT)
+	symbol = "PH_Batch"
