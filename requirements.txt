@@ -1,38 +1,33 @@
 # basic django and backend
-django>=4.1.1,<5.0.0
+django>=4.1.3,<5.0.0
 django-decorator-include>=3.0,<4.0.0
-pymemcache>=3.5.2,<4.0.0
-psycopg2-binary>=2.9.3,<3.0.0
+pymemcache>=4.0.0,<5.0.0
+psycopg2-binary>=2.9.5,<3.0.0
 git+https://github.com/cfblaeb/django-sendfile.git
 
 # excel export
 openpyxl>=3.0.10,<4.0.0
 
 # server
-uwsgi>=2.0.20,<3.0.0
+uwsgi>=2.0.21,<3.0.0
 
 # django reversions
-django-reversion>=5.0.2,<6.0.0
+django-reversion>=5.0.4,<6.0.0
 django-reversion-compare>=0.15.0,<2.0.0
 
 # frontend
-# waiting for dal to be updated to 4.0.0 for django 4.0.0 compatability
 django-autocomplete-light>=3.9.4,<5.0.0
 django-widgets-improved>=1.5.0,<2.0.0
 
 # API access
-# waiting for drf to release django 4.0.0 compatible code
-djangorestframework>=3.13.1,<4.0.0
-#git+https://github.com/encode/django-rest-framework.git
+djangorestframework>=3.14.0,<4.0.0
 markdown>=3.4.1,<4.0.0
 django-filter==22.1
 drf-yasg2>=1.19.4,<2.0.0    # this is a fork of drf-yasg which appears abandoned
 packaging>=21.3,<22.0  # required by drf-yasg2
-drf-spectacular>=0.24.0, <1.0.0
-#duf needs update for django 4 compa
+drf-spectacular>=0.24.2, <1.0.0
 django-ufilter>=0.4.0,<1.0.0
-#git+https://github.com/Naartti/django-url-filter.git@patch-1
-django-crispy-forms>=1.13.0,<2.0.0
+django-crispy-forms>=1.14.0,<2.0.0
 
 # login
 django-auth-ldap>=4.1.0,<5.0.0

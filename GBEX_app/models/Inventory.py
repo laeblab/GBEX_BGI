@@ -43,6 +43,7 @@ class Batch(GBEXModelBase):
 	order = batch_order
 	col_read_only = batch_read_only
 	col_display_func_dict = batch_col_display_func_dict
+	col_html_string = ['Location']
 
 	class Meta:
 		abstract = True
@@ -93,6 +94,7 @@ class Primers(InventoryItem):
 	symbol = "PR"
 	col_read_only = [*default_readonly, 'Location', 'TubesLeft']
 	col_display_func_dict = {'Location': location_labeling, 'TubesLeft': lambda x: x.Location.count()}
+	col_html_string = ['Location']
 
 
 class SpeciesOption(BaseOption):
@@ -228,6 +230,7 @@ class gRNA(InventoryItem):
 	symbol = "gRNA"
 	col_read_only = [*default_readonly, 'Parent', 'Location']
 	col_display_func_dict = {'Location': location_labeling, 'TubesLeft': lambda x: x.Location.count()}
+	col_html_string = ['Location']
 	widgets = {
 		**default_widgets,
 		'CRISPR_enzyme': autocomplete.ModelSelect2(url=reverse_lazy('CRISPRoption-autocomplete')),
@@ -261,7 +264,7 @@ class Toxins(InventoryItem):
 		'Link': lambda item: f"<a href='{item.Link}' target='_blank' rel='noopener noreferrer'>{item.Link}</a>" if item.Link else "",
 		'Location': location_labeling, 'TubesLeft': lambda x: x.Location.count()
 	}
-	col_html_string = ['Link']
+	col_html_string = ['Link', 'Location']
 
 
 class AntiGenBodyoption(BaseOption):
