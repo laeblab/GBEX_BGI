@@ -7,3 +7,7 @@ class LDAPBIOBackend(LDAPBackend):
 
 class LDAPStudentBackend(LDAPBackend):
 	settings_prefix = "AUTH_LDAP_STUDENT_"
+
+
+class LDAPStudentBackend(LDAPBackend):
+	settings_prefix = "AUTH_LDAP_STUDENTMsc_"
