@@ -1,0 +1,1 @@
+Check if PrimeReact Tree filter correctly handles drag and drop events https://github.com/primefaces/primereact/issues/2450

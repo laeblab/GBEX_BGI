@@ -74,18 +74,16 @@ INSTALLED_APPS = [
 	'django.contrib.messages',
 	'django.contrib.staticfiles',
 	'crispy_forms',
-	'drf_spectacular',
 	'reversion',
 	'reversion_compare',
 	'widget_tweaks',
 	'rest_framework',
 	'rest_framework.authtoken',
-	'drf_yasg2',
 	'django_filters',
 	'GBEX_app.apps.GbexAppConfig',
 	'GBEX_bigfiles.apps.GbexBigfilesConfig',
 	'GBEX_storage.apps.GbexStorageConfig',
-
+	'drf_spectacular',
 ]
 
 #CORS_ALLOW_ALL_ORIGINS = True  # delete. Just here for react development
@@ -172,6 +170,16 @@ REST_FRAMEWORK = {
 		#'rest_framework.permissions.AllowAny',
 	),
 	'DEFAULT_FILTER_BACKENDS': ['django_ufilter.integrations.drf.DRFFilterBackend',], #'django_filters.rest_framework.DjangoFilterBackend']
+	'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+	'TITLE': 'GBEX API',
+	'DESCRIPTION': 'GoodBye EXcel',
+	'VERSION': '1.0.0',
+	'SERVE_INCLUDE_SCHEMA': False,
+	'SERVE_PUBLIC': False,
+	'SERVE_PERMISSIONS': ['rest_framework.permissions.IsAuthenticated'],
 }
 
 # logging setup

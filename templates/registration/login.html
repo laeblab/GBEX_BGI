@@ -49,33 +49,25 @@
 {% endblock %}
 
 {% block page_js_block %}
-    <script type="text/javascript" src="{% static 'js/three.min.js' %}"></script>
-    {% random_int 1 3 as randint %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
+    {% random_int 1 6 as randint %}
     {% if randint == 1 %}
-        <script type="text/javascript" src="{% static 'js/vanta.waves.min.js' %}"></script>
-        <script>
-            VANTA.WAVES({
-                el: "#background_div",
-                shininess: 77.00,
-                zoom: 2
-            })
-        </script>
+        <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.21/dist/vanta.waves.min.js"></script>
+        <script> VANTA.WAVES({el: "#background_div",}) </script>
     {% elif randint == 2 %}
-        <script type="text/javascript" src="{% static 'js/vanta.net.min.js' %}"></script>
-        <script>
-            VANTA.NET({
-              el: "#background_div",
-              maxDistance: 16.00
-            })
-        </script>
+        <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"></script>
+        <script> VANTA.NET({el: "#background_div",})</script>
     {% elif randint == 3 %}
-        <script type="text/javascript" src="{% static 'js/vanta.cells.min.js' %}"></script>
-        <script>
-            VANTA.CELLS({
-              el: "#background_div",
-              size: 3.20,
-              speed: 3.30
-            })
-        </script>
+        <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.cells.min.js"></script>
+        <script> VANTA.CELLS({ el: "#background_div", }) </script>
+    {% elif randint == 4 %}
+        <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.birds.min.js"></script>
+        <script>VANTA.BIRDS({ el: "#background_div",})</script>
+    {% elif randint == 5 %}
+        <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.fog.min.js"></script>
+        <script>VANTA.FOG({el: "#background_div",})</script>
+    {% elif randint == 6 %}
+        <script src="https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.clouds.min.js"></script>
+        <script>VANTA.CLOUDS({el: "#background_div",})</script>
     {% endif %}
 {% endblock %}

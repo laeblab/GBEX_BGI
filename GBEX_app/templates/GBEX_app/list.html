@@ -114,8 +114,15 @@
                     //its not select2
                     this_form_el.val(text_array[i]);
                     //check if it got set
-                    if (this_form_el.val() != text_array[i]) {
-                        alert("Line " + (i+1) + ": " + text_array[i] + ". Not valid value.")
+                    if (this_form_el.val() !== text_array[i]) {
+                        // if the above didnt work, its probably a select
+                        const sel_val = this_form_el.children().filter(function() {return this.text === text_array[i]}).val()
+                        this_form_el.val(sel_val);
+                        /* this doesnt work with values set on select...
+                        if (this_form_el.val() !== text_array[i]) {
+                            alert("Line " + (i + 1) + ": " + text_array[i] + ". Not valid value.")
+                        }
+                        */
                     }
                     /*
                     the above stopped working at some point...then I changed it to the below code.
