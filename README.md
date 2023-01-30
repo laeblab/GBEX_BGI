@@ -8,23 +8,25 @@
 * [ ] Create tests
 
 # Long todo
-* [ ] Update to Bootstrap 5 (maybe get rid of jquery or at least upgrade to latest) or consider switching to primereact
-* [ ] Consider switching to django channels
-* [ ] Move models col_display_func_dict into helpers.field_to_string for many2many fields
-* [ ] Make a custom thing to check on delete whether object is used in Many-to-many relation and if so, prevent deletion
-* [ ] Inform frontend how to sort each column (numbers/dates/strings)
-* [ ] Give frontend a "nice name" for columns
+* Front end:
+  * Get rid of react-virtualized (unmaintained and incompatible with newer versions of react). Maybe switch entirely to primereact
+  * Together with re-writing the main table viewer (due to react-virtualizde), consider switching to django channels for live updates
+  * Inform frontend how to sort each column (numbers/dates/strings)
+  * Give frontend a "nice name" for columns
+* Backend
+  * Move models col_display_func_dict into helpers.field_to_string for many2many fields
+  * Make a custom thing to check on delete whether object is used in Many-to-many relation and if so, prevent deletion
 
 # DTU BGI Instance  
-To deploy with LDAP support remember to install
+To deploy with LDAP support remember to install on server
 * libsasl2-dev  
 * libldap2-dev  
 
 
 ### What is this?
 This is a system for replacing excel based registration sheets with a web-based database backed solution.  
-It uses Django as the backend and a custom REACT based frontend.   
-You setup database models and then the system should be able to understand that and create GUI and API access to them.
+It uses Django as the backend and a React based frontend.   
+You set up database models and then the system should be able to understand that and create GUI and API access to them.
 
 ### Quickstart
 docker-compose up -d  
@@ -64,7 +66,7 @@ There are a few base models that should to be used:
 	   * GBEX_Page: This indicates that this is a frontend item
 	   * GBEX_Option: This is for a user controlled dictionary. A GBEX_Page model linked field (foreignkey/manytomany) where the user can add items.
 	   * GBEX_Batch: If a GBEX_Page model has batches enabled then this is that model =) 
-	* col_html_string: By default the react based frontend will just show a string, but columns in this list will be displayed as HTML e.g. to create hyperlinks
+	* col_html_string: By default the React based frontend will just show a string, but columns in this list will be displayed as HTML e.g. to create hyperlinks
 	* col_read_only: By default the GUI will attempt to get an edit widget from the backend, but not for columns in this list. Effectively this means that the frontend can't edit these fields.
 	* Warning about setting "Unique=True" on a field:
 	  * With field with Unique=True you cant directly use the "Number of new items" feature on the model create page.
@@ -74,7 +76,7 @@ There are a few base models that should to be used:
 
 
 ### Changelog
-* (next) changed API to hyperlinked models. Added storage module.
+* (30/01/2023) changed API to hyperlinked models. Added storage module.
 * (03/05/2021) Reverted bulk edit code.
 * (21/08/2020) Fixed bugs with row selection functions when too many rows were selected
 * (21/08/2020) Fixed various minor bugs in bulk edit
