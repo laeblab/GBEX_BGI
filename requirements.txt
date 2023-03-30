@@ -1,12 +1,12 @@
 # basic django and backend
-django>=4.1.5,<5.0.0
+django>=4.1.7,<5.0.0
 django-decorator-include>=3.0,<4.0.0
 pymemcache>=4.0.0,<5.0.0
 psycopg2-binary>=2.9.5,<3.0.0
 git+https://github.com/cfblaeb/django-sendfile.git
 
 # excel export
-openpyxl>=3.0.10,<4.0.0
+openpyxl>=3.1.2,<4.0.0
 
 # server
 uwsgi>=2.0.21,<3.0.0
@@ -21,13 +21,13 @@ django-widgets-improved>=1.5.0,<2.0.0
 
 # API access
 djangorestframework>=3.14.0,<4.0.0
-markdown>=3.4.1,<4.0.0
-django-filter==22.1
+markdown>=3.4.3,<4.0.0
+django-filter==23.1
 
-drf-spectacular>=0.25.1, <1.0.0
+drf-spectacular>=0.26.1, <1.0.0
 
 django-ufilter>=0.4.0,<1.0.0
-django-crispy-forms>=1.14.0,<2.0.0
+django-crispy-forms>=2.0,<3.0.0
 
 # login
-django-auth-ldap>=4.1.0,<5.0.0
+django-auth-ldap>=4.2.0,<5.0.0

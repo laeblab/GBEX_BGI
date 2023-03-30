@@ -50,17 +50,28 @@ AUTH_LDAP_STUDENT_GROUP_SEARCH = LDAPSearch("ou=SecurityGroups,ou=BIO,ou=DTUBase
 AUTH_LDAP_STUDENT_GROUP_TYPE = GroupOfNamesType()
 AUTH_LDAP_STUDENT_REQUIRE_GROUP = 'CN=BIO-PSBT-g-Biotherapeutic-Glycoeng-Immunology-41518,OU=SecurityGroups,OU=BIO,OU=DTUBasen,DC=win,DC=dtu,DC=dk'
 
-AUTH_LDAP_STUDENTMsc_SERVER_URI = "ldaps://win.dtu.dk"
-AUTH_LDAP_STUDENTMsc_USER_DN_TEMPLATE = 'cn=%(user)s,ou=STUDENTS,ou=DTUBaseUsers,dc=win,dc=dtu,dc=dk'
-AUTH_LDAP_STUDENTMsc_USER_ATTR_MAP = {"first_name": "givenName", "last_name": "sn", 'email': 'mail'}
-AUTH_LDAP_STUDENTMsc_BIND_AS_AUTHENTICATING_USER = True
-AUTH_LDAP_STUDENTMsc_GROUP_SEARCH = LDAPSearch("ou=SecurityGroups,ou=BIO,ou=DTUBasen,dc=win,dc=dtu,dc=dk",ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)")
-AUTH_LDAP_STUDENTMsc_GROUP_TYPE = GroupOfNamesType()
-AUTH_LDAP_STUDENTMsc_REQUIRE_GROUP = 'CN=BIO-PSBT-BGI-students-44259,OU=SecurityGroups,OU=BIO,OU=DTUBasen,DC=win,DC=dtu,DC=dk'
+#AUTH_LDAP_STUDENTMsc_SERVER_URI = "ldaps://win.dtu.dk"
+#AUTH_LDAP_STUDENTMsc_USER_DN_TEMPLATE = 'cn=%(user)s,ou=STUDENTS,ou=DTUBaseUsers,dc=win,dc=dtu,dc=dk'
+#AUTH_LDAP_STUDENTMsc_USER_ATTR_MAP = {"first_name": "givenName", "last_name": "sn", 'email': 'mail'}
+#AUTH_LDAP_STUDENTMsc_BIND_AS_AUTHENTICATING_USER = True
+#AUTH_LDAP_STUDENTMsc_GROUP_SEARCH = LDAPSearch("ou=SecurityGroups,ou=BIO,ou=DTUBasen,dc=win,dc=dtu,dc=dk",ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)")
+#AUTH_LDAP_STUDENTMsc_GROUP_TYPE = GroupOfNamesType()
+#AUTH_LDAP_STUDENTMsc_REQUIRE_GROUP = 'CN=BIO-PSBT-BGI-students-44259,OU=SecurityGroups,OU=BIO,OU=DTUBasen,DC=win,DC=dtu,DC=dk'
+
+LDAP_BGI_STUDENT_SERVER_URI = "ldaps://win.dtu.dk"
+LDAP_BGI_STUDENT_USER_DN_TEMPLATE = 'cn=%(user)s,ou=STUDENTS,ou=DTUBaseUsers,dc=win,dc=dtu,dc=dk'
+LDAP_BGI_STUDENT_USER_ATTR_MAP = {"first_name": "givenName", "last_name": "sn", 'email': 'mail'}
+LDAP_BGI_STUDENT_BIND_AS_AUTHENTICATING_USER = True
+LDAP_BGI_STUDENT_GROUP_SEARCH = LDAPSearch("ou=SecurityGroups,ou=BIO,ou=DTUBasen,dc=win,dc=dtu,dc=dk",ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)")
+LDAP_BGI_STUDENT_GROUP_TYPE = GroupOfNamesType()
+LDAP_BGI_STUDENT_REQUIRE_GROUP = 'CN=BIO-PSBT-BGI-students-44259,OU=SecurityGroups,OU=BIO,OU=DTUBasen,DC=win,DC=dtu,DC=dk'
+
 
 AUTHENTICATION_BACKENDS = (
 	'django.contrib.auth.backends.ModelBackend',
-	"GBEX.ldap_backends.LDAPBIOBackend", "GBEX.ldap_backends.LDAPStudentBackend"
+	"GBEX.ldap_backends.LDAPBIOBackend",
+	"GBEX.ldap_backends.LDAPStudentBackend",
+	"GBEX.ldap_backends.LDAPBGIStudentGround",
 )
 
 INSTALLED_APPS = [
@@ -93,7 +104,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
 	'django.middleware.security.SecurityMiddleware',
 	'django.contrib.sessions.middleware.SessionMiddleware',
-	#"corsheaders.middleware.CorsMiddleware",  # delete
+	#"corsheaders.middleware.CorsMiddleware",  # delete. Just for react developtment
 	'django.middleware.common.CommonMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
 	'django.contrib.auth.middleware.AuthenticationMiddleware',

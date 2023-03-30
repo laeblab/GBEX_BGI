@@ -9,5 +9,5 @@ class LDAPStudentBackend(LDAPBackend):
 	settings_prefix = "AUTH_LDAP_STUDENT_"
 
 
-class LDAPStudentBackend(LDAPBackend):
-	settings_prefix = "AUTH_LDAP_STUDENTMsc_"
+class LDAPBGIStudentGround(LDAPBackend):
+	settings_prefix = "LDAP_BGI_STUDENT_"

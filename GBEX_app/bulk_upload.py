@@ -6,7 +6,7 @@ from django.db.utils import IntegrityError
 from django.apps import apps
 
 from openpyxl import load_workbook, Workbook
-from openpyxl.writer.excel import save_virtual_workbook
+from tempfile import NamedTemporaryFile
 
 from GBEX_app.helpers import return_stripped
 
@@ -220,4 +220,10 @@ def bulk_import(excel_file, upload_type):
 
 			row_number += 1
 
-	return save_virtual_workbook(bad_book), total_bad_rows, return_messages, total_good_rows
+	# turn
+	with NamedTemporaryFile() as tmpf:
+		bad_book.save(tmpf.name)
+		tmpf.seek(0)
+		streamf = tmpf.read()
+
+	return streamf, total_bad_rows, return_messages, total_good_rows

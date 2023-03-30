@@ -13,10 +13,11 @@ from django.views.generic.edit import FormView
 from django.urls import reverse
 
 from json import loads
+from tempfile import NamedTemporaryFile
+
 from openpyxl import Workbook
 from openpyxl.utils import get_column_letter, units
 from openpyxl.worksheet.table import Table, TableStyleInfo
-from openpyxl.writer.excel import save_virtual_workbook
 
 from dal_select2.views import Select2QuerySetView
 
@@ -267,8 +268,13 @@ class ExcelExportView(View):
 						if col_name in cws:
 							ws.column_dimensions[get_column_letter(i + 1)].width = units.pixels_to_points(cws[col_name]) / 6
 
+		with NamedTemporaryFile() as tmpf:
+			wb.save(tmpf.name)
+			tmpf.seek(0)
+			streamf = tmpf.read()
+
 		response = HttpResponse(
-			save_virtual_workbook(wb),
+			streamf,
 			content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 		response['Content-Disposition'] = 'attachment; filename="export.xlsx"'
 		return response
