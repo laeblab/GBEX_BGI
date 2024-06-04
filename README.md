@@ -76,6 +76,8 @@ There are a few base models that should to be used:
 
 
 ### Changelog
+* (04/06/2024) We changed section name which means active directory name change which means access groups needs to be changed
+  * Also updated python packages to latest versions.
 * (30/01/2023) changed API to hyperlinked models. Added storage module.
 * (03/05/2021) Reverted bulk edit code.
 * (21/08/2020) Fixed bugs with row selection functions when too many rows were selected
