@@ -3,8 +3,9 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from sendfile.core import sendfile
+from django.core.files.storage import storages
 
-from .files import ResumableFile, get_storage
+from .files import ResumableFile
 from django.views.decorators.csrf import csrf_exempt
 from GBEX_app.helpers import validate_user, get_upload_path
 
@@ -13,7 +14,7 @@ from GBEX_app.helpers import validate_user, get_upload_path
 def resumable_upload(request):
 	validate_user(request)
 
-	storage = get_storage(request)
+	storage = storages['RESUMABLE_STORAGE']
 	if request.method == 'POST':
 		chunk = request.FILES.get('file')
 		r = ResumableFile(storage, request.POST)
@@ -36,7 +37,7 @@ def resumable_upload(request):
 
 
 def download_file(request, model, inst_name, filename):
-	validate_user(request)  # check if its a authenticated user/token
+	validate_user(request)  # check if it's an authenticated user/token
 	model_object = apps.get_model(app_label="GBEX_app", model_name=model)
 	model_filter = model_object.objects.filter(name=inst_name)
 	if model_filter.exists():

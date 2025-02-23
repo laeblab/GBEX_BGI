@@ -1,7 +1,5 @@
 import os
-from urllib.parse import urljoin
 from django.conf import settings
-from django.core.files.storage import get_storage_class
 from django.utils.text import get_valid_filename
 
 
@@ -30,7 +28,10 @@ class ResumableFile:
 		files = sorted(self.storage.listdir('')[1])
 		for f in files:
 			if f.startswith(f'{self.filename}{self.chunk_suffix}'):
-				yield self.storage.open(f, 'rb').read()
+				fr = self.storage.open(f, 'rb')
+				fileread = fr.read()
+				fr.close()
+				yield fileread
 
 	def delete_chunks(self):
 		[self.storage.delete(chunk) for chunk in self.chunk_names]
@@ -68,29 +69,5 @@ def ensure_dir(f):
 	d = os.path.dirname(f)
 	os.makedirs(d, exist_ok=True)
 
-
 def get_chunks_subdir():
 	return getattr(settings, 'RESUMABLE_SUBDIR', 'resumable_chunks/')
-
-
-def get_storage(request):
-	"""
-	Looks at the ADMIN_RESUMABLE_STORAGE setting and returns
-	an instance of the storage class specified.
-
-	Defaults to django.core.files.storage.FileSystemStorage.
-
-	Any custom storage class used here must either be a subclass of
-	django.core.files.storage.FileSystemStorage, or accept a location
-	init parameter.
-	"""
-	chunks_upload_to = get_chunks_subdir()
-	location = os.path.join(settings.MEDIA_ROOT, chunks_upload_to)
-	url_path = urljoin(settings.MEDIA_URL, chunks_upload_to)
-	ensure_dir(location)
-	storage_class_name = getattr(
-		settings,
-		'RESUMABLE_STORAGE',
-		'django.core.files.storage.FileSystemStorage'
-	)
-	return get_storage_class(storage_class_name)(location=location, base_url=url_path)

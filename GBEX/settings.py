@@ -1,23 +1,24 @@
-import os
-import logging
+from pathlib import Path
+from os import environ
+from logging import getLogger
+from urllib.parse import urljoin
 
-import django.core.cache.backends.memcached
-import ldap
-import rest_framework.permissions
+from ldap import OPT_X_TLS_REQUIRE_CERT, OPT_X_TLS_NEVER, SCOPE_SUBTREE
 from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
+
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 ADD_REVERSION_ADMIN = True  # Django Reversion
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SECRET_KEY = os.environ.get('SECRET_KEY')
-ALLOWED_HOSTS = os.environ.get('DOMAIN').split(",")
+SECRET_KEY = environ.get('SECRET_KEY')
+ALLOWED_HOSTS = environ.get('DOMAIN').split(",")
 
-if os.environ.get('DEV_PROD') == 'local_dev':
+if environ.get('DEV_PROD') == 'local_dev':
 	DEBUG = True
 	CSRF_COOKIE_SECURE = False
 	SESSION_COOKIE_SECURE = False
 	SENDFILE_BACKEND = 'sendfile.backends.development'
-elif os.environ.get('DEV_PROD') == 'docker_dev':
+elif environ.get('DEV_PROD') == 'docker_dev':
 	DEBUG = True
 	CSRF_COOKIE_SECURE = False
 	SESSION_COOKIE_SECURE = False
@@ -32,13 +33,13 @@ else:
 LOGIN_URL = '/accounts/login/'
 LOGOUT_REDIRECT_URL = '/'
 
-AUTH_LDAP_GLOBAL_OPTIONS = {ldap.OPT_X_TLS_REQUIRE_CERT: ldap.OPT_X_TLS_NEVER,}  # AIT uses a self-signed certificate, so certificate authentication is not possible
+AUTH_LDAP_GLOBAL_OPTIONS = {OPT_X_TLS_REQUIRE_CERT: OPT_X_TLS_NEVER,}  # AIT uses a self-signed certificate, so certificate authentication is not possible
 
 AUTH_LDAP_BIO_SERVER_URI = "ldaps://win.dtu.dk"
 AUTH_LDAP_BIO_USER_DN_TEMPLATE = 'CN=%(user)s,OU=BIO,OU=DTUBaseUsers,DC=win,DC=dtu,DC=dk'
 AUTH_LDAP_BIO_USER_ATTR_MAP = {"first_name": "givenName", "last_name": "sn", 'email': 'mail'}
 AUTH_LDAP_BIO_BIND_AS_AUTHENTICATING_USER = True
-AUTH_LDAP_BIO_GROUP_SEARCH = LDAPSearch("ou=SecurityGroups,ou=BIO,ou=DTUBasen,dc=win,dc=dtu,dc=dk",ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)")
+AUTH_LDAP_BIO_GROUP_SEARCH = LDAPSearch("ou=SecurityGroups,ou=BIO,ou=DTUBasen,dc=win,dc=dtu,dc=dk",SCOPE_SUBTREE, "(objectClass=groupOfNames)")
 AUTH_LDAP_BIO_GROUP_TYPE = GroupOfNamesType()
 AUTH_LDAP_BIO_REQUIRE_GROUP = 'CN=BIO-MBT-g-Biotherapeutic-Glycoeng-Immunology-41518,OU=SecurityGroups,OU=BIO,OU=DTUBasen,DC=win,DC=dtu,DC=dk'
 
@@ -46,7 +47,7 @@ AUTH_LDAP_STUDENT_SERVER_URI = "ldaps://win.dtu.dk"
 AUTH_LDAP_STUDENT_USER_DN_TEMPLATE = 'cn=%(user)s,ou=STUDENTS,ou=DTUBaseUsers,dc=win,dc=dtu,dc=dk'
 AUTH_LDAP_STUDENT_USER_ATTR_MAP = {"first_name": "givenName", "last_name": "sn", 'email': 'mail'}
 AUTH_LDAP_STUDENT_BIND_AS_AUTHENTICATING_USER = True
-AUTH_LDAP_STUDENT_GROUP_SEARCH = LDAPSearch("ou=SecurityGroups,ou=BIO,ou=DTUBasen,dc=win,dc=dtu,dc=dk",ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)")
+AUTH_LDAP_STUDENT_GROUP_SEARCH = LDAPSearch("ou=SecurityGroups,ou=BIO,ou=DTUBasen,dc=win,dc=dtu,dc=dk",SCOPE_SUBTREE, "(objectClass=groupOfNames)")
 AUTH_LDAP_STUDENT_GROUP_TYPE = GroupOfNamesType()
 AUTH_LDAP_STUDENT_REQUIRE_GROUP = 'CN=BIO-MBT-g-Biotherapeutic-Glycoeng-Immunology-41518,OU=SecurityGroups,OU=BIO,OU=DTUBasen,DC=win,DC=dtu,DC=dk'
 
@@ -62,7 +63,7 @@ LDAP_BGI_STUDENT_SERVER_URI = "ldaps://win.dtu.dk"
 LDAP_BGI_STUDENT_USER_DN_TEMPLATE = 'cn=%(user)s,ou=STUDENTS,ou=DTUBaseUsers,dc=win,dc=dtu,dc=dk'
 LDAP_BGI_STUDENT_USER_ATTR_MAP = {"first_name": "givenName", "last_name": "sn", 'email': 'mail'}
 LDAP_BGI_STUDENT_BIND_AS_AUTHENTICATING_USER = True
-LDAP_BGI_STUDENT_GROUP_SEARCH = LDAPSearch("ou=SecurityGroups,ou=BIO,ou=DTUBasen,dc=win,dc=dtu,dc=dk",ldap.SCOPE_SUBTREE, "(objectClass=groupOfNames)")
+LDAP_BGI_STUDENT_GROUP_SEARCH = LDAPSearch("ou=SecurityGroups,ou=BIO,ou=DTUBasen,dc=win,dc=dtu,dc=dk",SCOPE_SUBTREE, "(objectClass=groupOfNames)")
 LDAP_BGI_STUDENT_GROUP_TYPE = GroupOfNamesType()
 LDAP_BGI_STUDENT_REQUIRE_GROUP = 'CN=BIO-MBT-BGI-students-44259,OU=SecurityGroups,OU=BIO,OU=DTUBasen,DC=win,DC=dtu,DC=dk'
 
@@ -139,10 +140,10 @@ WSGI_APPLICATION = 'GBEX.wsgi.application'
 DATABASES = {
 	'default': {
 		'ENGINE': 'django.db.backends.postgresql',  # postgresql is, as far as I know, the only django supported db that has json fields
-		'NAME': os.environ.get('DB_NAME'),
-		'USER': os.environ.get('DB_USER'),
-		'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-		'HOST': os.environ.get('DB_HOST'),
+		'NAME': environ.get('DB_NAME'),
+		'USER': environ.get('DB_USER'),
+		'PASSWORD': environ.get('POSTGRES_PASSWORD'),
+		'HOST': environ.get('DB_HOST'),
 	},
 }
 
@@ -159,10 +160,30 @@ USE_I18N = False
 USE_TZ = True
 DATE_FORMAT = 'c'
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, "shared/static")
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
-SENDFILE_ROOT = MEDIA_ROOT = os.environ.get('UPLOAD_PERMANENT_LOCATION')
+STATIC_ROOT = BASE_DIR / "shared/static"
+STATICFILES_DIRS = (BASE_DIR / "static",)
+SENDFILE_ROOT = MEDIA_ROOT = environ.get('UPLOAD_PERMANENT_LOCATION')
 SENDFILE_URL = "/protected"
+
+RESUMABLE_SUBDIR = 'resumable_chunks/'
+MEDIA_URL = ''  # This is the default value and I just have it because I use it for resumable storage in case I want to change it
+
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+	"RESUMABLE_STORAGE": {
+		"BACKEND": "django.core.files.storage.FileSystemStorage",
+		"OPTIONS": {
+			"location": Path(MEDIA_ROOT) / RESUMABLE_SUBDIR,
+			"base_url": urljoin(MEDIA_URL, RESUMABLE_SUBDIR),
+		},
+	},
+}
+
 
 CACHES = {
 	'default': {
@@ -194,7 +215,7 @@ SPECTACULAR_SETTINGS = {
 }
 
 # logging setup
-log = logging.getLogger(__name__)
+log = getLogger(__name__)
 min_level = 'WARNING'
 min_django_level = 'WARNING'
 
@@ -220,7 +241,7 @@ LOGGING = {
 			# optionally raise to INFO to not fill the log file too quickly
 			'level': min_level,  # this level or higher goes to the log file
 			'class': 'logging.handlers.RotatingFileHandler',
-			'filename': f'{os.environ.get("LOG_ROOT")}/django.log',
+			'filename': f'{environ.get("LOG_ROOT")}/django.log',
 			'maxBytes': 50 * 10 ** 6,  # will 50 MB do?
 			'backupCount': 3,  # keep this many extra historical files
 			'formatter': 'timestampthread'
@@ -242,3 +263,8 @@ LOGGING = {
 		},
 	},
 }
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

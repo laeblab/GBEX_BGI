@@ -1,4 +1,4 @@
-FROM python:3.8
+FROM python:3.13
 ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED 1
 RUN apt-get update && apt-get install -y memcached
