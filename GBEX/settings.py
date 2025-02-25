@@ -96,6 +96,7 @@ INSTALLED_APPS = [
 	'GBEX_bigfiles.apps.GbexBigfilesConfig',
 	'GBEX_storage.apps.GbexStorageConfig',
 	'drf_spectacular',
+	'GBEX_eln.apps.GbexElnConfig',
 ]
 
 #CORS_ALLOW_ALL_ORIGINS = True  # delete. Just here for react development

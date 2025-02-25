@@ -4,7 +4,6 @@
 * [ ] Consider option for viewing locations if there are more than 3 locations (then it won't fit in the box)
 * [ ] Check CSS of storage navbar middle title thingy. It's slightly higher than on non storage pages
 * [ ] Consider making location labels into links...
-* [ ] Recreate Django app to get the latest default settings.py
 * [ ] Create tests
 
 # Long todo
@@ -44,7 +43,7 @@ Then you should be able to visit:
   * Nearly all changes of a custom GBEX instance should be made to "GBEX_app/models"
   * Also the (hidden) files .env and .env_not_docker may need to be adjusted  
 
-There are a few base models that should to be used:
+There are a few base models that should be used:
 * Profile in "GBEX_app/models/models.py"
   * This model is used to attach a required "table_settings" json object that is used by the frontend to save personalized user settings
 * BaseOption
