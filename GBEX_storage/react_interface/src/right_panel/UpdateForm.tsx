@@ -4,7 +4,7 @@ import { InputText } from 'primereact/inputtext'
 import { Button } from 'primereact/button';
 import { Dropdown } from "primereact/dropdown";
 import { Card } from "primereact/card";
-import {AutoComplete, AutoCompleteCompleteMethodParams} from "primereact/autocomplete";
+import {AutoComplete, AutoCompleteCompleteEvent} from "primereact/autocomplete";
 import {classNames} from "primereact/utils";
 import {doApiCall} from "../helpers";
 import {VialDisplay} from "./TheEditor"
@@ -41,7 +41,7 @@ export default function UpdateForm(props: {selected_wells: Set<string>, link_mod
 	const {setValue, control, watch, handleSubmit, formState: {errors}} = useForm<Inputs>({defaultValues})
 	const picked_model = watch("pick_model")
 
-	const search_model_instance = (event: AutoCompleteCompleteMethodParams) => {
+	const search_model_instance = (event: AutoCompleteCompleteEvent) => {
 		let _filteredIds: ModelInstance[];
 		if (editModelInstances !== undefined) {
 			_filteredIds = editModelInstances.filter((i) => i.name.toLowerCase().includes(event.query.toLowerCase()))

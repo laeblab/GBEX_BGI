@@ -1,5 +1,5 @@
 import React, { Dispatch, SetStateAction, useMemo } from 'react';
-import SelectionArea, { SelectionEvent } from '@viselect/react';
+import {SelectionArea, SelectionEvent} from '@viselect/react';
 import { Box, Vial } from "./App"
 
 

@@ -3,7 +3,7 @@ import TheTree from './TheTree'
 import TheBox from './TheBox'
 import TheEditor from './right_panel/TheEditor'
 import useDimensions from "react-cool-dimensions"
-import TreeNode from "primereact/treenode"
+import { TreeNode } from "primereact/treenode"
 import { climb_tree, doApiCall, deepEqual } from "./helpers"
 import { Splitter, SplitterPanel } from 'primereact/splitter'
 import { Card } from 'primereact/card'
@@ -69,7 +69,7 @@ export default function App() {
 	return <>
 		<ConfirmDialog />
 		<Splitter id="storage_root" gutterSize={10}>
-			<SplitterPanel>
+			<SplitterPanel size={15}>
 				<TheTree nodes={nodes} setBox={setBoxFromId} setStale={setStale}/>
 			</SplitterPanel>
 			<SplitterPanel style={{overflowX: "hidden", overflowY: "auto"}}>
@@ -79,7 +79,7 @@ export default function App() {
 					</div>
 				}
 			</SplitterPanel>
-			<SplitterPanel>
+			<SplitterPanel className="flex flex-column">
 				{(selected_wells.size===0 || box===undefined) ?
 					<Card style={{margin:"25%", textAlign: "center"}}>No vial selected</Card> :
 					<TheEditor selected_wells={selected_wells} box={box} link_models={link_models} setStale={setStale}/>

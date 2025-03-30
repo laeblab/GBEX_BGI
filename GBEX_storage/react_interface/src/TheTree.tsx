@@ -1,6 +1,6 @@
 import React, { Dispatch, SetStateAction, useState } from 'react';
-import { Tree, TreeDragDropParams, TreeNodeTemplateOptions } from 'primereact/tree';
-import TreeNode from "primereact/treenode";
+import { Tree, TreeDragDropEvent, TreeNodeTemplateOptions } from 'primereact/tree';
+import { TreeNode } from "primereact/treenode";
 import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
@@ -88,7 +88,7 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 		});
 	}
 
-	const doParentChange = (e: TreeDragDropParams) => {
+	const doParentChange = (e: TreeDragDropEvent) => {
 		let [kind, id] = String(e.dragNode.key).split('_')  // tree keys are "Box_id" or "Loc_id"
 		const actual_kind = kind === 'box' ? "Box" : "Location"
 		if (e.dropNode || kind === 'loc') { // check if we have a parent and if we DONT then only allow locations to be dropped there
@@ -137,9 +137,14 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 					</div>)
 			} else if (newChild) {
 				return (
+					<div onClick={(e) => e.stopPropagation()}>
 					<div className="p-formgroup-inline">
 						<div className="p-field">
-							<Dropdown value={{name: selectedNewType, code: selectedNewType}} options={[{name: "Box", code: "Box"}, {name: "Location", code: "Location"}]} optionLabel="name" onChange={e => setSelectedNewType(e.value.name)} />
+							<Dropdown
+								value={{name: selectedNewType, code: selectedNewType}}
+								options={[{name: "Box", code: "Box"}, {name: "Location", code: "Location"}]} optionLabel="name"
+								onChange={e => setSelectedNewType(e.value.name)}
+							/>
 						</div>
 						<div className="p-field">
 							<div className="p-inputgroup">
@@ -148,6 +153,7 @@ export default function TheTree(props:{nodes: TreeNode[], setBox: (box_id: strin
 								<Button onClick={() => setNewChild(false)} icon="pi pi-times" className="p-button-danger"/>
 							</div>
 						</div>
+					</div>
 					</div>)
 			} else {
 				return (

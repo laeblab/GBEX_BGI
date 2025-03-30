@@ -24,10 +24,12 @@ code {
 
 #storage_root, #box_observer_root{
     height: 100%;
+    width: 100%;
 }
 
 .p-tree {
     height: 100%;
+    width: 100%;
 }
 
 .p-tree-container {

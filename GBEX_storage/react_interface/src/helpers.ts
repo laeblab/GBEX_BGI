@@ -1,4 +1,4 @@
-import TreeNode from "primereact/treenode";
+import { TreeNode } from "primereact/treenode";
 
 export function climb_tree(qq: TreeNode[], key: string) : TreeNode|undefined {
     for (const e of qq) {
