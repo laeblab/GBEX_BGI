@@ -1,0 +1,36 @@
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+}
+
+body {
+    display: flex;
+    flex-flow: column nowrap;
+}
+
+#navbar {
+	flex: 0 0 auto;
+}
+
+#root {
+  	flex: 1 1 auto;
+}
+
+#eln {
+    display: flex;
+    flex-flow: row nowrap;
+    height: 100%;
+}
+
+#sidebar {
+    flex: 0 0 auto;
+    height: 100%;
+    width: 100px;
+}
+
+#right {
+    flex: 1 1 auto;
+    height: 100%;
+    min-width: 0;
+}
